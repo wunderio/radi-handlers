@@ -1,7 +1,0 @@
-#!/bin/bash
-set -e
-
-echo "  --> Applying go formatting (gofmt) to the entire application"
-
-# goftm all the things
-find . -iname "*.go" -exec gofmt -w {} \;
