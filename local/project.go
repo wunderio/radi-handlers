@@ -6,8 +6,10 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
+
+	jn_init "github.com/james-nesbitt/init-go"
+
 	"github.com/james-nesbitt/kraut-handlers/bytesource"
-	"github.com/james-nesbitt/kraut-handlers/local/initialize"
 	"github.com/james-nesbitt/kraut-api/operation"
 	"github.com/james-nesbitt/kraut-api/operation/project"
 )
@@ -34,10 +36,86 @@ func (handler *LocalHandler_Project) Init() operation.Result {
 	ops := operation.Operations{}
 
 	// Now we can add project operations that use that Base class
+	ops.Add(operation.Operation(&LocalProjectInitOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 	ops.Add(operation.Operation(&LocalProjectCreateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 	ops.Add(operation.Operation(&LocalProjectGenerateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 
 	handler.operations = &ops
+
+	return operation.Result(&result)
+}
+
+/**
+ * Operation to initialize the current project as a kraut project
+ */
+
+type LocalProjectInitOperation struct {
+	project.ProjectInitOperation
+	bytesource.BaseBytesourceFilesettingsOperation
+
+	properties   *operation.Properties
+	fileSettings bytesource.BytesourceFileSettings
+}
+
+// Id the operation
+func (init *LocalProjectInitOperation) Id() string {
+	return "local."+init.ProjectInitOperation.Id()
+}
+
+// Description for the LocalProjectCreateOperation
+func (init *LocalProjectInitOperation) Description() string {
+	return "Initialize the current project path as a kraut project."
+}
+
+// Validate the operation
+func (init *LocalProjectInitOperation) Validate() bool {
+	return true
+}
+
+
+// Get properties
+func (init *LocalProjectInitOperation) Properties() *operation.Properties {
+	if init.properties == nil {
+		init.properties = &operation.Properties{}
+
+		init.properties.Add(operation.Property(&project.ProjectInitDemoModeProperty{}))
+
+		init.properties.Merge(*init.BaseBytesourceFilesettingsOperation.Properties())
+
+		if fileSettingsProp, exists := init.properties.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+			fileSettingsProp.Set(init.fileSettings)
+		}
+	}
+	return init.properties
+}
+
+// Execute the local project init operation
+func (init *LocalProjectInitOperation) Exec() operation.Result {
+	result := operation.BaseResult{}
+	result.Set(true, nil)
+
+	props := init.Properties()
+	demoModeProp, _ := props.Get(project.OPERATION_PROPERTY_PROJECT_INIT_DEMOMODE)
+	settingsProp, _ := props.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+
+	demoMode := demoModeProp.Get().(bool)
+
+	source := "https://raw.githubusercontent.com/james-nesbitt/kraut-handlers/master/local/template/minimal-init.yml"
+	if demoMode {
+		source = "https://raw.githubusercontent.com/james-nesbitt/kraut-handlers/master/local/template/demo-init.yml"
+	}
+
+	settings := settingsProp.Get().(bytesource.BytesourceFileSettings)
+
+	log.WithFields(log.Fields{"source": source, "root": settings.ProjectRootPath}).Info("Running YML processer")
+
+	tasks := jn_init.InitTasks{}
+	tasks.Init(settings.ProjectRootPath)
+	if !tasks.Init_Yaml_Run(source) {
+		result.Set(false, []error{errors.New("YML Generator failed")})
+	} else {
+		tasks.RunTasks()
+	}	
 
 	return operation.Result(&result)
 }
@@ -101,7 +179,7 @@ func (create *LocalProjectCreateOperation) Exec() operation.Result {
 
 	log.WithFields(log.Fields{"source": source, "root": settings.ProjectRootPath}).Info("Running YML processer")
 
-	tasks := initialize.InitTasks{}
+	tasks := jn_init.InitTasks{}
 	tasks.Init(settings.ProjectRootPath)
 	if !tasks.Init_Yaml_Run(source) {
 		result.Set(false, []error{errors.New("YML Generator failed")})
@@ -198,7 +276,7 @@ func (generate *LocalProjectGenerateOperation) Exec() operation.Result {
 	if settings.ProjectDoesntExist {
 		result.Set(false, []error{errors.New("No project root path has been defined, so no project can be generated.")})
 	} else {
-		if !initialize.Init_Generate(method, settings.ProjectRootPath, skip, 1024*1024, writer) {
+		if !jn_init.Init_Generate(method, settings.ProjectRootPath, skip, 1024*1024, writer) {
 			result.Set(false, []error{errors.New("YML Generator failed")})
 		}
 	}

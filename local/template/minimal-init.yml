@@ -1,0 +1,8 @@
+- Type: File
+  path: .kraut/settings.yml
+  Contents: |2
+    Project: wundertest
+- Type: File
+  path: .kraut/commands.yml
+  Contents: |2
+    
