@@ -46,6 +46,7 @@ func MakeLocalAPI(settings LocalAPISettings) (*LocalAPI, error) {
 		local_project.Init()
 		localAPI.AddHandler(handler.Handler(&local_project))
 
+		// Use null wrappers for those handlers that we don't have
 		localAPI.Config = config.ConfigWrapper(&null.NullConfigWrapper{})
 		localAPI.Settings = setting.SettingWrapper(&null.NullSettingWrapper{})
 		localAPI.Command = command.CommandWrapper(&null.NullCommandWrapper{})
