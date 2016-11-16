@@ -2,7 +2,7 @@ package upcloud
 
 import (
 	log "github.com/Sirupsen/logrus"
-	
+
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 )
 /**
@@ -28,7 +28,9 @@ func (monitor *UpcloudMonitorHandler) Operations() *api_operation.Operations {
 
 	baseOperation := New_BaseUpcloudServiceOperation(monitor.ServiceWrapper())
 
-	ops.Add(api_operation.Operation(UpcloudMonitorListServersOperation{BaseUpcloudServiceOperation: *baseOperation}))
+	ops.Add(api_operation.Operation(&UpcloudMonitorShowAccountOperation{BaseUpcloudServiceOperation: *baseOperation}))
+	ops.Add(api_operation.Operation(&UpcloudMonitorListZonesOperation{BaseUpcloudServiceOperation: *baseOperation}))
+	ops.Add(api_operation.Operation(&UpcloudMonitorListServersOperation{BaseUpcloudServiceOperation: *baseOperation}))
 
 	return &ops
 }
@@ -36,45 +38,111 @@ func (monitor *UpcloudMonitorHandler) Operations() *api_operation.Operations {
 /**
  * Monitor operations for UpCloud
  */
-type UpcloudMonitorTestOperation struct {
+type UpcloudMonitorShowAccountOperation struct {
 	BaseUpcloudServiceOperation
 }
 // Return the string machinename/id of the Operation
-func (monTest UpcloudMonitorTestOperation) Id() string {
-	return "upcloud.monitor.test"
+func (showAccount *UpcloudMonitorShowAccountOperation) Id() string {
+	return "upcloud.monitor.account"
 }
 // Return a user readable string label for the Operation
-func (monTest UpcloudMonitorTestOperation) Label() string {
-	return "Test upcloud monitor operation"
+func (showAccount *UpcloudMonitorShowAccountOperation) Label() string {
+	return "Show UpCloud Account information"
 }
 // return a multiline string description for the Operation
-func (monTest UpcloudMonitorTestOperation) Description() string {
-	return "Test upcloud monitor operation"
+func (showAccount *UpcloudMonitorShowAccountOperation) Description() string {
+	return "Show information about the current UpCloud account."
 }
 
 // Is this operation meant to be used only inside the API
-func (monTest UpcloudMonitorTestOperation) Internal() bool {
+func (showAccount *UpcloudMonitorShowAccountOperation) Internal() bool {
 	return false
 }
 
 // FUNCTIONAL
 
 // Run a validation check on the Operation
-func (monTest UpcloudMonitorTestOperation) Validate() bool {
+func (showAccount *UpcloudMonitorShowAccountOperation) Validate() bool {
 	return true
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (monTest UpcloudMonitorTestOperation) Properties() *api_operation.Properties {
+func (showAccount *UpcloudMonitorShowAccountOperation) Properties() *api_operation.Properties {
 	props := api_operation.Properties{}
 
 	return &props
 }
 
 // Execute the Operation
-func (monTest UpcloudMonitorTestOperation) Exec() api_operation.Result {
+func (showAccount *UpcloudMonitorShowAccountOperation) Exec() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
+
+	service := showAccount.ServiceWrapper()
+
+	account, err := service.GetAccount()
+	if err == nil {
+		log.WithFields(log.Fields{"username": account.UserName, "credits": account.Credits}).Info("Current UpCloud Account")
+	} else {
+		log.WithError(err).Error("Could not retrieve UpCloud account information.")
+	}
+
+	return api_operation.Result(&result)
+}
+
+/**
+ * List UpCloud Zones
+ */
+type UpcloudMonitorListZonesOperation struct {
+	BaseUpcloudServiceOperation
+}
+// Return the string machinename/id of the Operation
+func (listZones *UpcloudMonitorListZonesOperation) Id() string {
+	return "upcloud.monitor.list.zones"
+}
+// Return a user readable string label for the Operation
+func (listZones *UpcloudMonitorListZonesOperation) Label() string {
+	return "List UpCloud Zones"
+}
+// return a multiline string description for the Operation
+func (listZones *UpcloudMonitorListZonesOperation)Description() string {
+	return "List information about the UpCloud zones."
+}
+
+// Is this operation meant to be used only inside the API
+func (listZones *UpcloudMonitorListZonesOperation) Internal() bool {
+	return false
+}
+
+
+// Run a validation check on the Operation
+func (listZones *UpcloudMonitorListZonesOperation) Validate() bool {
+	return true
+}
+
+// What settings/values does the Operation provide to an implemenentor
+func (listZones *UpcloudMonitorListZonesOperation) Properties() *api_operation.Properties {
+	props := api_operation.Properties{}
+
+	return &props
+}
+
+// Execute the Operation
+func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
+	result.Set(true, []error{})
+
+	service := listZones.ServiceWrapper()
+
+	zones, err := service.GetZones()
+	if err == nil {
+		for index,zone := range zones.Zones {
+			log.WithFields(log.Fields{"index": index, "id": zone.Id, "description": zone.Description}).Info("UpCloud zone")
+		}
+	} else {
+		log.WithError(err).Error("Could not retrieve UpCloud zones information.")
+	}
+
 	return api_operation.Result(&result)
 }
 
@@ -85,39 +153,37 @@ type UpcloudMonitorListServersOperation struct {
 	BaseUpcloudServiceOperation
 }
 // Return the string machinename/id of the Operation
-func (list UpcloudMonitorListServersOperation) Id() string {
+func (list *UpcloudMonitorListServersOperation) Id() string {
 	return "upcloud.monitor.list.servers"
 }
 // Return a user readable string label for the Operation
-func (list UpcloudMonitorListServersOperation) Label() string {
+func (list *UpcloudMonitorListServersOperation) Label() string {
 	return "UpCloud server list"
 }
 // return a multiline string description for the Operation
-func (list UpcloudMonitorListServersOperation) Description() string {
+func (list *UpcloudMonitorListServersOperation) Description() string {
 	return "List UpCloud servers used in the project"
 }
 
 // Is this operation meant to be used only inside the API
-func (list UpcloudMonitorListServersOperation) Internal() bool {
+func (list *UpcloudMonitorListServersOperation) Internal() bool {
 	return false
 }
 
-// FUNCTIONAL
-
 // Run a validation check on the Operation
-func (list UpcloudMonitorListServersOperation) Validate() bool {
+func (list *UpcloudMonitorListServersOperation) Validate() bool {
 	return true
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (list UpcloudMonitorListServersOperation) Properties() *api_operation.Properties {
+func (list *UpcloudMonitorListServersOperation) Properties() *api_operation.Properties {
 	props := api_operation.Properties{}
 
 	return &props
 }
 
 // Execute the Operation
-func (list UpcloudMonitorListServersOperation) Exec() api_operation.Result {
+func (list *UpcloudMonitorListServersOperation) Exec() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
@@ -126,7 +192,7 @@ func (list UpcloudMonitorListServersOperation) Exec() api_operation.Result {
 	servers, err := service.GetServers()
 	if err == nil {
 		for index, server := range servers.Servers {
-			log.WithFields(log.Fields{"index": index, "server": server}).Info("Server")
+			log.WithFields(log.Fields{"index": index, "uuid": server.UUID, "title": server.Title, "plan": server.Plan, "zone": server.Zone}).Info("Server")
 		}
 	} else {
 		log.WithError(err).Error("Could not list UpCloud servers")		

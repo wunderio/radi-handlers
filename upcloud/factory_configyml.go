@@ -107,7 +107,6 @@ type Yml_UpcloudFactory struct {
 
 	User string 				`yaml:"User"`
 	Password string 	        `yaml:"Password"`
-	Hosts []string				`yaml:"Hosts"`
 }
 // Is this struct populated?
 func (ymlFactory *Yml_UpcloudFactory) Empty() bool {
@@ -120,10 +119,10 @@ func (ymlFactory *Yml_UpcloudFactory) MakeClient() *upcloud_client.Client {
 // Convert this YML struct into a Service
 func (ymlFactory *Yml_UpcloudFactory) MakeService() *upcloud_service.Service {
 	client := ymlFactory.MakeClient()
-	return New_UpcloudServiceSettings(*client, ymlFactory.Hosts).Service()
+	return New_UpcloudServiceSettings(*client).Service()
 }
 // Convert this YML struct into a Service
 func (ymlFactory *Yml_UpcloudFactory) MakeServiceWrapper() *UpcloudServiceWrapper {
 	client := ymlFactory.MakeClient()
-	return New_UpcloudServiceSettings(*client, ymlFactory.Hosts).ServiceWrapper()
+	return New_UpcloudServiceSettings(*client).ServiceWrapper()
 }
