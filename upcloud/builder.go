@@ -14,10 +14,11 @@ import (
  * A kraut builder for upcloud handlers
  */
 
-
 // Upcloud Builder
 type UpcloudBuilder struct {
 	parent api_api.API
+
+	settings UpcloudBuilderSettings
 
 	handlers *api_handler.Handlers
 	base_UpcloudServiceHandler *BaseUpcloudServiceHandler
@@ -29,10 +30,15 @@ func (builder *UpcloudBuilder) SetAPI(parent api_api.API) {
 	builder.parent = parent
 }
 // Initialize and activate the Handler
-func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementations, settings interface{}) error {
+func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
 	if builder.handlers == nil {
 		builder.handlers = &api_handler.Handlers{}
 	}
+
+	// process and merge the settings
+	settings := UpcloudBuilderSettings{}
+	settingsProvider.AssignSettings(&settings)
+	builder.settings.Merge(settings)
 
 	// This base handler is commonly used in the implementation handlers, so get it once here.
 	baseHandler := builder.base_BaseUpcloudServiceOperation()
