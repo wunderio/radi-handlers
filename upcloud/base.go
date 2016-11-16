@@ -1,20 +1,42 @@
 package upcloud
 
+import (
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+)
+
+/**
+ * Some base structs which other UpCloud Handler and
+ * Operation implementations can include
+ */
+
 // Constructor for BaseUpcloudServiceHandler
-func New_BaseUpcloudServiceHandler(service *UpcloudServiceWrapper) *BaseUpcloudServiceHandler {
+func New_BaseUpcloudServiceHandler(service *UpcloudServiceWrapper, settings *UpcloudBuilderSettings) *BaseUpcloudServiceHandler {
 	return &BaseUpcloudServiceHandler{
-		service: service,
+		service:  service,
+		settings: settings,
 	}
 }
 
 // Base handler with an upcloud service
 type BaseUpcloudServiceHandler struct {
-	service *UpcloudServiceWrapper
+	service    *UpcloudServiceWrapper
+	settings   *UpcloudBuilderSettings
+	operations *api_operation.Operations
 }
 
-// Set the service
+// Return the stored operatons
+func (base *BaseUpcloudServiceHandler) Operations() *api_operation.Operations {
+	return base.operations
+}
+
+// Get the service
 func (base *BaseUpcloudServiceHandler) ServiceWrapper() *UpcloudServiceWrapper {
 	return base.service
+}
+
+// Get the settings
+func (base *BaseUpcloudServiceHandler) Settings() *UpcloudBuilderSettings {
+	return base.settings
 }
 
 /**
@@ -23,18 +45,25 @@ func (base *BaseUpcloudServiceHandler) ServiceWrapper() *UpcloudServiceWrapper {
  */
 
 // Constructor for BaseUpcloudServiceOperation
-func New_BaseUpcloudServiceOperation(service *UpcloudServiceWrapper) *BaseUpcloudServiceOperation {
+func New_BaseUpcloudServiceOperation(service *UpcloudServiceWrapper, settings *UpcloudBuilderSettings) *BaseUpcloudServiceOperation {
 	return &BaseUpcloudServiceOperation{
-		service: service,
+		service:  service,
+		settings: settings,
 	}
 }
 
 // Base operation with an upcloud service
 type BaseUpcloudServiceOperation struct {
-	service *UpcloudServiceWrapper
+	service  *UpcloudServiceWrapper
+	settings *UpcloudBuilderSettings
 }
 
 // Set the service
 func (base *BaseUpcloudServiceOperation) ServiceWrapper() *UpcloudServiceWrapper {
 	return base.service
+}
+
+// Get the settings
+func (base *BaseUpcloudServiceOperation) Settings() *UpcloudBuilderSettings {
+	return base.settings
 }

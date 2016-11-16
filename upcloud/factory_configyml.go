@@ -25,15 +25,14 @@ import (
 func New_UpcloudFactoryConfigWrapperYaml(configWrapper api_config.ConfigWrapper) UpcloudFactory {
 	return UpcloudFactory(&UpcloudFactoryConfigWrapperYaml{
 		configWrapper: configWrapper,
-		ymlFactory: Yml_UpcloudFactory{},
+		ymlFactory:    Yml_UpcloudFactory{},
 	})
 }
-
 
 // A BuilderSettingsConfigWrapper, that interprets build config as yml
 type UpcloudFactoryConfigWrapperYaml struct {
 	configWrapper api_config.ConfigWrapper
-	ymlFactory Yml_UpcloudFactory
+	ymlFactory    Yml_UpcloudFactory
 }
 
 func (configFactory *UpcloudFactoryConfigWrapperYaml) DefaultScope() string {
@@ -47,7 +46,7 @@ func (configFactory *UpcloudFactoryConfigWrapperYaml) DefaultScope() string {
 func (configFactory *UpcloudFactoryConfigWrapperYaml) safe() {
 	if configFactory.ymlFactory.Empty() {
 		if err := configFactory.Load(); err != nil {
-			log.WithError(err).Error("Could not load build configuration")			
+			log.WithError(err).Error("Could not load build configuration")
 		}
 	}
 }
@@ -57,11 +56,13 @@ func (configFactory *UpcloudFactoryConfigWrapperYaml) Client() *upcloud_client.C
 	configFactory.safe()
 	return configFactory.ymlFactory.MakeClient()
 }
+
 // Convert this YML struct into a Service
 func (configFactory *UpcloudFactoryConfigWrapperYaml) Service() *upcloud_service.Service {
 	configFactory.safe()
 	return configFactory.ymlFactory.MakeService()
 }
+
 // Convert this YML struct into a ServiceWrapper
 func (configFactory *UpcloudFactoryConfigWrapperYaml) ServiceWrapper() *UpcloudServiceWrapper {
 	configFactory.safe()
@@ -97,7 +98,7 @@ func (configFactory *UpcloudFactoryConfigWrapperYaml) Load() error {
 func (configFactory *UpcloudFactoryConfigWrapperYaml) Save() error {
 	/**
 	 * @TODO THIS
-     */
+	 */
 	return errors.New("UpcloudFactoryConfigWrapperYaml Set operation not yet written.")
 }
 
@@ -105,22 +106,26 @@ func (configFactory *UpcloudFactoryConfigWrapperYaml) Save() error {
 type Yml_UpcloudFactory struct {
 	scope string
 
-	User string 				`yaml:"User"`
-	Password string 	        `yaml:"Password"`
+	User     string `yaml:"User"`
+	Password string `yaml:"Password"`
 }
+
 // Is this struct populated?
 func (ymlFactory *Yml_UpcloudFactory) Empty() bool {
 	return ymlFactory.User == ""
 }
+
 // Convert this YML struct into a Client
 func (ymlFactory *Yml_UpcloudFactory) MakeClient() *upcloud_client.Client {
 	return New_UpcloudClientSettings(ymlFactory.User, ymlFactory.Password).Client()
 }
+
 // Convert this YML struct into a Service
 func (ymlFactory *Yml_UpcloudFactory) MakeService() *upcloud_service.Service {
 	client := ymlFactory.MakeClient()
 	return New_UpcloudServiceSettings(*client).Service()
 }
+
 // Convert this YML struct into a Service
 func (ymlFactory *Yml_UpcloudFactory) MakeServiceWrapper() *UpcloudServiceWrapper {
 	client := ymlFactory.MakeClient()

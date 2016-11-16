@@ -16,11 +16,11 @@ import (
 
 // Upcloud Builder
 type UpcloudBuilder struct {
-	parent api_api.API
+	parent   api_api.API
+	handlers api_handler.Handlers
 
 	settings UpcloudBuilderSettings
 
-	handlers *api_handler.Handlers
 	base_UpcloudServiceHandler *BaseUpcloudServiceHandler
 }
 
@@ -29,10 +29,11 @@ func (builder *UpcloudBuilder) SetAPI(parent api_api.API) {
 	// Keep that api, so that we can use it to make a ConfigWrapper later on
 	builder.parent = parent
 }
+
 // Initialize and activate the Handler
 func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
-	if builder.handlers == nil {
-		builder.handlers = &api_handler.Handlers{}
+	if &builder.handlers == nil {
+		builder.handlers = api_handler.Handlers{}
 	}
 
 	// process and merge the settings
@@ -47,6 +48,7 @@ func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementati
 		switch implementation {
 		case "monitor":
 			monitorHandler := UpcloudMonitorHandler{BaseUpcloudServiceHandler: *baseHandler}
+			monitorHandler.Init()
 			builder.handlers.Add(api_handler.Handler(&monitorHandler))
 		default:
 			log.WithFields(log.Fields{"implementation": implementation}).Error("Unknown implementation in UpCloud builder")
@@ -55,10 +57,12 @@ func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementati
 
 	return nil
 }
+
 // Rturn a string identifier for the Handler (not functionally needed yet)
 func (builder *UpcloudBuilder) Id() string {
 	return "upcloud"
 }
+
 // Return a list of Operations from the Handler
 func (builder *UpcloudBuilder) Operations() *api_operation.Operations {
 	ops := builder.handlers.Operations()
@@ -73,10 +77,11 @@ func (builder *UpcloudBuilder) base_BaseUpcloudServiceOperation() *BaseUpcloudSe
 		configWrapper := api_config.New_SimpleConfigWrapper(&operations)
 		// get an upcloud factory, using the config wrapper (probably a file like upcloud.yml)
 		upcloudFactory := New_UpcloudFactoryConfigWrapperYaml(configWrapper)
-
 		// Ask the factory to build the service wrapper, use that to make the base operations
 		serviceWrapper := upcloudFactory.ServiceWrapper()
-		builder.base_UpcloudServiceHandler = New_BaseUpcloudServiceHandler(serviceWrapper)
+
+		// Builder the base operation, and keep it
+		builder.base_UpcloudServiceHandler = New_BaseUpcloudServiceHandler(serviceWrapper, &builder.settings)
 	}
 	return builder.base_UpcloudServiceHandler
 }
