@@ -18,14 +18,11 @@ func (monitor *UpcloudMonitorHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
-	ops := api_operation.Operations{}
-
 	baseOperation := New_BaseUpcloudServiceOperation(monitor.ServiceWrapper(), monitor.Settings())
 
-	ops.Add(api_operation.Operation(&UpcloudMonitorShowAccountOperation{BaseUpcloudServiceOperation: *baseOperation}))
+	ops := api_operation.Operations{}
 	ops.Add(api_operation.Operation(&UpcloudMonitorListZonesOperation{BaseUpcloudServiceOperation: *baseOperation}))
 	ops.Add(api_operation.Operation(&UpcloudMonitorListServersOperation{BaseUpcloudServiceOperation: *baseOperation}))
-
 	monitor.operations = &ops
 
 	return api_operation.Result(&result)
@@ -39,60 +36,6 @@ func (monitor *UpcloudMonitorHandler) Id() string {
 /**
  * Monitor operations for UpCloud
  */
-type UpcloudMonitorShowAccountOperation struct {
-	BaseUpcloudServiceOperation
-}
-
-// Return the string machinename/id of the Operation
-func (showAccount *UpcloudMonitorShowAccountOperation) Id() string {
-	return "upcloud.monitor.account"
-}
-
-// Return a user readable string label for the Operation
-func (showAccount *UpcloudMonitorShowAccountOperation) Label() string {
-	return "Show UpCloud Account information"
-}
-
-// return a multiline string description for the Operation
-func (showAccount *UpcloudMonitorShowAccountOperation) Description() string {
-	return "Show information about the current UpCloud account."
-}
-
-// Is this operation meant to be used only inside the API
-func (showAccount *UpcloudMonitorShowAccountOperation) Internal() bool {
-	return false
-}
-
-// FUNCTIONAL
-
-// Run a validation check on the Operation
-func (showAccount *UpcloudMonitorShowAccountOperation) Validate() bool {
-	return true
-}
-
-// What settings/values does the Operation provide to an implemenentor
-func (showAccount *UpcloudMonitorShowAccountOperation) Properties() *api_operation.Properties {
-	props := api_operation.Properties{}
-
-	return &props
-}
-
-// Execute the Operation
-func (showAccount *UpcloudMonitorShowAccountOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
-
-	service := showAccount.ServiceWrapper()
-
-	account, err := service.GetAccount()
-	if err == nil {
-		log.WithFields(log.Fields{"username": account.UserName, "credits": account.Credits}).Info("Current UpCloud Account")
-	} else {
-		log.WithError(err).Error("Could not retrieve UpCloud account information.")
-	}
-
-	return api_operation.Result(&result)
-}
 
 /**
  * List UpCloud Zones

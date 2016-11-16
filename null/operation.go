@@ -5,34 +5,15 @@ package null
  */
 
 import (
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/command"
-	"github.com/james-nesbitt/kraut-api/operation/config"
-	"github.com/james-nesbitt/kraut-api/operation/document"
-	"github.com/james-nesbitt/kraut-api/operation/monitor"
-	"github.com/james-nesbitt/kraut-api/operation/orchestrate"
-	"github.com/james-nesbitt/kraut-api/operation/security"
-	"github.com/james-nesbitt/kraut-api/operation/setting"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_command "github.com/james-nesbitt/kraut-api/operation/command"
+	api_config "github.com/james-nesbitt/kraut-api/operation/config"
+	api_document "github.com/james-nesbitt/kraut-api/operation/document"
+	api_monitor "github.com/james-nesbitt/kraut-api/operation/monitor"
+	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_security "github.com/james-nesbitt/kraut-api/operation/security"
+	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
 )
-
-// Null base operation which always execs TRUE
-type NullAllwaysTrueOperation struct{}
-
-// Validate the operation
-func (alwaystrue *NullAllwaysTrueOperation) Validate() bool {
-	return true
-}
-
-// return empty Configuraitons
-// func (alwaystrue *NullAllwaysTrueOperation) Configurations() *operation.Configurations {
-// 	return &operation.Configurations{}
-// }
-// Exec the operation
-func (alwaystrue *NullAllwaysTrueOperation) Exec() operation.Result {
-	baseResult := operation.BaseResult{}
-	baseResult.Set(true, []error{})
-	return operation.Result(&baseResult)
-}
 
 /**
  * Command
@@ -40,14 +21,16 @@ func (alwaystrue *NullAllwaysTrueOperation) Exec() operation.Result {
 
 // Null operation for listing commands
 type NullCommandListOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	command.BaseCommandListOperation
+	api_command.BaseCommandListOperation
 }
 
 // Null operation for executing a command
 type NullCommandExecOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	command.BaseCommandExecOperation
+	api_command.BaseCommandExecOperation
 }
 
 /**
@@ -56,14 +39,16 @@ type NullCommandExecOperation struct {
 
 // Null Configuration retreive readers operation
 type NullConfigReadersOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	config.BaseConfigReadersOperation
+	api_config.BaseConfigReadersOperation
 }
 
 // Null Configuration retrieve writers operation
 type NullConfigWritersOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	config.BaseConfigWritersOperation
+	api_config.BaseConfigWritersOperation
 }
 
 /**
@@ -72,14 +57,16 @@ type NullConfigWritersOperation struct {
 
 // Null Setting retreive accessor operation
 type NullSettingGetOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	setting.BaseSettingGetOperation
+	api_setting.BaseSettingGetOperation
 }
 
 // Null Setting assign accessor operation
 type NullSettingSetOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	setting.BaseSettingSetOperation
+	api_setting.BaseSettingSetOperation
 }
 
 /**
@@ -88,14 +75,16 @@ type NullSettingSetOperation struct {
 
 // Null operation for listing documentation topics
 type NullDocumentTopicListOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	document.BaseDocumentTopicListOperation
+	api_document.BaseDocumentTopicListOperation
 }
 
 // Null Operation for retrieving a single documentation topic
 type NullDocumentTopicGetOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	document.BaseDocumentTopicGetOperation
+	api_document.BaseDocumentTopicGetOperation
 }
 
 /**
@@ -104,12 +93,13 @@ type NullDocumentTopicGetOperation struct {
 
 // Null operation for monitoring information
 type NullMonitorInfoOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	monitor.BaseMonitorInfoOperation
+	api_monitor.BaseMonitorInfoOperation
 }
 
 // Null status operation exec method
-func (info *NullMonitorInfoOperation) Exec() operation.Result {
+func (info *NullMonitorInfoOperation) Exec() api_operation.Result {
 	message := "App is using NULL Info handler\n"
 	info.WriteMessage(message)
 
@@ -118,12 +108,13 @@ func (info *NullMonitorInfoOperation) Exec() operation.Result {
 
 // Null operation for monitoring status
 type NullMonitorStatusOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	monitor.BaseMonitorStatusOperation
+	api_monitor.BaseMonitorStatusOperation
 }
 
 // Null status operation exec method
-func (status *NullMonitorStatusOperation) Exec() operation.Result {
+func (status *NullMonitorStatusOperation) Exec() api_operation.Result {
 	message := "App is using NULL status handler\n"
 	status.WriteMessage(message)
 
@@ -136,14 +127,16 @@ func (status *NullMonitorStatusOperation) Exec() operation.Result {
 
 // Null operation for orchestration UP
 type NullOrchestrateUpOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	orchestrate.BaseOrchestrationUpOperation
+	api_orchestrate.BaseOrchestrationUpOperation
 }
 
 // Null operation for orchestration DOWN
 type NullOrchestrateDownOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	orchestrate.BaseOrchestrationDownOperation
+	api_orchestrate.BaseOrchestrationDownOperation
 }
 
 /**
@@ -152,18 +145,21 @@ type NullOrchestrateDownOperation struct {
 
 // Null Authenticate always authenticates
 type NullSecurityAuthenticateOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	security.BaseSecurityAuthenticateOperation
+	api_security.BaseSecurityAuthenticateOperation
 }
 
 // Null Authorize always authorizes
 type NullSecurityAuthorizeOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	security.BaseSecurityAuthorizeOperation
+	api_security.BaseSecurityAuthorizeOperation
 }
 
 // Null User, provides a consistent user value
 type NullSecurityUserOperation struct {
+	NullNoPropertiesOperation
 	NullAllwaysTrueOperation
-	security.BaseSecurityUserOperation
+	api_security.BaseSecurityUserOperation
 }

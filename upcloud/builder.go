@@ -50,6 +50,10 @@ func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementati
 			monitorHandler := UpcloudMonitorHandler{BaseUpcloudServiceHandler: *baseHandler}
 			monitorHandler.Init()
 			builder.handlers.Add(api_handler.Handler(&monitorHandler))
+		case "security":
+			securityHandler := UpcloudSecurityHandler{BaseUpcloudServiceHandler: *baseHandler}
+			securityHandler.Init()
+			builder.handlers.Add(api_handler.Handler(&securityHandler))
 		default:
 			log.WithFields(log.Fields{"implementation": implementation}).Error("Unknown implementation in UpCloud builder")
 		}

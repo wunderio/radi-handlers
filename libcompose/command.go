@@ -43,12 +43,14 @@ func (list *LibcomposeCommandListOperation) Validate() bool {
 
 // Get properties
 func (list *LibcomposeCommandListOperation) Properties() *api_operation.Properties {
-	baseProps := list.BaseCommandListOperation.Properties()
+	baseProps := api_operation.Properties{}
 
 	keyKeysProps := list.BaseCommandKeyKeysOperation.Properties()
 	baseProps.Merge(*keyKeysProps)
+	libComposeBaseProps := list.BaseLibcomposeNameFilesOperation.Properties()
+	baseProps.Merge(*libComposeBaseProps)
 
-	return baseProps
+	return &baseProps
 }
 
 // Execute the libCompose Command List operation
@@ -91,12 +93,14 @@ func (get *LibcomposeCommandGetOperation) Validate() bool {
 
 // Get properties
 func (get *LibcomposeCommandGetOperation) Properties() *api_operation.Properties {
-	baseProps := get.BaseCommandGetOperation.Properties()
+	baseProps := api_operation.Properties{}
 
 	keyCommandProps := get.BaseCommandKeyCommandOperation.Properties()
 	baseProps.Merge(*keyCommandProps)
+	libComposeBaseProps := get.BaseLibcomposeNameFilesOperation.Properties()
+	baseProps.Merge(*libComposeBaseProps)
 
-	return baseProps
+	return &baseProps
 }
 
 // Execute the libCompose Command Get operation
