@@ -26,7 +26,7 @@ func New_BaseSettingConfigWrapperYmlOperation(wrapper api_config.ConfigWrapper) 
 // A SettingsSource implementation for yml settings
 type BaseSettingConfigWrapperYmlOperation struct {
 	wrapper  api_config.ConfigWrapper // The config wrapper will be used to retrieve and save full config
-	settings Settings             // the values map stores parsed values from config
+	settings Settings                 // the values map stores parsed values from config
 }
 
 // Retrieve values by parsing bytes from the wrapper

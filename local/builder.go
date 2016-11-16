@@ -10,10 +10,10 @@ import (
 	api_builder "github.com/james-nesbitt/kraut-api/builder"
 	api_handler "github.com/james-nesbitt/kraut-api/handler"
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
-	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
 	api_command "github.com/james-nesbitt/kraut-api/operation/command"
+	api_config "github.com/james-nesbitt/kraut-api/operation/config"
 	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
 	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
 )
 
@@ -27,18 +27,18 @@ import (
 // Constructor for LocalBuilder
 func New_LocalBuilder(settings LocalAPISettings) *LocalBuilder {
 	return &LocalBuilder{
-			settings: settings,
+		settings: settings,
 	}
 }
 
 // Provide a handler for building all local operations
 type LocalBuilder struct {
-	settings 	LocalAPISettings
+	settings LocalAPISettings
 
-	parent		api_api.API
-	handlers	api_handler.Handlers
+	parent   api_api.API
+	handlers api_handler.Handlers
 
-	common_base *LocalHandler_Base
+	common_base       *LocalHandler_Base
 	common_libcompose *handlers_libcompose.BaseLibcomposeHandler
 
 	Command     api_command.CommandWrapper
@@ -60,7 +60,7 @@ func (builder *LocalBuilder) SetAPI(parent api_api.API) {
 // Initialize the handler for certain implementations
 func (builder *LocalBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
 	for _, implementation := range implementations.Order() {
-		switch(implementation) {
+		switch implementation {
 		case "config":
 			builder.build_Config()
 		case "setting":

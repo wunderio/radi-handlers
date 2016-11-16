@@ -8,7 +8,7 @@ import (
 )
 
 /**
- * Pretty simple builder, which will just add operations for 
+ * Pretty simple builder, which will just add operations for
  * groups that are activated
  */
 
@@ -34,7 +34,7 @@ func (builder *NullBuilder) Activate(implementations api_builder.Implementations
 		for _, existing := range builder.activated {
 			if existing == implementation {
 				found = true
-				break;
+				break
 			}
 		}
 		if !found {
@@ -46,7 +46,7 @@ func (builder *NullBuilder) Activate(implementations api_builder.Implementations
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
-func (builder *NullBuilder) Id() string { 
+func (builder *NullBuilder) Id() string {
 	return "null"
 }
 
@@ -55,7 +55,7 @@ func (builder *NullBuilder) Operations() *api_operation.Operations {
 	operations := api_operation.Operations{}
 
 	for _, activated := range builder.activated {
-		switch (activated) {
+		switch activated {
 		case "config":
 			// Add Null config operations
 			operations.Add(api_operation.Operation(&NullConfigReadersOperation{}))
@@ -72,7 +72,7 @@ func (builder *NullBuilder) Operations() *api_operation.Operations {
 			// Add Null documentation operations
 			operations.Add(api_operation.Operation(&NullDocumentTopicListOperation{}))
 			operations.Add(api_operation.Operation(&NullDocumentTopicGetOperation{}))
-		case "monitor": 
+		case "monitor":
 			// Add null monitor operations
 			operations.Add(api_operation.Operation(&NullMonitorStatusOperation{}))
 			operations.Add(api_operation.Operation(&NullMonitorInfoOperation{}))
