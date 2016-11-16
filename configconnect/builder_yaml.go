@@ -104,11 +104,26 @@ func (buildSettings *BuilderSettingsConfigWrapperYaml) Save() error {
 
 // A temporary holder of BuildSettings, just for yml parsing (probably not needed even)
 type Yml_BuildSetting struct {
-	Type string 				`yaml:"Type"`
-	Implementations []string 	`yaml:"Implementations"`
-	Settings interface{} 		`yaml:"Settings"`
+	Type string 				                       `yaml:"Type"`
+	Implementations []string 	                       `yaml:"Implementations"`
+	SettingsProvider Yml_BuildSettingSettingsProvider  `yaml:"Settings"`
 }
 // Convert this YML struct into a proper BuildSetting struct
 func (setting *Yml_BuildSetting) MakeBuildSetting() *api_builder.BuildSetting {
-	return api_builder.New_BuildSetting(setting.Type, *api_builder.New_Implementations(setting.Implementations), setting.Settings)
+	return api_builder.New_BuildSetting(setting.Type, *api_builder.New_Implementations(setting.Implementations), api_builder.SettingsProvider(setting.SettingsProvider))
+}
+
+// Yml builder SettingProvider
+type Yml_BuildSettingSettingsProvider struct {
+	UnMarshaler func(interface{}) error
+}
+// Yaml custom UnMarshall handler
+func (ymlSettingsProvider *Yml_BuildSettingSettingsProvider) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	ymlSettingsProvider.UnMarshaler = unmarshal
+	return nil
+}
+
+// UnMarshaller function
+func (ymlSettingsProvider Yml_BuildSettingSettingsProvider) AssignSettings(target interface{}) error {
+	return ymlSettingsProvider.UnMarshaler(target)
 }

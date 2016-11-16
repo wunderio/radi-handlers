@@ -28,7 +28,7 @@ func (builder *NullBuilder) SetAPI(parent api_api.API) {
 }
 
 // Initialize and activate the Handler
-func (builder *NullBuilder) Activate(implementations api_builder.Implementations, settings interface{}) error {
+func (builder *NullBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
 	for _, implementation := range implementations.Order() {
 		found := false
 		for _, existing := range builder.activated {

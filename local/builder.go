@@ -58,7 +58,7 @@ func (builder *LocalBuilder) SetAPI(parent api_api.API) {
 }
 
 // Initialize the handler for certain implementations
-func (builder *LocalBuilder) Activate(implementations api_builder.Implementations, settings interface{}) error {
+func (builder *LocalBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
 	for _, implementation := range implementations.Order() {
 		switch(implementation) {
 		case "config":
