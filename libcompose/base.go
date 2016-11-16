@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/james-nesbitt/kraut-handlers/bytesource"
-	"github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
 )
 
 /**
@@ -19,7 +19,7 @@ import (
  * Handlers
  */
 
-func New_BaseLibcomposeHandler(projectName string, dockerComposeFiles []string, runContext context.Context, outputWriter io.Writer, errorWriter io.Writer, filesettings bytesource.BytesourceFileSettings) *BaseLibcomposeHandler {
+func New_BaseLibcomposeHandler(projectName string, dockerComposeFiles []string, runContext context.Context, outputWriter io.Writer, errorWriter io.Writer, filesettings handlers_bytesource.BytesourceFileSettings) *BaseLibcomposeHandler {
 	baseLibcomposeOp, _ := New_BaseLibcomposeNameFilesOperation(projectName, dockerComposeFiles, runContext, outputWriter, errorWriter, filesettings)
 	base := &BaseLibcomposeHandler{LibComposeBaseOp: &baseLibcomposeOp}
 	return base
@@ -35,8 +35,8 @@ type BaseLibcomposeHandler struct {
  */
 
 // A handoff function to make a base orchestration operation, which is really just a lot of linear code.
-func New_BaseLibcomposeNameFilesOperation(projectName string, dockerComposeFiles []string, runContext context.Context, outputWriter io.Writer, errorWriter io.Writer, filesettings bytesource.BytesourceFileSettings) (BaseLibcomposeNameFilesOperation, operation.Result) {
-	result := operation.BaseResult{}
+func New_BaseLibcomposeNameFilesOperation(projectName string, dockerComposeFiles []string, runContext context.Context, outputWriter io.Writer, errorWriter io.Writer, filesettings handlers_bytesource.BytesourceFileSettings) (BaseLibcomposeNameFilesOperation, api_operation.Result) {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	// This Base operations will be at the root of all of the libCompose operations
@@ -53,7 +53,7 @@ func New_BaseLibcomposeNameFilesOperation(projectName string, dockerComposeFiles
 	}
 
 	// Add project context
-	if projectFilesettingsConf, found := orchestrateProperties.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); found {
+	if projectFilesettingsConf, found := orchestrateProperties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); found {
 		if !projectFilesettingsConf.Set(filesettings) {
 			result.Set(false, []error{errors.New("Could not set base libcompose file settings.  Config set error on base Orchestration operation")})
 		}
@@ -93,28 +93,28 @@ func New_BaseLibcomposeNameFilesOperation(projectName string, dockerComposeFiles
 		result.Set(false, []error{errors.New("Could not set base libcompose error handler.  Config not found on base Orchestration operation")})
 	}
 
-	return baseLibcomposeOrchestrate, operation.Result(&result)
+	return baseLibcomposeOrchestrate, api_operation.Result(&result)
 }
 
 // A base libcompose operation with Properties for project-name, and yml files
 type BaseLibcomposeNameFilesOperation struct {
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeNameFilesOperation) Properties() *operation.Properties {
+func (base *BaseLibcomposeNameFilesOperation) Properties() *api_operation.Properties {
 	if base.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 
-		newProperties.Add(operation.Property(&LibcomposeProjectnameProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeProjectnameProperty{}))
 
-		newProperties.Add(operation.Property(&bytesource.BytesourceFilesettingsProperty{}))
+		newProperties.Add(api_operation.Property(&handlers_bytesource.BytesourceFilesettingsProperty{}))
 
-		newProperties.Add(operation.Property(&LibcomposeComposefilesProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeContextProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeComposefilesProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeContextProperty{}))
 
-		newProperties.Add(operation.Property(&LibcomposeOutputProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeErrorProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeOutputProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeErrorProperty{}))
 
 		base.properties = newProperties
 	}

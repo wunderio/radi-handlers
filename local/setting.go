@@ -1,9 +1,9 @@
 package local
 
 import (
-	"github.com/james-nesbitt/kraut-handlers/configconnect"
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/setting"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
+	handlers_configwrapper "github.com/james-nesbitt/kraut-handlers/configwrapper"	
 )
 
 // A handler for local settings
@@ -18,26 +18,26 @@ func (handler *LocalHandler_Setting) Id() string {
 }
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
-func (handler *LocalHandler_Setting) Init() operation.Result {
-	result := operation.BaseResult{}
+func (handler *LocalHandler_Setting) Init() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
-	ops := operation.Operations{}
+	ops := api_operation.Operations{}
 
 	// Make a wrapper for the Settings Config interpretation, based on itnerpreting YML settings
-	wrapper := configconnect.SettingsConfigWrapper(configconnect.New_BaseSettingConfigWrapperYmlOperation(handler.ConfigWrapper()))
+	wrapper := handlers_configwrapper.SettingsConfigWrapper(handlers_configwrapper.New_BaseSettingConfigWrapperYmlOperation(handler.ConfigWrapper()))
 
 	// Now we can add config operations that use that Base class
-	ops.Add(operation.Operation(&configconnect.SettingConfigWrapperGetOperation{Wrapper: wrapper}))
-	ops.Add(operation.Operation(&configconnect.SettingConfigWrapperSetOperation{Wrapper: wrapper}))
-	ops.Add(operation.Operation(&configconnect.SettingConfigWrapperListOperation{Wrapper: wrapper}))
+	ops.Add(api_operation.Operation(&handlers_configwrapper.SettingConfigWrapperGetOperation{Wrapper: wrapper}))
+	ops.Add(api_operation.Operation(&handlers_configwrapper.SettingConfigWrapperSetOperation{Wrapper: wrapper}))
+	ops.Add(api_operation.Operation(&handlers_configwrapper.SettingConfigWrapperListOperation{Wrapper: wrapper}))
 
 	handler.operations = &ops
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }
 
 // Make ConfigWrapper
-func (handler *LocalHandler_Setting) SettingWrapper() setting.SettingWrapper {
-	return setting.New_SimpleSettingWrapper(handler.operations)
+func (handler *LocalHandler_Setting) SettingWrapper() api_setting.SettingWrapper {
+	return api_setting.New_SimpleSettingWrapper(handler.operations)
 }

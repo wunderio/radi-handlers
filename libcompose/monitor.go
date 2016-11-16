@@ -7,8 +7,8 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/monitor"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_monitor "github.com/james-nesbitt/kraut-api/operation/monitor"
 )
 
 /**
@@ -17,15 +17,15 @@ import (
  */
 
 const (
-	OPERATION_ID_COMPOSE_MONITOR_LOGS = monitor.OPERATION_ID_MONITOR_LOGS + ".compose"
+	OPERATION_ID_COMPOSE_MONITOR_LOGS = api_monitor.OPERATION_ID_MONITOR_LOGS + ".compose"
 )
 
 // An operations which streams the container logs from libcompose
 type LibcomposeMonitorLogsOperation struct {
-	monitor.BaseMonitorLogsOperation
+	api_monitor.BaseMonitorLogsOperation
 	BaseLibcomposeNameFilesOperation
 
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Use a different Id() than the parent
@@ -39,9 +39,9 @@ func (logs *LibcomposeMonitorLogsOperation) Validate() bool {
 }
 
 // Provide static properties for the operation
-func (logs *LibcomposeMonitorLogsOperation) Properties() *operation.Properties {
+func (logs *LibcomposeMonitorLogsOperation) Properties() *api_operation.Properties {
 	if logs.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 		newProperties.Add(&LibcomposeDetachProperty{})
 		newProperties.Merge(*logs.BaseLibcomposeNameFilesOperation.Properties())
 		logs.properties = newProperties
@@ -50,8 +50,8 @@ func (logs *LibcomposeMonitorLogsOperation) Properties() *operation.Properties {
 }
 
 // Execute the libCompose monitor logs operation
-func (logs *LibcomposeMonitorLogsOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (logs *LibcomposeMonitorLogsOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	properties := logs.Properties()
@@ -87,5 +87,5 @@ func (logs *LibcomposeMonitorLogsOperation) Exec() operation.Result {
 		}
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }

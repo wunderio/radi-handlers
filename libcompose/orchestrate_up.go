@@ -8,8 +8,8 @@ import (
 
 	libCompose_options "github.com/docker/libcompose/project/options"
 
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
 )
 
 /**
@@ -65,15 +65,15 @@ func (optionsConf *LibcomposeOptionsUpProperty) Set(value interface{}) bool {
 
 // Base Up operation
 type BaseLibcomposeOrchestrateUpSingleOperation struct {
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateUpSingleOperation) Properties() *operation.Properties {
+func (base *BaseLibcomposeOrchestrateUpSingleOperation) Properties() *api_operation.Properties {
 	if base.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 
-		newProperties.Add(operation.Property(&LibcomposeOptionsUpProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeOptionsUpProperty{}))
 
 		base.properties = newProperties
 	}
@@ -82,18 +82,18 @@ func (base *BaseLibcomposeOrchestrateUpSingleOperation) Properties() *operation.
 
 // Base Up operation
 type BaseLibcomposeOrchestrateUpParametrizedOperation struct {
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateUpParametrizedOperation) Properties() *operation.Properties {
+func (base *BaseLibcomposeOrchestrateUpParametrizedOperation) Properties() *api_operation.Properties {
 	if base.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 
-		newProperties.Add(operation.Property(&LibcomposeNoRecreateProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeForceRecreateProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeNoBuildProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeForceRebuildProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeNoRecreateProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeForceRecreateProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeNoBuildProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeForceRebuildProperty{}))
 
 		base.properties = newProperties
 	}
@@ -102,11 +102,11 @@ func (base *BaseLibcomposeOrchestrateUpParametrizedOperation) Properties() *oper
 
 // LibCompose based up orchestrate operation
 type LibcomposeOrchestrateUpOperation struct {
-	orchestrate.BaseOrchestrationUpOperation
+	api_orchestrate.BaseOrchestrationUpOperation
 	BaseLibcomposeNameFilesOperation
 	BaseLibcomposeOrchestrateUpParametrizedOperation
 
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Validate the libCompose Orchestrate Up operation
@@ -115,9 +115,9 @@ func (up *LibcomposeOrchestrateUpOperation) Validate() bool {
 }
 
 // Provide static properties for the operation
-func (up *LibcomposeOrchestrateUpOperation) Properties() *operation.Properties {
+func (up *LibcomposeOrchestrateUpOperation) Properties() *api_operation.Properties {
 	if up.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 		newProperties.Merge(*up.BaseLibcomposeOrchestrateUpParametrizedOperation.Properties())
 		newProperties.Merge(*up.BaseLibcomposeNameFilesOperation.Properties())
 		up.properties = newProperties
@@ -126,8 +126,8 @@ func (up *LibcomposeOrchestrateUpOperation) Properties() *operation.Properties {
 }
 
 // Execute the libCompose Orchestrate Up operation
-func (up *LibcomposeOrchestrateUpOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (up *LibcomposeOrchestrateUpOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	properties := up.Properties()
@@ -166,5 +166,5 @@ func (up *LibcomposeOrchestrateUpOperation) Exec() operation.Result {
 		}
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }

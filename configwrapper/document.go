@@ -1,4 +1,4 @@
-package configconnect
+package configwrapper
 
 const (
 	// The Config key for documentation

@@ -1,12 +1,16 @@
-package configconnect
+package bytesource
+
+/**
+ * Build a ConfigConnector based on file contents
+ */
+
 
 import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 
-	"github.com/james-nesbitt/kraut-handlers/bytesource"
-	"github.com/james-nesbitt/kraut-api/operation/config"
+	api_config "github.com/james-nesbitt/kraut-api/operation/config"
 )
 
 const (
@@ -15,7 +19,7 @@ const (
 )
 
 // Constructor for ConfigConnectYmlFiles
-func New_ConfigConnectYmlFiles(paths *bytesource.Paths) *ConfigConnectYmlFiles {
+func New_ConfigConnectYmlFiles(paths *Paths) *ConfigConnectYmlFiles {
 	return &ConfigConnectYmlFiles{
 		paths: paths,
 	}
@@ -23,15 +27,15 @@ func New_ConfigConnectYmlFiles(paths *bytesource.Paths) *ConfigConnectYmlFiles {
 
 // A ConfigConnector that looks for files
 type ConfigConnectYmlFiles struct {
-	paths *bytesource.Paths
+	paths *Paths
 }
 
 func (connect *ConfigConnectYmlFiles) convertKeyToFileName(key string) string {
 	return strings.ToLower(key) + ".yml"
 }
 
-func (connect *ConfigConnectYmlFiles) findKey(key string) *bytesource.Files {
-	files := bytesource.Files{}
+func (connect *ConfigConnectYmlFiles) findKey(key string) *Files {
+	files := Files{}
 	filename := connect.convertKeyToFileName(key)
 
 	for _, pathKey := range connect.paths.Order() {
@@ -43,8 +47,8 @@ func (connect *ConfigConnectYmlFiles) findKey(key string) *bytesource.Files {
 	return &files
 }
 
-func (connect *ConfigConnectYmlFiles) Readers(key string) config.ScopedReaders {
-	readers := config.ScopedReaders{}
+func (connect *ConfigConnectYmlFiles) Readers(key string) api_config.ScopedReaders {
+	readers := api_config.ScopedReaders{}
 
 	files := connect.findKey(key)
 	for _, fileKey := range files.Order() {
@@ -56,8 +60,8 @@ func (connect *ConfigConnectYmlFiles) Readers(key string) config.ScopedReaders {
 
 	return readers
 }
-func (connect *ConfigConnectYmlFiles) Writers(key string) config.ScopedWriters {
-	writers := config.ScopedWriters{}
+func (connect *ConfigConnectYmlFiles) Writers(key string) api_config.ScopedWriters {
+	writers := api_config.ScopedWriters{}
 
 	files := connect.findKey(key)
 	for _, fileKey := range files.Order() {

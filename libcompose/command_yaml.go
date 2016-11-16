@@ -11,13 +11,13 @@ import (
 	libCompose_config "github.com/docker/libcompose/config"
 	libCompose_project_options "github.com/docker/libcompose/project/options"
 
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/command"
-	"github.com/james-nesbitt/kraut-api/operation/config"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_command "github.com/james-nesbitt/kraut-api/operation/command"
+	api_config "github.com/james-nesbitt/kraut-api/operation/config"
 )
 
 // Constructor for BaseCommandConfigWrapperYmlOperation
-func New_BaseCommandConfigWrapperYmlOperation(configWrapper config.ConfigWrapper) *BaseCommandConfigWrapperYmlOperation {
+func New_BaseCommandConfigWrapperYmlOperation(configWrapper api_config.ConfigWrapper) *BaseCommandConfigWrapperYmlOperation {
 	return &BaseCommandConfigWrapperYmlOperation{
 		wrapper:  configWrapper,
 		commands: &CommandYmlCommands{},
@@ -26,7 +26,7 @@ func New_BaseCommandConfigWrapperYmlOperation(configWrapper config.ConfigWrapper
 
 // Command config wrapper that reads YML commands
 type BaseCommandConfigWrapperYmlOperation struct {
-	wrapper  config.ConfigWrapper
+	wrapper  api_config.ConfigWrapper
 	commands *CommandYmlCommands
 }
 
@@ -169,7 +169,7 @@ type CommandYmlCommand struct {
 	internal   bool
 
 	project       *ComposeProject
-	properties    *operation.Properties
+	properties    *api_operation.Properties
 	serviceConfig libCompose_config.ServiceConfig
 }
 
@@ -199,9 +199,9 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 	}
 
 	if comm.properties == nil {
-		properties := operation.Properties{}
+		properties := api_operation.Properties{}
 
-		properties.Add(operation.Property(&command.CommandFlagsProperty{}))
+		properties.Add(api_operation.Property(&api_command.CommandFlagsProperty{}))
 
 		comm.properties = &properties
 	}
@@ -210,11 +210,11 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 }
 
 // Turn this CommandYmlCommand into a command.Command
-func (ymlCommand *CommandYmlCommand) Command(projectProps *operation.Properties) command.Command {
+func (ymlCommand *CommandYmlCommand) Command(projectProps *api_operation.Properties) api_command.Command {
 	// merge the properties, keeping local over project.
 	projectProps.Merge(*ymlCommand.Properties())
 	ymlCommand.properties = projectProps
-	return command.Command(ymlCommand)
+	return api_command.Command(ymlCommand)
 }
 
 // Return string Id
@@ -255,16 +255,16 @@ func (ymlCommand *CommandYmlCommand) Description() string {
 }
 
 // Return string Description
-func (ymlCommand *CommandYmlCommand) Properties() *operation.Properties {
+func (ymlCommand *CommandYmlCommand) Properties() *api_operation.Properties {
 	return ymlCommand.properties
 }
 
-func (ymlCommand *CommandYmlCommand) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (ymlCommand *CommandYmlCommand) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	flags := []string{}
-	if propFlags, found := ymlCommand.Properties().Get(command.OPERATION_PROPERTY_COMMAND_FLAGS); found {
+	if propFlags, found := ymlCommand.Properties().Get(api_command.OPERATION_PROPERTY_COMMAND_FLAGS); found {
 		flags = propFlags.Get().([]string)
 	}
 
@@ -294,5 +294,5 @@ func (ymlCommand *CommandYmlCommand) Exec() operation.Result {
 		project.Delete(runContext, deleteOptions, ymlCommand.Id())
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }

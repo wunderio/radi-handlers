@@ -9,9 +9,9 @@ import (
 
 	jn_init "github.com/james-nesbitt/init-go"
 
-	"github.com/james-nesbitt/kraut-handlers/bytesource"
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/project"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_project "github.com/james-nesbitt/kraut-api/operation/project"
+	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"	
 )
 
 /**
@@ -29,20 +29,20 @@ func (handler *LocalHandler_Project) Id() string {
 }
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
-func (handler *LocalHandler_Project) Init() operation.Result {
-	result := operation.BaseResult{}
+func (handler *LocalHandler_Project) Init() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
-	ops := operation.Operations{}
+	ops := api_operation.Operations{}
 
 	// Now we can add project operations that use that Base class
-	ops.Add(operation.Operation(&LocalProjectInitOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
-	ops.Add(operation.Operation(&LocalProjectCreateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
-	ops.Add(operation.Operation(&LocalProjectGenerateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectInitOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectCreateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectGenerateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 
 	handler.operations = &ops
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }
 
 /**
@@ -50,11 +50,11 @@ func (handler *LocalHandler_Project) Init() operation.Result {
  */
 
 type LocalProjectInitOperation struct {
-	project.ProjectInitOperation
-	bytesource.BaseBytesourceFilesettingsOperation
+	api_project.ProjectInitOperation
+	handlers_bytesource.BaseBytesourceFilesettingsOperation
 
-	properties   *operation.Properties
-	fileSettings bytesource.BytesourceFileSettings
+	properties   *api_operation.Properties
+	fileSettings handlers_bytesource.BytesourceFileSettings
 }
 
 // Id the operation
@@ -64,7 +64,7 @@ func (init *LocalProjectInitOperation) Id() string {
 
 // Description for the LocalProjectCreateOperation
 func (init *LocalProjectInitOperation) Description() string {
-	return "Initialize the current project path as a kraut project."
+	return "Initialize the current project path as a kraut project"
 }
 
 // Validate the operation
@@ -74,15 +74,15 @@ func (init *LocalProjectInitOperation) Validate() bool {
 
 
 // Get properties
-func (init *LocalProjectInitOperation) Properties() *operation.Properties {
+func (init *LocalProjectInitOperation) Properties() *api_operation.Properties {
 	if init.properties == nil {
-		init.properties = &operation.Properties{}
+		init.properties = &api_operation.Properties{}
 
-		init.properties.Add(operation.Property(&project.ProjectInitDemoModeProperty{}))
+		init.properties.Add(api_operation.Property(&api_project.ProjectInitDemoModeProperty{}))
 
 		init.properties.Merge(*init.BaseBytesourceFilesettingsOperation.Properties())
 
-		if fileSettingsProp, exists := init.properties.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+		if fileSettingsProp, exists := init.properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
 			fileSettingsProp.Set(init.fileSettings)
 		}
 	}
@@ -90,13 +90,13 @@ func (init *LocalProjectInitOperation) Properties() *operation.Properties {
 }
 
 // Execute the local project init operation
-func (init *LocalProjectInitOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (init *LocalProjectInitOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	props := init.Properties()
-	demoModeProp, _ := props.Get(project.OPERATION_PROPERTY_PROJECT_INIT_DEMOMODE)
-	settingsProp, _ := props.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	demoModeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_INIT_DEMOMODE)
+	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
 	demoMode := demoModeProp.Get().(bool)
 
@@ -105,7 +105,7 @@ func (init *LocalProjectInitOperation) Exec() operation.Result {
 		source = "https://raw.githubusercontent.com/james-nesbitt/kraut-handlers/master/local/template/demo-init.yml"
 	}
 
-	settings := settingsProp.Get().(bytesource.BytesourceFileSettings)
+	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
 
 	log.WithFields(log.Fields{"source": source, "root": settings.ProjectRootPath}).Info("Running YML processer")
 
@@ -117,7 +117,7 @@ func (init *LocalProjectInitOperation) Exec() operation.Result {
 		tasks.RunTasks()
 	}	
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }
 
 /**
@@ -125,11 +125,11 @@ func (init *LocalProjectInitOperation) Exec() operation.Result {
  */
 
 type LocalProjectCreateOperation struct {
-	project.ProjectCreateOperation
-	bytesource.BaseBytesourceFilesettingsOperation
+	api_project.ProjectCreateOperation
+	handlers_bytesource.BaseBytesourceFilesettingsOperation
 
-	properties   *operation.Properties
-	fileSettings bytesource.BytesourceFileSettings
+	properties   *api_operation.Properties
+	fileSettings handlers_bytesource.BytesourceFileSettings
 }
 
 // Id the operation
@@ -148,16 +148,16 @@ func (create *LocalProjectCreateOperation) Validate() bool {
 }
 
 // Get properties
-func (create *LocalProjectCreateOperation) Properties() *operation.Properties {
+func (create *LocalProjectCreateOperation) Properties() *api_operation.Properties {
 	if create.properties == nil {
-		create.properties = &operation.Properties{}
+		create.properties = &api_operation.Properties{}
 
-		//create.properties.Add(operation.Property(&project.ProjectCreateTypeProperty{}))
-		create.properties.Add(operation.Property(&project.ProjectCreateSourceProperty{}))
+		//create.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
+		create.properties.Add(api_operation.Property(&api_project.ProjectCreateSourceProperty{}))
 
 		create.properties.Merge(*create.BaseBytesourceFilesettingsOperation.Properties())
 
-		if fileSettingsProp, exists := create.properties.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+		if fileSettingsProp, exists := create.properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
 			fileSettingsProp.Set(create.fileSettings)
 		}
 	}
@@ -165,17 +165,17 @@ func (create *LocalProjectCreateOperation) Properties() *operation.Properties {
 }
 
 // Execute the local project init operation
-func (create *LocalProjectCreateOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (create *LocalProjectCreateOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	props := create.Properties()
-	//typeProp, _ := props.Get(project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
-	sourceProp, _ := props.Get(project.OPERATION_PROPERTY_PROJECT_CREATE_SOURCE)
-	settingsProp, _ := props.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
+	sourceProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_SOURCE)
+	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
 	source := sourceProp.Get().(string)
-	settings := settingsProp.Get().(bytesource.BytesourceFileSettings)
+	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
 
 	log.WithFields(log.Fields{"source": source, "root": settings.ProjectRootPath}).Info("Running YML processer")
 
@@ -187,7 +187,7 @@ func (create *LocalProjectCreateOperation) Exec() operation.Result {
 		tasks.RunTasks()
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }
 
 /**
@@ -195,11 +195,11 @@ func (create *LocalProjectCreateOperation) Exec() operation.Result {
  */
 
 type LocalProjectGenerateOperation struct {
-	project.ProjectGenerateOperation
-	bytesource.BaseBytesourceFilesettingsOperation
+	api_project.ProjectGenerateOperation
+	handlers_bytesource.BaseBytesourceFilesettingsOperation
 
-	properties   *operation.Properties
-	fileSettings bytesource.BytesourceFileSettings
+	properties   *api_operation.Properties
+	fileSettings handlers_bytesource.BytesourceFileSettings
 }
 
 // Id the operation
@@ -209,7 +209,7 @@ func (generate *LocalProjectGenerateOperation) Id() string {
 
 // Description for the LocalProjectCreateOperation
 func (generate *LocalProjectGenerateOperation) Description() string {
-	return "Create a yml template from the current project."
+	return "Create a yml template from the current project"
 }
 
 // Validate the operation
@@ -218,15 +218,15 @@ func (generate *LocalProjectGenerateOperation) Validate() bool {
 }
 
 // Get properties
-func (generate *LocalProjectGenerateOperation) Properties() *operation.Properties {
+func (generate *LocalProjectGenerateOperation) Properties() *api_operation.Properties {
 	if generate.properties == nil {
-		generate.properties = &operation.Properties{}
+		generate.properties = &api_operation.Properties{}
 
-		//generate.properties.Add(operation.Property(&project.ProjectCreateTypeProperty{}))
+		//generate.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
 
 		generate.properties.Merge(*generate.BaseBytesourceFilesettingsOperation.Properties())
 
-		if fileSettingsProp, exists := generate.properties.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+		if fileSettingsProp, exists := generate.properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
 			fileSettingsProp.Set(generate.fileSettings)
 		}
 	}
@@ -234,15 +234,15 @@ func (generate *LocalProjectGenerateOperation) Properties() *operation.Propertie
 }
 
 // Execute the local project init operation
-func (generate *LocalProjectGenerateOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (generate *LocalProjectGenerateOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	props := generate.Properties()
-	//typeProp, _ := props.Get(project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
-	settingsProp, _ := props.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
+	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
-	settings := settingsProp.Get().(bytesource.BytesourceFileSettings)
+	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
 
 	var method string = "yaml"
 	var writer io.Writer
@@ -281,5 +281,5 @@ func (generate *LocalProjectGenerateOperation) Exec() operation.Result {
 		}
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }

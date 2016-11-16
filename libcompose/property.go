@@ -3,7 +3,7 @@ package libcompose
 import (
 	// libCompose_options "github.com/docker/libcompose/project/options"
 
-	"github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
 )
 
 const (
@@ -57,7 +57,7 @@ const (
 
 // Project Name Property for a docker.libCompose project
 type LibcomposeProjectnameProperty struct {
-	operation.StringProperty
+	api_operation.StringProperty
 }
 
 // Id for the Property
@@ -82,7 +82,7 @@ func (name *LibcomposeProjectnameProperty) Internal() bool {
 
 // YAML file list Property for a docker.libCompose project
 type LibcomposeComposefilesProperty struct {
-	operation.StringSliceProperty
+	api_operation.StringSliceProperty
 }
 
 // Id for the Property
@@ -107,7 +107,7 @@ func (files *LibcomposeComposefilesProperty) Internal() bool {
 
 // A libcompose Property for net context limiting
 type LibcomposeContextProperty struct {
-	operation.ContextProperty
+	api_operation.ContextProperty
 }
 
 // Id for the Property
@@ -132,7 +132,7 @@ func (contextConf *LibcomposeContextProperty) Internal() bool {
 
 // Output handler Property for a docker.libCompose project
 type LibcomposeOutputProperty struct {
-	operation.WriterProperty
+	api_operation.WriterProperty
 }
 
 // Id for the Property
@@ -157,7 +157,7 @@ func (output *LibcomposeOutputProperty) Internal() bool {
 
 // Error handler Property for a docker.libCompose project
 type LibcomposeErrorProperty struct {
-	operation.WriterProperty
+	api_operation.WriterProperty
 }
 
 // Id for the Property
@@ -187,7 +187,7 @@ func (err *LibcomposeErrorProperty) Internal() bool {
 
 // BUILD : Property for a docker.libCompose project to indicate that a build should ignore cached image layers
 type LibcomposeNoCacheProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -212,7 +212,7 @@ func (nocache *LibcomposeNoCacheProperty) Internal() bool {
 
 // Property for a docker.libCompose project to indicate that a process remove ... something
 type LibcomposeForceRemoveProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -237,7 +237,7 @@ func (forceremove *LibcomposeForceRemoveProperty) Internal() bool {
 
 // Property for a docker.libCompose project to indicate that a process hsould stay attached and follow
 type LibcomposePullProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -262,7 +262,7 @@ func (pull *LibcomposePullProperty) Internal() bool {
 
 // Property for a docker.libCompose project to indicate that a process hsould stay attached and follow
 type LibcomposeDetachProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -287,7 +287,7 @@ func (detach *LibcomposeDetachProperty) Internal() bool {
 
 // UP : Property for a docker.libCompose project to indicate that a process should not create missing containers
 type LibcomposeNoRecreateProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -312,7 +312,7 @@ func (norecreate *LibcomposeNoRecreateProperty) Internal() bool {
 
 // UP|RECREATE : Property for a docker.libCompose project to indicate that a process should build containers even if they are found
 type LibcomposeForceRecreateProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -337,7 +337,7 @@ func (forcerecreate *LibcomposeForceRecreateProperty) Internal() bool {
 
 // UP|CREATE : Property for a docker.libCompose project to indicate that a process should not build any containers
 type LibcomposeNoBuildProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -362,7 +362,7 @@ func (dontbuild *LibcomposeNoBuildProperty) Internal() bool {
 
 // UP|CREATE : Property for a docker.libCompose project to indicate that a process should force rebuilding images
 type LibcomposeForceRebuildProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -387,7 +387,7 @@ func (forcerebuild *LibcomposeForceRebuildProperty) Internal() bool {
 
 // DOWN|DELETE : Property for a docker.libCompose project to indicate that a process should remove any volumes
 type LibcomposeRemoveVolumesProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -412,7 +412,7 @@ func (removevolumes *LibcomposeRemoveVolumesProperty) Internal() bool {
 
 // DOWN : Property for a docker.libCompose project to indicate that a process should remove any orphan containers
 type LibcomposeRemoveOrphansProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property
@@ -437,7 +437,7 @@ func (removeorphans *LibcomposeRemoveOrphansProperty) Internal() bool {
 
 // DOWN : Property for a docker.libCompose project to indicate that a process should remove images of a certain type
 type LibcomposeRemoveImageTypeProperty struct {
-	operation.StringProperty
+	api_operation.StringProperty
 }
 
 // Id for the Property
@@ -462,7 +462,7 @@ func (removeimagetypes *LibcomposeRemoveImageTypeProperty) Internal() bool {
 
 // DELETE : Property for a docker.libCompose project to indicate that a process should delete running containers
 type LibcomposeRemoveRunningProperty struct {
-	operation.BooleanProperty
+	api_operation.BooleanProperty
 }
 
 // Id for the Property

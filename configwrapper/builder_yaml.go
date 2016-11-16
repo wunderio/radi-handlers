@@ -1,4 +1,4 @@
-package configconnect
+package configwrapper
 
 import (
 	"errors"
