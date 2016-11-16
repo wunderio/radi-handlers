@@ -3,8 +3,8 @@ package libcompose
 import (
 	"errors"
 
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/command"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_command "github.com/james-nesbitt/kraut-api/operation/command"
 )
 
 /**
@@ -28,12 +28,12 @@ type CommandConfigWrapper interface {
 
 // LibCompose Command List operation
 type LibcomposeCommandListOperation struct {
-	command.BaseCommandListOperation
-	command.BaseCommandKeyKeysOperation
+	api_command.BaseCommandListOperation
+	api_command.BaseCommandKeyKeysOperation
 	BaseLibcomposeNameFilesOperation
 
 	Wrapper    CommandConfigWrapper
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Validate the operation
@@ -42,7 +42,7 @@ func (list *LibcomposeCommandListOperation) Validate() bool {
 }
 
 // Get properties
-func (list *LibcomposeCommandListOperation) Properties() *operation.Properties {
+func (list *LibcomposeCommandListOperation) Properties() *api_operation.Properties {
 	baseProps := list.BaseCommandListOperation.Properties()
 
 	keyKeysProps := list.BaseCommandKeyKeysOperation.Properties()
@@ -52,13 +52,13 @@ func (list *LibcomposeCommandListOperation) Properties() *operation.Properties {
 }
 
 // Execute the libCompose Command List operation
-func (list *LibcomposeCommandListOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (list *LibcomposeCommandListOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	props := list.BaseCommandKeyKeysOperation.Properties()
-	keyProp, _ := props.Get(command.OPERATION_PROPERTY_COMMAND_KEY)
-	keysProp, _ := props.Get(command.OPERATION_PROPERTY_COMMAND_KEYS)
+	keyProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_KEY)
+	keysProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_KEYS)
 
 	parent := ""
 	if key, ok := keyProp.Get().(string); ok && key != "" {
@@ -71,17 +71,17 @@ func (list *LibcomposeCommandListOperation) Exec() operation.Result {
 		result.Set(false, []error{err})
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }
 
 // LibCompose Command Get operation
 type LibcomposeCommandGetOperation struct {
-	command.BaseCommandGetOperation
-	command.BaseCommandKeyCommandOperation
+	api_command.BaseCommandGetOperation
+	api_command.BaseCommandKeyCommandOperation
 	BaseLibcomposeNameFilesOperation
 
 	Wrapper    CommandConfigWrapper
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Validate the operation
@@ -90,7 +90,7 @@ func (get *LibcomposeCommandGetOperation) Validate() bool {
 }
 
 // Get properties
-func (get *LibcomposeCommandGetOperation) Properties() *operation.Properties {
+func (get *LibcomposeCommandGetOperation) Properties() *api_operation.Properties {
 	baseProps := get.BaseCommandGetOperation.Properties()
 
 	keyCommandProps := get.BaseCommandKeyCommandOperation.Properties()
@@ -100,13 +100,13 @@ func (get *LibcomposeCommandGetOperation) Properties() *operation.Properties {
 }
 
 // Execute the libCompose Command Get operation
-func (get *LibcomposeCommandGetOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (get *LibcomposeCommandGetOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
 	props := get.BaseCommandKeyCommandOperation.Properties()
-	keyProp, _ := props.Get(command.OPERATION_PROPERTY_COMMAND_KEY)
-	commandProp, _ := props.Get(command.OPERATION_PROPERTY_COMMAND_COMMAND)
+	keyProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_KEY)
+	commandProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_COMMAND)
 
 	if key, ok := keyProp.Get().(string); ok && key != "" {
 
@@ -122,5 +122,5 @@ func (get *LibcomposeCommandGetOperation) Exec() operation.Result {
 		result.Set(false, []error{errors.New("No command name provided.")})
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }

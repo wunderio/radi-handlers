@@ -1,7 +1,7 @@
 package bytesource
 
 import (
-	"github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
 )
 
 /**
@@ -17,16 +17,16 @@ func New_BaseBytesourceFilesettingsOperation(settings BytesourceFileSettings) *B
 
 type BaseBytesourceFilesettingsOperation struct {
 	settings   BytesourceFileSettings
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
-func (base *BaseBytesourceFilesettingsOperation) Properties() *operation.Properties {
+func (base *BaseBytesourceFilesettingsOperation) Properties() *api_operation.Properties {
 	if base.properties == nil {
 		settingsProp := BytesourceFilesettingsProperty{}
 		settingsProp.Set(base.settings)
 
-		base.properties = &operation.Properties{}
-		base.properties.Add(operation.Property(&settingsProp))
+		base.properties = &api_operation.Properties{}
+		base.properties.Add(api_operation.Property(&settingsProp))
 	}
 	return base.properties
 }

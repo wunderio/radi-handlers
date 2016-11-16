@@ -1,16 +1,16 @@
 package local
 
 import (
-	"github.com/james-nesbitt/kraut-handlers/libcompose"
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
 )
 
 // A handler for local orchestration using libcompose
 type LocalHandler_Orchestrate struct {
 	LocalHandler_Base
 	LocalHandler_SettingWrapperBase
-	libcompose.BaseLibcomposeHandler
+	handlers_libcompose.BaseLibcomposeHandler
 }
 
 // [Handler.]Id returns a string ID for the handler
@@ -19,26 +19,26 @@ func (handler *LocalHandler_Orchestrate) Id() string {
 }
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
-func (handler *LocalHandler_Orchestrate) Init() operation.Result {
-	result := operation.BaseResult{}
+func (handler *LocalHandler_Orchestrate) Init() api_operation.Result {
+	result := api_operation.BaseResult{}
 	result.Set(true, nil)
 
-	ops := operation.Operations{}
+	ops := api_operation.Operations{}
 
 	// Use discovered/default settings to build a base operation struct, to be share across orchestration operations
 	baseLibcompose := *handler.BaseLibcomposeHandler.LibComposeBaseOp
 
 	// Now we can add orchestration operations that use that Base class
-	ops.Add(operation.Operation(&libcompose.LibcomposeMonitorLogsOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
-	ops.Add(operation.Operation(&libcompose.LibcomposeOrchestrateUpOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
-	ops.Add(operation.Operation(&libcompose.LibcomposeOrchestrateDownOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
+	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeMonitorLogsOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
+	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeOrchestrateUpOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
+	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeOrchestrateDownOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
 
 	handler.operations = &ops
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }
 
 // Make OrchestrateWrapper
-func (handler *LocalHandler_Orchestrate) OrchestrateWrapper() orchestrate.OrchestrateWrapper {
-	return orchestrate.New_SimpleOrchestrateWrapper(handler.operations)
+func (handler *LocalHandler_Orchestrate) OrchestrateWrapper() api_orchestrate.OrchestrateWrapper {
+	return api_orchestrate.New_SimpleOrchestrateWrapper(handler.operations)
 }

@@ -1,4 +1,4 @@
-package configconnect
+package configwrapper
 
 import (
 	// "errors"
@@ -7,16 +7,16 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
-	"github.com/james-nesbitt/kraut-api/operation/config"
+	api_config "github.com/james-nesbitt/kraut-api/operation/config"
 )
 
 /**
- * A single base struct which handles settings by intepreting a config.ConfigWrapper
+ * A single base struct which handles settings by intepreting an api_config.ConfigWrapper
  * as a stream of YML bytes,
  */
 
 // Constructor for {} BaseSettingConfigWrapperYmlOperation
-func New_BaseSettingConfigWrapperYmlOperation(wrapper config.ConfigWrapper) *BaseSettingConfigWrapperYmlOperation {
+func New_BaseSettingConfigWrapperYmlOperation(wrapper api_config.ConfigWrapper) *BaseSettingConfigWrapperYmlOperation {
 	return &BaseSettingConfigWrapperYmlOperation{
 		wrapper:  wrapper,
 		settings: Settings{},
@@ -25,7 +25,7 @@ func New_BaseSettingConfigWrapperYmlOperation(wrapper config.ConfigWrapper) *Bas
 
 // A SettingsSource implementation for yml settings
 type BaseSettingConfigWrapperYmlOperation struct {
-	wrapper  config.ConfigWrapper // The config wrapper will be used to retrieve and save full config
+	wrapper  api_config.ConfigWrapper // The config wrapper will be used to retrieve and save full config
 	settings Settings             // the values map stores parsed values from config
 }
 
@@ -70,10 +70,10 @@ func (setting *BaseSettingConfigWrapperYmlOperation) Save() error {
 	}
 
 	// convert the map to a ConfigScopedValues{} by marshalling the settings maps
-	scopedValues := config.ConfigScopedValues{}
+	scopedValues := api_config.ConfigScopedValues{}
 	for scope, values := range configMap {
 		if valuesYml, err := yaml.Marshal(values); err == nil {
-			scopedValues.Add(scope, config.ConfigScopedValue(valuesYml))
+			scopedValues.Add(scope, api_config.ConfigScopedValue(valuesYml))
 		} else {
 			return err
 		}

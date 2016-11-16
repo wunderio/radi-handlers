@@ -8,8 +8,8 @@ import (
 
 	libCompose_options "github.com/docker/libcompose/project/options"
 
-	"github.com/james-nesbitt/kraut-api/operation"
-	"github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
 )
 
 /**
@@ -65,15 +65,15 @@ func (optionsConf *LibcomposeOptionsDownProperty) Set(value interface{}) bool {
 
 // Base Down operation
 type BaseLibcomposeOrchestrateDownSingleOperation struct {
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateDownSingleOperation) Properties() *operation.Properties {
+func (base *BaseLibcomposeOrchestrateDownSingleOperation) Properties() *api_operation.Properties {
 	if base.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 
-		newProperties.Add(operation.Property(&LibcomposeOptionsDownProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeOptionsDownProperty{}))
 
 		base.properties = newProperties
 	}
@@ -82,17 +82,17 @@ func (base *BaseLibcomposeOrchestrateDownSingleOperation) Properties() *operatio
 
 // Base Down operation
 type BaseLibcomposeOrchestrateDownParametrizedOperation struct {
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateDownParametrizedOperation) Properties() *operation.Properties {
+func (base *BaseLibcomposeOrchestrateDownParametrizedOperation) Properties() *api_operation.Properties {
 	if base.properties == nil {
-		newProperties := &operation.Properties{}
+		newProperties := &api_operation.Properties{}
 
-		newProperties.Add(operation.Property(&LibcomposeRemoveVolumesProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeRemoveImageTypeProperty{}))
-		newProperties.Add(operation.Property(&LibcomposeRemoveOrphansProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeRemoveVolumesProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeRemoveImageTypeProperty{}))
+		newProperties.Add(api_operation.Property(&LibcomposeRemoveOrphansProperty{}))
 
 		base.properties = newProperties
 	}
@@ -101,11 +101,11 @@ func (base *BaseLibcomposeOrchestrateDownParametrizedOperation) Properties() *op
 
 // LibCompose based down orchestrate operation
 type LibcomposeOrchestrateDownOperation struct {
-	orchestrate.BaseOrchestrationDownOperation
+	api_orchestrate.BaseOrchestrationDownOperation
 	BaseLibcomposeNameFilesOperation
 	BaseLibcomposeOrchestrateDownParametrizedOperation
 
-	properties *operation.Properties
+	properties *api_operation.Properties
 }
 
 // Validate the libCompose Orchestrate Down operation
@@ -114,9 +114,9 @@ func (down *LibcomposeOrchestrateDownOperation) Validate() bool {
 }
 
 // Provide static properties for the operation
-func (down *LibcomposeOrchestrateDownOperation) Properties() *operation.Properties {
+func (down *LibcomposeOrchestrateDownOperation) Properties() *api_operation.Properties {
 	if down.properties == nil {
-		down.properties = &operation.Properties{}
+		down.properties = &api_operation.Properties{}
 		down.properties.Merge(*down.BaseLibcomposeOrchestrateDownParametrizedOperation.Properties())
 		down.properties.Merge(*down.BaseLibcomposeNameFilesOperation.Properties())
 	}
@@ -124,8 +124,8 @@ func (down *LibcomposeOrchestrateDownOperation) Properties() *operation.Properti
 }
 
 // Execute the libCompose Orchestrate Down operation
-func (down *LibcomposeOrchestrateDownOperation) Exec() operation.Result {
-	result := operation.BaseResult{}
+func (down *LibcomposeOrchestrateDownOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
 
 	properties := down.Properties()
 	// pass all props to make a project
@@ -158,5 +158,5 @@ func (down *LibcomposeOrchestrateDownOperation) Exec() operation.Result {
 		result.Set(false, []error{err})
 	}
 
-	return operation.Result(&result)
+	return api_operation.Result(&result)
 }

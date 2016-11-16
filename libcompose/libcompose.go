@@ -10,8 +10,8 @@ import (
 	libCompose_dockerctx "github.com/docker/libcompose/docker/ctx"
 	libCompose_project "github.com/docker/libcompose/project"
 
-	"github.com/james-nesbitt/kraut-handlers/bytesource"
-	"github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
 )
 
 /**
@@ -19,13 +19,13 @@ import (
  * are needed to handler orchestration through libcompose
  */
 
-func MakeComposeProject(properties *operation.Properties) (*ComposeProject, bool) {
+func MakeComposeProject(properties *api_operation.Properties) (*ComposeProject, bool) {
 
 	projectNameProp, _ := properties.Get(OPERATION_PROPERTY_LIBCOMPOSE_PROJECTNAME)
 	composeProjectName := projectNameProp.Get().(string)
 
-	bytesourceFilesettingsProp, _ := properties.Get(bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
-	pathSettings := bytesourceFilesettingsProp.Get().(bytesource.BytesourceFileSettings)
+	bytesourceFilesettingsProp, _ := properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	pathSettings := bytesourceFilesettingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
 
 	projectFilesProp, _ := properties.Get(OPERATION_PROPERTY_LIBCOMPOSE_COMPOSEFILES)
 	composeFiles := projectFilesProp.Get().([]string)
@@ -71,7 +71,7 @@ type ComposeProject struct {
 	libCompose_project.APIProject
 	netContext     context.Context
 	composeContext *libCompose_dockerctx.Context
-	pathSettings   bytesource.BytesourceFileSettings
+	pathSettings   handlers_bytesource.BytesourceFileSettings
 }
 
 // get a specific service

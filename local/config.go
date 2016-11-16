@@ -1,9 +1,9 @@
 package local
 
 import (
-	handlers_configconnect "github.com/james-nesbitt/kraut-handlers/configconnect"
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 	api_config "github.com/james-nesbitt/kraut-api/operation/config"
+	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"	
 )
 
 // A handler for local config
@@ -24,7 +24,7 @@ func (handler *LocalHandler_Config) Init() api_operation.Result {
 	ops := api_operation.Operations{}
 
 	// build a ConfigConnector for use with the Config operations.
-	connector := handlers_configconnect.New_ConfigConnectYmlFiles(handler.settings.ConfigPaths)
+	connector := handlers_bytesource.New_ConfigConnectYmlFiles(handler.settings.ConfigPaths)
 
 	// Build this base operation to be shared across all of our config operations
 	baseConnectorOperation := api_config.New_BaseConfigConnectorOperation(connector)

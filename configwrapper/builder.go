@@ -1,4 +1,4 @@
-package configconnect
+package configwrapper
 
 /**
  * Builder building by reading config bytes
