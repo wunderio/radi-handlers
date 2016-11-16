@@ -3,7 +3,7 @@ package local
 import (
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
-	handlers_configwrapper "github.com/james-nesbitt/kraut-handlers/configwrapper"	
+	handlers_configwrapper "github.com/james-nesbitt/kraut-handlers/configwrapper"
 )
 
 // A handler for local settings

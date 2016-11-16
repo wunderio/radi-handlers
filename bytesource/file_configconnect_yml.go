@@ -4,7 +4,6 @@ package bytesource
  * Build a ConfigConnector based on file contents
  */
 
-
 import (
 	"io/ioutil"
 	"path/filepath"

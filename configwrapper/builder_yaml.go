@@ -23,7 +23,6 @@ func New_BuilderSettingsConfigWrapperYaml(configWrapper api_config.ConfigWrapper
 	})
 }
 
-
 // A BuilderSettingsConfigWRapper, that interprets build config as yml
 type BuilderSettingsConfigWrapperYaml struct {
 	configWrapper api_config.ConfigWrapper
@@ -44,7 +43,7 @@ func (buildSettings *BuilderSettingsConfigWrapperYaml) safe() {
 	}
 	if buildSettings.buildSettings.Empty() {
 		if err := buildSettings.Load(); err != nil {
-			log.WithError(err).Error("Could not load build configuration")			
+			log.WithError(err).Error("Could not load build configuration")
 		}
 	}
 }
@@ -54,7 +53,7 @@ func (buildSettings *BuilderSettingsConfigWrapperYaml) Get(key string) (api_buil
 	return builder, found == nil
 }
 func (buildSettings *BuilderSettingsConfigWrapperYaml) Set(key string, values api_builder.BuildSetting) bool {
-	buildSettings.safe()	
+	buildSettings.safe()
 	buildSettings.buildSettings.Set(key, values)
 	if err := buildSettings.Save(); err != nil {
 		log.WithError(err).Error("Could not save build configuration")
@@ -78,7 +77,7 @@ func (buildSettings *BuilderSettingsConfigWrapperYaml) Load() error {
 			scopedValues := []Yml_BuildSetting{} // temporarily hold all settings for a specific scope in this
 			if err := yaml.Unmarshal(scopedSource, &scopedValues); err == nil {
 				for index, values := range scopedValues {
-					key := scope+"_"+strconv.Itoa(index) // make a unqique key for this setting
+					key := scope + "_" + strconv.Itoa(index) // make a unqique key for this setting
 					log.WithFields(log.Fields{"ymlSettings": values, "key": key}).Debug("Each yml")
 					buildSettings.buildSettings.Set(key, *values.MakeBuildSetting())
 				}
@@ -98,16 +97,17 @@ func (buildSettings *BuilderSettingsConfigWrapperYaml) Load() error {
 func (buildSettings *BuilderSettingsConfigWrapperYaml) Save() error {
 	/**
 	 * @TODO THIS
-     */
+	 */
 	return errors.New("BuilderSettingsConfigWrapperYaml Set operation not yet written.")
 }
 
 // A temporary holder of BuildSettings, just for yml parsing (probably not needed even)
 type Yml_BuildSetting struct {
-	Type string 				                       `yaml:"Type"`
-	Implementations []string 	                       `yaml:"Implementations"`
-	SettingsProvider Yml_BuildSettingSettingsProvider  `yaml:"Settings"`
+	Type             string                           `yaml:"Type"`
+	Implementations  []string                         `yaml:"Implementations"`
+	SettingsProvider Yml_BuildSettingSettingsProvider `yaml:"Settings"`
 }
+
 // Convert this YML struct into a proper BuildSetting struct
 func (setting *Yml_BuildSetting) MakeBuildSetting() *api_builder.BuildSetting {
 	return api_builder.New_BuildSetting(setting.Type, *api_builder.New_Implementations(setting.Implementations), api_builder.SettingsProvider(setting.SettingsProvider))
@@ -117,6 +117,7 @@ func (setting *Yml_BuildSetting) MakeBuildSetting() *api_builder.BuildSetting {
 type Yml_BuildSettingSettingsProvider struct {
 	UnMarshaler func(interface{}) error
 }
+
 // Yaml custom UnMarshall handler
 func (ymlSettingsProvider *Yml_BuildSettingSettingsProvider) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	ymlSettingsProvider.UnMarshaler = unmarshal

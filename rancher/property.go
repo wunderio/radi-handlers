@@ -12,7 +12,6 @@ const (
 	OPERATION_PROPERTY_RANCHER_CLIENTOPTS = "rancher.clientopts"
 )
 
-
 // A single Rancher client options configuration
 type RancherClientOptsProperty struct {
 	options gorancher_client.ClientOpts
@@ -39,14 +38,14 @@ func (clientOpts *RancherClientOptsProperty) Internal() bool {
 }
 
 // Give an idea of what type of value the property consumes
-func (clientOpts *RancherClientOptsProperty)Type() string {
+func (clientOpts *RancherClientOptsProperty) Type() string {
 	return "go-rancher.clientopts"
 }
 
-func (clientOpts *RancherClientOptsProperty)Get() interface{} {
+func (clientOpts *RancherClientOptsProperty) Get() interface{} {
 	return interface{}(clientOpts.options)
 }
-func (clientOpts *RancherClientOptsProperty)Set(value interface{}) bool {
+func (clientOpts *RancherClientOptsProperty) Set(value interface{}) bool {
 	if converted, ok := value.(gorancher_client.ClientOpts); ok {
 		property.options = converted
 		return true

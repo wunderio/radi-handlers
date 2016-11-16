@@ -6,12 +6,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-
 	jn_init "github.com/james-nesbitt/init-go"
 
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 	api_project "github.com/james-nesbitt/kraut-api/operation/project"
-	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"	
+	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
 )
 
 /**
@@ -59,7 +58,7 @@ type LocalProjectInitOperation struct {
 
 // Id the operation
 func (init *LocalProjectInitOperation) Id() string {
-	return "local."+init.ProjectInitOperation.Id()
+	return "local." + init.ProjectInitOperation.Id()
 }
 
 // Description for the LocalProjectCreateOperation
@@ -71,7 +70,6 @@ func (init *LocalProjectInitOperation) Description() string {
 func (init *LocalProjectInitOperation) Validate() bool {
 	return true
 }
-
 
 // Get properties
 func (init *LocalProjectInitOperation) Properties() *api_operation.Properties {
@@ -115,7 +113,7 @@ func (init *LocalProjectInitOperation) Exec() api_operation.Result {
 		result.Set(false, []error{errors.New("YML Generator failed")})
 	} else {
 		tasks.RunTasks()
-	}	
+	}
 
 	return api_operation.Result(&result)
 }
