@@ -13,6 +13,7 @@ import (
 	api_command "github.com/james-nesbitt/kraut-api/operation/command"
 	api_config "github.com/james-nesbitt/kraut-api/operation/config"
 	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_security "github.com/james-nesbitt/kraut-api/operation/security"
 	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
 	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
 )
@@ -45,6 +46,7 @@ type LocalBuilder struct {
 	Config      api_config.ConfigWrapper
 	Setting     api_setting.SettingWrapper
 	Orchestrate api_orchestrate.OrchestrateWrapper
+	Security    api_security.SecurityWrapper
 }
 
 // IBuilder ID
@@ -71,6 +73,8 @@ func (builder *LocalBuilder) Activate(implementations api_builder.Implementation
 			builder.build_Orchestrate()
 		case "command":
 			builder.build_Command()
+		case "security":
+			builder.build_Security()
 
 		default:
 			log.WithFields(log.Fields{"implementation": implementation}).Error("Local builder implementation not available")
@@ -222,6 +226,23 @@ func (builder *LocalBuilder) build_Command() error {
 	builder.Command = local_command.CommandWrapper()
 
 	log.WithFields(log.Fields{"CommandWrapper": builder.Command}).Debug("localBuilder: Built Command Handler")
+
+	return nil
+}
+
+// Add local Handlers for Security operations
+func (builder *LocalBuilder) build_Security() error {
+	// Build a command Handler
+	local_security := LocalHandler_Security{
+		LocalHandler_Base: *builder.base(),
+	}
+	local_security.SetConfigWrapper(builder.Config)
+	local_security.Init()
+	builder.AddHandler(api_handler.Handler(&local_security))
+	// Get an orchestrate wrapper for other handlers
+	builder.Security = local_security.SecurityWrapper()
+
+	log.WithFields(log.Fields{"CSecurityWrapper": builder.Command}).Debug("localBuilder: Built Security Handler")
 
 	return nil
 }
