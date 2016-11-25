@@ -9,9 +9,10 @@ import (
  */
 
 const (
-	UPCLOUD_GLOBAL_PROPERTY      = "upcloud.global"
-	UPCLOUD_SERVER_UUID_PROPERTY = "upcloud.server.uuid"
-	UPCLOUD_ZONE_ID_PROPERTY     = "upcloud.zone.id"
+	UPCLOUD_GLOBAL_PROPERTY       = "upcloud.global"
+	UPCLOUD_SERVER_UUID_PROPERTY  = "upcloud.server.uuid"
+	UPCLOUD_STORAGE_UUID_PROPERTY = "upcloud.storage.uuid"
+	UPCLOUD_ZONE_ID_PROPERTY      = "upcloud.zone.id"
 )
 
 // A boolean flag that tells upcloud to consider services/zones outside the scope of the project
@@ -62,6 +63,31 @@ func (uuid *UpcloudServerUUIDProperty) Description() string {
 
 // Mark a property as being for internal use only (no shown to users)
 func (uuid *UpcloudServerUUIDProperty) Internal() bool {
+	return false
+}
+
+// A string slice property to match to storage UUID
+type UpcloudStorageUUIDProperty struct {
+	api_operation.StringSliceProperty
+}
+
+// ID returns string unique property Identifier
+func (uuid *UpcloudStorageUUIDProperty) Id() string {
+	return UPCLOUD_STORAGE_UUID_PROPERTY
+}
+
+// Label returns a short user readable label for the property
+func (uuid *UpcloudStorageUUIDProperty) Label() string {
+	return "UpCloud server UUID"
+}
+
+// Description provides a longer multi-line string description of what the property does
+func (uuid *UpcloudStorageUUIDProperty) Description() string {
+	return "Specific UpCloud server UUID"
+}
+
+// Mark a property as being for internal use only (no shown to users)
+func (uuid *UpcloudStorageUUIDProperty) Internal() bool {
 	return false
 }
 

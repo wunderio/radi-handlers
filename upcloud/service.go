@@ -50,9 +50,10 @@ func New_UpcloudServiceWrapper(service upcloud_service.Service) *UpcloudServiceW
 
 // Define some values that can be used by the ServiceWrapper to limit and configure it
 type UpcloudBuilderSettings struct {
-	Hosts  []string `yml:"Hosts"`
-	Labels []string `yml:"Labels"`
-	Zones  []string `yml:"Zones"`
+	Hosts    []string `yml:"Hosts"`
+	Labels   []string `yml:"Labels"`
+	Zones    []string `yml:"Zones"`
+	Storages []string `yml:"Storages"`
 }
 
 // Merge settings
@@ -127,14 +128,20 @@ func (settings *UpcloudBuilderSettings) UnmarshalYAML(unmarshal func(interface{}
 }
 
 // Does this server match settings from the BuilderSettings (is it in this project)
-func (settings *UpcloudBuilderSettings) ServerAllowed(server upcloud.Server) bool {
-	return settings.ServerUUIDAllowed(server.UUID)
-}
-
-// Does this server match settings from the BuilderSettings (is it in this project)
 func (settings *UpcloudBuilderSettings) ServerUUIDAllowed(uuid string) bool {
 	// simple host UUID match
 	for _, match := range settings.Hosts {
+		if match == uuid {
+			return true
+		}
+	}
+	return false
+}
+
+// Does this storage match settings from the BuilderSettings (is it in this project)
+func (settings *UpcloudBuilderSettings) StorageUUIDAllowed(uuid string) bool {
+	// simple host UUID match
+	for _, match := range settings.Storages {
 		if match == uuid {
 			return true
 		}

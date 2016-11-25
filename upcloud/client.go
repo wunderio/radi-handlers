@@ -20,5 +20,6 @@ type UpcloudClientSettings struct {
 
 // Builder an UpCloud client from the settings
 func (settings *UpcloudClientSettings) Client() *upcloud_client.Client {
-	return upcloud_client.New(settings.user, settings.password)
+	return upcloud_client.New("wunderdocker", "Oceania82-stencil-ideolog-codices")
+	// return upcloud_client.New(settings.user, settings.password)
 }

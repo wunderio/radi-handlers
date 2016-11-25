@@ -85,6 +85,7 @@ func (securityUser *UpcloudSecurityUserOperation) Exec() api_operation.Result {
 		log.WithFields(log.Fields{"username": account.UserName, "credits": account.Credits}).Info("Current UpCloud Account")
 	} else {
 		log.WithError(err).Error("Could not retrieve UpCloud account information.")
+		result.Set(false, []error{err})
 	}
 
 	return api_operation.Result(&result)
