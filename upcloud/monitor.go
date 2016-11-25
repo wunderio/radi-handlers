@@ -1,7 +1,11 @@
 package upcloud
 
 import (
+	"errors"
+
 	log "github.com/Sirupsen/logrus"
+
+	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 )
@@ -23,6 +27,7 @@ func (monitor *UpcloudMonitorHandler) Init() api_operation.Result {
 	ops := api_operation.Operations{}
 	ops.Add(api_operation.Operation(&UpcloudMonitorListZonesOperation{BaseUpcloudServiceOperation: *baseOperation}))
 	ops.Add(api_operation.Operation(&UpcloudMonitorListServersOperation{BaseUpcloudServiceOperation: *baseOperation}))
+	ops.Add(api_operation.Operation(&UpcloudMonitorServerDetailsOperation{BaseUpcloudServiceOperation: *baseOperation}))
 	monitor.operations = &ops
 
 	return api_operation.Result(&result)
@@ -230,6 +235,103 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 		}
 	} else {
 		log.WithError(err).Error("Could not list UpCloud servers")
+	}
+
+	return api_operation.Result(&result)
+}
+
+/**
+ * Monitor operations for UpCloud
+ */
+type UpcloudMonitorServerDetailsOperation struct {
+	BaseUpcloudServiceOperation
+	properties *api_operation.Properties
+}
+
+// Return the string machinename/id of the Operation
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Id() string {
+	return "upcloud.monitor.server.details"
+}
+
+// Return a user readable string label for the Operation
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Label() string {
+	return "UpCloud server details"
+}
+
+// return a multiline string description for the Operation
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Description() string {
+	return "UpCloud server details"
+}
+
+// Is this operation meant to be used only inside the API
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Internal() bool {
+	return false
+}
+
+// Run a validation check on the Operation
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Validate() bool {
+	return true
+}
+
+// What settings/values does the Operation provide to an implemenentor
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Properties() *api_operation.Properties {
+	if serverDetail.properties == nil {
+		props := api_operation.Properties{}
+
+		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+
+		serverDetail.properties = &props
+	}
+	return serverDetail.properties
+}
+
+// Execute the Operation
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
+	result.Set(true, []error{})
+
+	service := serverDetail.ServiceWrapper()
+	settings := serverDetail.Settings()
+
+	global := false
+	properties := serverDetail.Properties()
+	if globalProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
+		global = globalProp.Get().(bool)
+		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("GLOBAL")
+	}
+	uuidMatch := []string{}
+	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
+		newUUIDs := uuidProp.Get().([]string)
+		uuidMatch = append(uuidMatch, newUUIDs...)
+		log.WithFields(log.Fields{"key": UPCLOUD_SERVER_UUID_PROPERTY, "prop": uuidMatch, "value": uuidMatch}).Debug("Filter: Server UUID")
+	}
+
+	if len(uuidMatch) > 0 {
+
+		count := 0
+		for _, uuid := range uuidMatch {
+			if !(global || settings.ServerUUIDAllowed(uuid)) {
+				log.WithFields(log.Fields{"uuid": uuid}).Error("Server UUID not a part of the project. Details will not be shown.")
+				continue
+			}
+
+			request := upcloud_request.GetServerDetailsRequest{UUID: uuid}
+
+			if details, err := service.GetServerDetails(&request); err == nil {
+				count++
+				log.WithFields(log.Fields{"index": count, "UUID": uuid, "server": details}).Info("Server Details")
+			} else {
+				log.WithError(err).WithFields(log.Fields{"UUID": uuid}).Error("Could not fetch server details.")
+			}
+		}
+
+		if count == 0 {
+			result.Set(false, []error{errors.New("No servers were matched.")})
+		}
+
+	} else {
+		result.Set(false, []error{errors.New("No servers uuids were passed to monitor server details operation, so no details can be shown.")})
 	}
 
 	return api_operation.Result(&result)

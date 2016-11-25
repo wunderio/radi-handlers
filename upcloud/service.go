@@ -128,9 +128,14 @@ func (settings *UpcloudBuilderSettings) UnmarshalYAML(unmarshal func(interface{}
 
 // Does this server match settings from the BuilderSettings (is it in this project)
 func (settings *UpcloudBuilderSettings) ServerAllowed(server upcloud.Server) bool {
+	return settings.ServerUUIDAllowed(server.UUID)
+}
+
+// Does this server match settings from the BuilderSettings (is it in this project)
+func (settings *UpcloudBuilderSettings) ServerUUIDAllowed(uuid string) bool {
 	// simple host UUID match
 	for _, match := range settings.Hosts {
-		if match == server.UUID {
+		if match == uuid {
 			return true
 		}
 	}
