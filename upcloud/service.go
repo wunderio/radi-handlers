@@ -50,8 +50,8 @@ func New_UpcloudServiceWrapper(service upcloud_service.Service) *UpcloudServiceW
 
 // Define some values that can be used by the ServiceWrapper to limit and configure it
 type UpcloudBuilderSettings struct {
+	Tags     []string `yml:"Tags"`
 	Hosts    []string `yml:"Hosts"`
-	Labels   []string `yml:"Labels"`
 	Zones    []string `yml:"Zones"`
 	Storages []string `yml:"Storages"`
 }
@@ -96,17 +96,17 @@ func (settings *UpcloudBuilderSettings) UnmarshalYAML(unmarshal func(interface{}
 			}
 		}
 	}
-	if labels, defined := placeholder["Labels"]; defined {
-		for _, label := range labels {
+	if tags, defined := placeholder["Tags"]; defined {
+		for _, tag := range tags {
 			exists := false
-			for _, existing := range settings.Labels {
-				if existing == label {
+			for _, existing := range settings.Tags {
+				if existing == tag {
 					exists = true
 					break
 				}
 			}
 			if !exists {
-				settings.Labels = append(settings.Labels, label)
+				settings.Tags = append(settings.Tags, tag)
 			}
 		}
 	}

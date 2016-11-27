@@ -50,6 +50,10 @@ func (builder *UpcloudBuilder) Activate(implementations api_builder.Implementati
 			monitorHandler := UpcloudMonitorHandler{BaseUpcloudServiceHandler: *baseHandler}
 			monitorHandler.Init()
 			builder.handlers.Add(api_handler.Handler(&monitorHandler))
+		case "provision":
+			provisionHandler := UpcloudProvisionHandler{BaseUpcloudServiceHandler: *baseHandler}
+			provisionHandler.Init()
+			builder.handlers.Add(api_handler.Handler(&provisionHandler))
 		case "security":
 			securityHandler := UpcloudSecurityHandler{BaseUpcloudServiceHandler: *baseHandler}
 			securityHandler.Init()

@@ -10,6 +10,7 @@ import (
 
 const (
 	UPCLOUD_GLOBAL_PROPERTY       = "upcloud.global"
+	UPCLOUD_WAIT_PROPERTY         = "upcloud.wait"
 	UPCLOUD_SERVER_UUID_PROPERTY  = "upcloud.server.uuid"
 	UPCLOUD_STORAGE_UUID_PROPERTY = "upcloud.storage.uuid"
 	UPCLOUD_ZONE_ID_PROPERTY      = "upcloud.zone.id"
@@ -38,6 +39,31 @@ func (global *UpcloudGlobalProperty) Description() string {
 
 // Mark a property as being for internal use only (no shown to users)
 func (global *UpcloudGlobalProperty) Internal() bool {
+	return false
+}
+
+// A boolean flag that tells that command to stay attached until the operation is complete
+type UpcloudWaitProperty struct {
+	api_operation.BooleanProperty
+}
+
+// ID returns string unique property Identifier
+func (wait *UpcloudWaitProperty) Id() string {
+	return UPCLOUD_WAIT_PROPERTY
+}
+
+// Label returns a short user readable label for the property
+func (wait *UpcloudWaitProperty) Label() string {
+	return "Wait for UpCloud finish"
+}
+
+// Description provides a longer multi-line string description of what the property does
+func (wait *UpcloudWaitProperty) Description() string {
+	return "Wait for UpCloud to report the desired change of state before disconnecting"
+}
+
+// Mark a property as being for internal use only (no shown to users)
+func (wait *UpcloudWaitProperty) Internal() bool {
 	return false
 }
 

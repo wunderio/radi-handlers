@@ -234,7 +234,7 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 				}
 
 				if !filterOut {
-					log.WithFields(log.Fields{"index": index, "uuid": server.UUID, "title": server.Title, "plan": server.Plan, "zone": server.Zone}).Info("Server")
+					log.WithFields(log.Fields{"index": index, "uuid": server.UUID, "title": server.Title, "plan": server.Plan, "zone": server.Zone, "state": server.State, "tags": server.Tags}).Info("Server")
 				}
 			}
 		} else {
@@ -327,7 +327,7 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 
 			if details, err := service.GetServerDetails(&request); err == nil {
 				count++
-				log.WithFields(log.Fields{"index": count, "UUID": uuid, "server": details}).Info("Server Details")
+				log.WithFields(log.Fields{"index": count, "UUID": uuid, "tags": details.Tags, "details": details}).Info("Server Details")
 			} else {
 				log.WithError(err).WithFields(log.Fields{"UUID": uuid}).Error("Could not fetch server details.")
 				result.Set(true, []error{err})
@@ -510,7 +510,7 @@ func (listStorages *UpcloudMonitorListStoragesOperation) Exec() api_operation.Re
 				}
 
 				if !filterOut {
-					log.WithFields(log.Fields{"index": index, "uuid": storage.UUID, "title": storage.Title, "plan": storage.PartOfPlan, "zone": storage.Zone, "size": storage.Size}).Info("Storage")
+					log.WithFields(log.Fields{"index": index, "uuid": storage.UUID, "title": storage.Title, "type": storage.Type, "plan": storage.PartOfPlan, "zone": storage.Zone, "size": storage.Size}).Info("Storage")
 				}
 			}
 		} else {
