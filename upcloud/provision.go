@@ -137,20 +137,92 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 	}
 	prov_storages := []upcloud.CreateServerStorageDevice{
 		upcloud.CreateServerStorageDevice{ // primary disk
-			Action:  "attach",
-			Storage: "01000000-0000-4000-8000-000080020101", // CoreOS Stable (1068.8.0)
-			Address: "virtio:1",
+			Action:  "clone",
+			Storage: "01000000-0000-4000-8000-000080010200", //size=5 title="CoreOS Stable 1068.8.0" type=template
 			Title:   "coreos-install",
-			Size:    1, // Storage size in gigabytes, if cloning it has to be larger the source size
-			Type:    "cdrom",
-		},
-		upcloud.CreateServerStorageDevice{ // primary disk
-			Action:  "create",
-			Address: "virtio:0",
-			Title:   "coreos-root",
-			Size:    10,
+			Size:    10, // Storage size in gigabytes, if cloning it has to be larger the source size
 			Tier:    "maxiops",
-			Type:    "disk",
+		},
+		// upcloud.CreateServerStorageDevice{ // primary disk
+		// 	Action:  "create",
+		// 	Address: "virtio:0",
+		// 	Title:   "coreos-root",
+		// 	Size:    10,
+		// 	Tier:    "maxiops",
+		// 	Type:    "disk",
+		// },
+	}
+	prov_firewall_rules := []upcloud.FirewallRule{
+		// upcloud.FirewallRule{
+		// 	Action:                  "accept",
+		// 	Comment:                 "Alow HTTP from anywhere",
+		// 	DestinationAddressEnd:   "",
+		// 	DestinationAddressStart: "",
+		// 	DestinationPortEnd:      "80",
+		// 	DestinationPortStart:    "80",
+		// 	Direction:               "in",
+		// 	Family:                  "IPv4",
+		// 	ICMPType:                "",
+		// 	Position:                1,
+		// 	Protocol:                "",
+		// 	SourceAddressEnd:        "",
+		// 	SourceAddressStart:      "",
+		// 	SourcePortEnd:           "",
+		// 	SourcePortStart:         "",
+		// },
+		upcloud.FirewallRule{
+			Action:               "accept",
+			Comment:              "Alow HTTP from anywhere",
+			DestinationPortEnd:   "80",
+			DestinationPortStart: "80",
+			Direction:            "in",
+			Family:               "IPv4",
+			Position:             1,
+			Protocol:             "tcp",
+		},
+		upcloud.FirewallRule{
+			Action:               "accept",
+			Comment:              "Allow SSH from a specific network only",
+			DestinationPortEnd:   "22",
+			DestinationPortStart: "22",
+			Direction:            "in",
+			Family:               "IPv4",
+			ICMPType:             "tcp",
+			Position:             2,
+			Protocol:             "tcp",
+			SourceAddressEnd:     "192.168.1.255",
+			SourceAddressStart:   "192.168.1.1",
+		},
+		// upcloud.FirewallRule{
+		// 	Action:                  "accept",
+		// 	Comment:                 "Allow SSH over IPv6 from this range",
+		// 	DestinationAddressEnd:   "",
+		// 	DestinationAddressStart: "",
+		// 	DestinationPortEnd:      "22",
+		// 	DestinationPortStart:    "22",
+		// 	Direction:               "in",
+		// 	Family:                  "IPv6",
+		// 	ICMPType:                "",
+		// 	Position:                3,
+		// 	Protocol:                "tcp",
+		// 	SourceAddressEnd:        "2a04:3540:1000:aaaa:bbbb:cccc:d001",
+		// 	SourceAddressStart:      "2a04:3540:1000:aaaa:bbbb:cccc:d001",
+		// 	SourcePortEnd:           "",
+		// 	SourcePortStart:         "",
+		// },
+		upcloud.FirewallRule{
+			Action:    "accept",
+			Comment:   "Allow ICMP echo request (ping)",
+			Direction: "in",
+			Family:    "IPv4",
+			Position:  4,
+			Protocol:  "icmp",
+			ICMPType:  "8",
+		},
+		upcloud.FirewallRule{
+			Action:    "drop",
+			Direction: "in",
+			Position:  5,
 		},
 	}
 
@@ -175,19 +247,49 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 		Zone: prov_zone,
 	}
 
-	details, err := service.CreateServer(&request)
+	serverDetails, err := service.CreateServer(&request)
 
 	if err == nil {
 
+		log.Info("Server created, waiting for it to start, before enabling firewall")
+
 		tagRequest := upcloud_request.TagServerRequest{
-			UUID: details.UUID,
-			Tags: []string{"kraut-provisioned", prov_project},
+			UUID: serverDetails.UUID,
+			Tags: []string{"kraut-provisioned"},
 		}
 		if tagDetails, err := service.TagServer(&tagRequest); err == nil {
-			log.WithFields(log.Fields{"UUID": tagDetails.UUID, "hostname": tagDetails.Hostname, "ips": tagDetails.IPAddresses, "state": tagDetails.State, "progress": details.Progress}).Info("Created and tagged custom server")
+			log.WithFields(log.Fields{"UUID": tagDetails.UUID, "hostname": tagDetails.Hostname, "ips": tagDetails.IPAddresses, "state": tagDetails.State, "progress": serverDetails.Progress}).Info("Created and tagged custom server")
 		} else {
-			log.WithFields(log.Fields{"UUID": details.UUID, "hostname": details.Hostname, "ips": details.IPAddresses, "state": details.State, "progress": details.Progress}).Warn("Created custom server, but could not tag it")
+			result.Set(true, []error{err})
+			log.WithError(err).WithFields(log.Fields{"UUID": serverDetails.UUID, "hostname": serverDetails.Hostname, "ips": serverDetails.IPAddresses, "state": serverDetails.State, "progress": serverDetails.Progress}).Warn("Created custom server, but could not tag it")
 		}
+
+		waitRequest := upcloud_request.WaitForServerStateRequest{
+			UUID:           serverDetails.UUID,
+			DesiredState:   "stopped",
+			UndesiredState: "started",
+			Timeout:        time.Duration(60) * time.Second,
+		}
+		if _, err := service.WaitForServerState(&waitRequest); err != nil {
+			log.WithError(err).Error("Machine startup timed out")
+		}
+
+		for _, rule := range prov_firewall_rules {
+
+			ruleRequest := upcloud_request.CreateFirewallRuleRequest{
+				ServerUUID:   serverDetails.UUID,
+				FirewallRule: rule,
+			}
+			ruleDetails, err := service.CreateFirewallRule(&ruleRequest)
+
+			if err == nil {
+				log.WithFields(log.Fields{"rule": ruleDetails}).Debug("Created firewall rule.")
+			} else {
+				log.WithError(err).Warn("Could not create firewall rule")
+			}
+
+		}
+
 	} else {
 		result.Set(false, []error{err, errors.New("Unable to provision new server.")})
 	}
@@ -228,6 +330,7 @@ func (down *UpcloudProvisionDownOperation) Properties() *api_operation.Propertie
 		props := api_operation.Properties{}
 
 		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+		//props.Add(api_operation.Property(&UpcloudWaitProperty{})) // This actually doesn't work out well
 		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
 
 		down.properties = &props
@@ -254,7 +357,12 @@ func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
 	properties := down.Properties()
 	if globalProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
 		global = globalProp.Get().(bool)
-		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("GLOBAL")
+		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("Operate on servers outside of the project")
+	}
+	wait := false
+	if waitProp, found := properties.Get(UPCLOUD_WAIT_PROPERTY); found {
+		wait = waitProp.Get().(bool)
+		log.WithFields(log.Fields{"key": UPCLOUD_WAIT_PROPERTY, "prop": waitProp, "value": wait}).Debug("Wait for operation to complete")
 	}
 	uuidMatch := []string{}
 	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
@@ -279,8 +387,25 @@ func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
 			err := service.DeleteServer(&request)
 
 			if err == nil {
-				count++
-				log.WithFields(log.Fields{"UUID": uuid}).Info("Removed UpCloud server")
+				if wait {
+					waitRequest := upcloud_request.WaitForServerStateRequest{
+						UUID:           uuid,
+						DesiredState:   "stopped",
+						UndesiredState: "started",
+						Timeout:        time.Duration(60) * time.Second,
+					}
+					details, err := service.WaitForServerState(&waitRequest)
+
+					if err == nil {
+						count++
+						log.WithFields(log.Fields{"UUID": uuid, "state": details.State, "progress": details.Progress}).Info("Removed UpCloud server")
+					} else {
+						result.Set(false, []error{err, errors.New("timeout waiting for server be removed.")})
+					}
+				} else {
+					count++
+					log.WithFields(log.Fields{"UUID": uuid}).Info("Removed UpCloud server")
+				}
 			} else {
 				result.Set(false, []error{err, errors.New("Could not remove UpCloud server")})
 			}
@@ -356,7 +481,7 @@ func (stop *UpcloudProvisionStopOperation) Exec() api_operation.Result {
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("Allowing global access")
 	}
 	wait := false
-	if waitProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
+	if waitProp, found := properties.Get(UPCLOUD_WAIT_PROPERTY); found {
 		wait = waitProp.Get().(bool)
 		log.WithFields(log.Fields{"key": UPCLOUD_WAIT_PROPERTY, "prop": waitProp, "value": wait}).Debug("Wait for operation to complete")
 	}
