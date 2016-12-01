@@ -22,7 +22,7 @@ func (monitor *UpcloudMonitorHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
-	baseOperation := New_BaseUpcloudServiceOperation(monitor.ServiceWrapper(), monitor.Settings())
+	baseOperation := monitor.BaseUpcloudServiceOperation()
 
 	ops := api_operation.Operations{}
 	ops.Add(api_operation.Operation(&UpcloudMonitorListZonesOperation{BaseUpcloudServiceOperation: *baseOperation}))
@@ -96,7 +96,7 @@ func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
 	result.Set(true, []error{})
 
 	service := listZones.ServiceWrapper()
-	settings := listZones.Settings()
+	settings := listZones.BuilderSettings()
 
 	global := false
 	properties := listZones.Properties()
@@ -195,7 +195,7 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 	result.Set(true, []error{})
 
 	service := listServers.ServiceWrapper()
-	settings := listServers.Settings()
+	settings := listServers.BuilderSettings()
 
 	global := false
 	properties := listServers.Properties()
@@ -299,7 +299,7 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 	result.Set(true, []error{})
 
 	service := serverDetail.ServiceWrapper()
-	settings := serverDetail.Settings()
+	settings := serverDetail.BuilderSettings()
 
 	global := false
 	properties := serverDetail.Properties()
@@ -397,7 +397,7 @@ func (listPlans *UpcloudMonitorListPlansOperation) Exec() api_operation.Result {
 	result.Set(true, []error{})
 
 	service := listPlans.ServiceWrapper()
-	//settings := listPlans.Settings()
+	//settings := listPlans.BuilderSettings()
 
 	plans, err := service.GetPlans()
 	if err == nil {
@@ -468,7 +468,7 @@ func (listStorages *UpcloudMonitorListStoragesOperation) Exec() api_operation.Re
 	result.Set(true, []error{})
 
 	service := listStorages.ServiceWrapper()
-	settings := listStorages.Settings()
+	settings := listStorages.BuilderSettings()
 
 	global := false
 	properties := listStorages.Properties()

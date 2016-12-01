@@ -1,6 +1,11 @@
 package upcloud
 
 import (
+	log "github.com/Sirupsen/logrus"
+
+	upcloud "github.com/Jalle19/upcloud-go-sdk/upcloud"
+	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
+
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 )
 
@@ -9,11 +14,14 @@ import (
  */
 
 const (
-	UPCLOUD_GLOBAL_PROPERTY       = "upcloud.global"
-	UPCLOUD_WAIT_PROPERTY         = "upcloud.wait"
-	UPCLOUD_SERVER_UUID_PROPERTY  = "upcloud.server.uuid"
-	UPCLOUD_STORAGE_UUID_PROPERTY = "upcloud.storage.uuid"
-	UPCLOUD_ZONE_ID_PROPERTY      = "upcloud.zone.id"
+	UPCLOUD_GLOBAL_PROPERTY               = "upcloud.global"
+	UPCLOUD_WAIT_PROPERTY                 = "upcloud.wait"
+	UPCLOUD_FIREWALL_RULES_PROPERTY       = "upcloud.firewall.rules"
+	UPCLOUD_SERVER_UUID_PROPERTY          = "upcloud.server.uuid"
+	UPCLOUD_SERVER_DETAILS_PROPERTY       = "upcloud.server.details"
+	UPCLOUD_SERVER_CREATEREQUEST_PROPERTY = "upcloud.server.createrequest"
+	UPCLOUD_STORAGE_UUID_PROPERTY         = "upcloud.storage.uuid"
+	UPCLOUD_ZONE_ID_PROPERTY              = "upcloud.zone.id"
 )
 
 // A boolean flag that tells upcloud to consider services/zones outside the scope of the project
@@ -140,4 +148,133 @@ func (id *UpcloudZoneIdProperty) Description() string {
 // Mark a property as being for internal use only (no shown to users)
 func (id *UpcloudZoneIdProperty) Internal() bool {
 	return false
+}
+
+// A property for the ServerDetails, not really meant for public consumption
+type UpcloudServerDetailsProperty struct {
+	value upcloud.ServerDetails
+}
+
+// ID returns string unique property Identifier
+func (details *UpcloudServerDetailsProperty) Id() string {
+	return UPCLOUD_SERVER_DETAILS_PROPERTY
+}
+
+// Label returns a short user readable label for the property
+func (details *UpcloudServerDetailsProperty) Label() string {
+	return "UpCloud details"
+}
+
+// Description provides a longer multi-line string description of what the property does
+func (details *UpcloudServerDetailsProperty) Description() string {
+	return "UpCloud server details object"
+}
+
+// Mark a property as being for internal use only (no shown to users)
+func (details *UpcloudServerDetailsProperty) Internal() bool {
+	return false
+}
+
+// Give an idea of what type of value the property consumes
+func (details *UpcloudServerDetailsProperty) Type() string {
+	return "github.com/Jalle19/upcloud-go-sdk/upcloud/ServerDetails"
+}
+
+func (details *UpcloudServerDetailsProperty) Get() interface{} {
+	return interface{}(details.value)
+}
+func (details *UpcloudServerDetailsProperty) Set(value interface{}) bool {
+	if converted, ok := value.(upcloud.ServerDetails); ok {
+		details.value = converted
+		return true
+	} else {
+		log.WithFields(log.Fields{"value": value}).Error("Could not assign Property value, because the passed parameter was the wrong type. Expected UpCloud ServerDetails")
+		return false
+	}
+}
+
+// A property for the CreateServerRequest, not really meant for public consumption
+type UpcloudServerCreateRequestProperty struct {
+	value upcloud_request.CreateServerRequest
+}
+
+// ID returns string unique property Identifier
+func (request *UpcloudServerCreateRequestProperty) Id() string {
+	return UPCLOUD_SERVER_CREATEREQUEST_PROPERTY
+}
+
+// Label returns a short user readable label for the property
+func (request *UpcloudServerCreateRequestProperty) Label() string {
+	return "UpCloud create request"
+}
+
+// Description provides a longer multi-line string description of what the property does
+func (request *UpcloudServerCreateRequestProperty) Description() string {
+	return "UpCloud server create request object"
+}
+
+// Mark a property as being for internal use only (no shown to users)
+func (request *UpcloudServerCreateRequestProperty) Internal() bool {
+	return false
+}
+
+// Give an idea of what type of value the property consumes
+func (request *UpcloudServerCreateRequestProperty) Type() string {
+	return "github.com/Jalle19/upcloud-go-sdk/upcloud/request/CreateServerRequest"
+}
+
+func (request *UpcloudServerCreateRequestProperty) Get() interface{} {
+	return interface{}(request.value)
+}
+func (request *UpcloudServerCreateRequestProperty) Set(value interface{}) bool {
+	if converted, ok := value.(upcloud_request.CreateServerRequest); ok {
+		request.value = converted
+		return true
+	} else {
+		log.WithFields(log.Fields{"value": value}).Error("Could not assign Property value, because the passed parameter was the wrong type. Expected UpCloud Request CreateServerRequest")
+		return false
+	}
+}
+
+// A property for the CreateServerRequest, not really meant for public consumption
+type UpcloudFirewallRulesProperty struct {
+	value []upcloud.FirewallRule
+}
+
+// ID returns string unique property Identifier
+func (firewallRules *UpcloudFirewallRulesProperty) Id() string {
+	return UPCLOUD_FIREWALL_RULES_PROPERTY
+}
+
+// Label returns a short user readable label for the property
+func (firewallRules *UpcloudFirewallRulesProperty) Label() string {
+	return "UpCloud create request"
+}
+
+// Description provides a longer multi-line string description of what the property does
+func (firewallRules *UpcloudFirewallRulesProperty) Description() string {
+	return "UpCloud server create request object"
+}
+
+// Mark a property as being for internal use only (no shown to users)
+func (firewallRules *UpcloudFirewallRulesProperty) Internal() bool {
+	return false
+}
+
+// Give an idea of what type of value the property consumes
+func (firewallRules *UpcloudFirewallRulesProperty) Type() string {
+	return "github.com/Jalle19/upcloud-go-sdk/upcloud/request/CreateServerRequest"
+}
+
+func (firewallRules *UpcloudFirewallRulesProperty) Get() interface{} {
+	return interface{}(firewallRules.value)
+}
+func (firewallRules *UpcloudFirewallRulesProperty) Set(value interface{}) bool {
+	if converted, ok := value.([]upcloud.FirewallRule); ok {
+		firewallRules.value = converted
+		return true
+	} else {
+		log.WithFields(log.Fields{"value": value}).Error("Could not assign Property value, because the passed parameter was the wrong type. Expected a slice of UpCloud FirewallRule objects")
+		return false
+	}
 }

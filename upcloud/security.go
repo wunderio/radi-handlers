@@ -23,7 +23,7 @@ func (security *UpcloudSecurityHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
-	baseOperation := New_BaseUpcloudServiceOperation(security.ServiceWrapper(), security.Settings())
+	baseOperation := security.BaseUpcloudServiceOperation()
 
 	ops := api_operation.Operations{}
 	ops.Add(api_operation.Operation(&UpcloudSecurityUserOperation{BaseUpcloudServiceOperation: *baseOperation}))
