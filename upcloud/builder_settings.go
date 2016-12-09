@@ -87,6 +87,10 @@ func (settings *UpcloudBuilderSettings) UnmarshalYAML(unmarshal func(interface{}
 
 // Does this server match settings from the BuilderSettings (is it in this project)
 func (settings *UpcloudBuilderSettings) ServerUUIDAllowed(uuid string) bool {
+	if len(settings.Hosts) == 0 {
+		return true
+	}
+
 	// simple host UUID match
 	for _, match := range settings.Hosts {
 		if match == uuid {
@@ -98,6 +102,10 @@ func (settings *UpcloudBuilderSettings) ServerUUIDAllowed(uuid string) bool {
 
 // Does this storage match settings from the BuilderSettings (is it in this project)
 func (settings *UpcloudBuilderSettings) StorageUUIDAllowed(uuid string) bool {
+	if len(settings.Storages) == 0 {
+		return true
+	}
+
 	// simple host UUID match
 	for _, match := range settings.Storages {
 		if match == uuid {
@@ -109,6 +117,10 @@ func (settings *UpcloudBuilderSettings) StorageUUIDAllowed(uuid string) bool {
 
 // Does this server match settings from the BuilderSettings (is it in this project)
 func (settings *UpcloudBuilderSettings) ZoneAllowed(zone upcloud.Zone) bool {
+	if len(settings.Zones) == 0 {
+		return true
+	}
+
 	// simple host UUID match
 	for _, match := range settings.Zones {
 		if match == zone.Id {

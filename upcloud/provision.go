@@ -1,9 +1,13 @@
 package upcloud
 
 import (
+	"errors"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 
 	upcloud "github.com/Jalle19/upcloud-go-sdk/upcloud"
+	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 
 	api_operation "github.com/james-nesbitt/kraut-api/operation"
 	api_provision "github.com/james-nesbitt/kraut-api/operation/provision"
@@ -100,9 +104,12 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 	createOp := UpcloudServerCreateOperation{BaseUpcloudServiceOperation: up.BaseUpcloudServiceOperation}
 	createProperties := createOp.Properties()
 
-	//service := up.ServiceWrapper()
+	service := up.ServiceWrapper()
 	// settings := up.BuilderSettings()
 	serverDefinitions := up.ServerDefinitions()
+
+	// track which servers we actually create here
+	createdServers := map[string]processedServer{}
 
 	for _, id := range serverDefinitions.Order() {
 		serverResult := api_operation.BaseResult{}
@@ -115,18 +122,78 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 			requestProp.Set(createRequest)
 		}
 
+		log.WithFields(log.Fields{"id": serverDefinition.Id()}).Info("Creating new server")
+
 		createResult := createOp.Exec()
-		if success, _ := createResult.Success(); !success {
+		if success, errs := createResult.Success(); !success {
+			errs = append(errs, errors.New("Could not provision new UpCloud server"))
+			serverResult.Set(false, errs)
 			result.Merge(createResult)
 			continue
+		} else {
+
+			var createDetails upcloud.ServerDetails
+			if detailsProp, found := createProperties.Get(UPCLOUD_SERVER_DETAILS_PROPERTY); found {
+				createDetails = detailsProp.Get().(upcloud.ServerDetails)
+			}
+
+			uuid := createDetails.UUID
+
+			createdServers[id] = processedServer{
+				uuid:       uuid,
+				definition: serverDefinition,
+				details:    createDetails,
+			}
+
+			log.WithFields(log.Fields{"id": serverDefinition.Id(), "UUID": uuid, "state": createDetails.State}).Info("Created new server")
 		}
 
-		var serverDetails upcloud.ServerDetails
-		if detailsProp, found := createProperties.Get(UPCLOUD_SERVER_DETAILS_PROPERTY); found {
-			serverDetails = detailsProp.Get().(upcloud.ServerDetails)
-		}
+		result.Merge(api_operation.Result(&serverResult))
+	}
 
-		log.WithFields(log.Fields{"details": serverDetails}).Info("Craeted server")
+	firewallOp := UpcloudServerApplyFirewallRulesOperation{BaseUpcloudServiceOperation: up.BaseUpcloudServiceOperation}
+	firewallProperties := firewallOp.Properties()
+
+	// process tags and firewall rules
+	for _, createdServer := range createdServers {
+		serverResult := api_operation.BaseResult{}
+		serverResult.Set(true, []error{})
+
+		uuid := createdServer.uuid
+		serverDefinition := createdServer.definition
+
+		// Before running anything, give the server a chance to get into the proper state
+		log.WithFields(log.Fields{"id": serverDefinition.Id(), "UUID": uuid}).Info("Waiting for new server to start")
+		if serverDetails, err := service.WaitForServerState(&upcloud_request.WaitForServerStateRequest{UUID: uuid, UndesiredState: "maintenance", Timeout: time.Minute * 2}); err != nil {
+			if serverDetails == nil {
+				serverResult.Set(false, []error{err, errors.New("Server failed to start properly : " + uuid)})
+			} else {
+				serverResult.Set(false, []error{err, errors.New("Server failed to start properly : " + serverDetails.UUID)})
+			}
+		} else {
+			log.WithFields(log.Fields{"state": serverDetails.State, "UUID": serverDetails.UUID}).Info("Server successfully created, now finalizing provisioning")
+
+			serverDefinition := createdServer.definition
+			firewallRules := serverDefinition.CreateFirewallRules()
+
+			if firewallProp, found := firewallProperties.Get(UPCLOUD_FIREWALL_RULES_PROPERTY); found {
+				firewallProp.Set(firewallRules)
+			}
+			if uuidProp, found := firewallProperties.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
+				uuidProp.Set(uuid)
+			}
+
+			firewallResult := firewallOp.Exec()
+			if success, _ := firewallResult.Success(); !success {
+				result.Merge(firewallResult)
+				continue
+			}
+
+			// var serverDetails upcloud.ServerDetails
+			// if detailsProp, found := createProperties.Get(UPCLOUD_SERVER_DETAILS_PROPERTY); found {
+			// 	serverDetails = detailsProp.Get().(upcloud.ServerDetails)
+			// }
+		}
 
 		result.Merge(api_operation.Result(&serverResult))
 	}
@@ -166,9 +233,7 @@ func (down *UpcloudProvisionDownOperation) Properties() *api_operation.Propertie
 	if down.properties == nil {
 		props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		//props.Add(api_operation.Property(&UpcloudWaitProperty{})) // This actually doesn't work out well
-		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+		props.Add(api_operation.Property(&UpcloudForceProperty{}))
 
 		down.properties = &props
 	}
@@ -176,16 +241,56 @@ func (down *UpcloudProvisionDownOperation) Properties() *api_operation.Propertie
 }
 
 // Execute the Operation
-/**
- * @NOTE this is a first version.
- *
- * We will want to :
- *  1. retrieve servers by tag
- *  2. have a "remove-specific-uuid" option?
- */
 func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
+
+	downProperties := down.Properties()
+	deleteOp := UpcloudServerDeleteOperation{BaseUpcloudServiceOperation: down.BaseUpcloudServiceOperation}
+	deleteProperties := deleteOp.Properties()
+
+	// service := down.ServiceWrapper()
+	// settings := down.BuilderSettings()
+	serverDefinitions := down.ServerDefinitions()
+
+	// collect UUIDs of project servers
+	uuids := []string{}
+	for _, id := range serverDefinitions.Order() {
+		serverResult := api_operation.BaseResult{}
+		serverResult.Set(true, []error{})
+
+		serverDefinition, _ := serverDefinitions.Get(id)
+
+		if serverDefinition.IsCreated() {
+			uuid, _ := serverDefinition.UUID()
+			log.WithFields(log.Fields{"id": id, "uuid": uuid}).Debug("Down: Server added to list")
+			uuids = append(uuids, uuid)
+		} else {
+			log.WithFields(log.Fields{"id": id}).Info("Down: Server has not been created, so it will be skipped")
+		}
+	}
+
+	if len(uuids) > 0 {
+
+		if uuidsProp, found := deleteProperties.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
+			log.WithFields(log.Fields{"uuids": uuids}).Info("DOWN: Using UUIDs")
+			uuidsProp.Set(uuids)
+		}
+		if downForceProp, found := downProperties.Get(UPCLOUD_FORCE_PROPERTY); found {
+			if deleteForceProp, found := deleteProperties.Get(UPCLOUD_FORCE_PROPERTY); found {
+				if downForceProp.Get().(bool) {
+					log.Info("DOWN: Forcing operation")
+					deleteForceProp.Set(true)
+				}
+			}
+		}
+
+		log.WithFields(log.Fields{"uuids": uuids}).Info("Downing project servers")
+		result.Merge(deleteOp.Exec())
+
+	} else {
+		log.Info("No active servers found to take down.")
+	}
 
 	return api_operation.Result(&result)
 }
@@ -244,4 +349,11 @@ func (stop *UpcloudProvisionStopOperation) Exec() api_operation.Result {
 	result.Set(true, []error{})
 
 	return api_operation.Result(&result)
+}
+
+// hold info about a server that we have processed
+type processedServer struct {
+	uuid       string
+	definition ServerDefinition
+	details    upcloud.ServerDetails
 }

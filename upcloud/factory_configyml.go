@@ -3,6 +3,7 @@ package upcloud
 import (
 	"errors"
 	"strconv"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -83,6 +84,7 @@ func (configFactory *UpcloudFactoryConfigWrapperYaml) ServiceWrapper() *UpcloudS
 func (configFactory *UpcloudFactoryConfigWrapperYaml) ServerDefinitions() ServerDefinitions {
 	defs := ServerDefinitions{}
 	for _, ymlServer := range configFactory.Servers {
+		ymlServer.factory = configFactory
 		defs.Add(ymlServer.ServerDefinition())
 	}
 	return defs
@@ -145,6 +147,8 @@ func (ymlFactoryUser *Yml_UpcloudFactory_User) Client() *upcloud_client.Client {
 
 // A holder for server configuration from yaml
 type Yml_UpcloudFactory_Server struct {
+	factory *UpcloudFactoryConfigWrapperYaml
+
 	id   string
 	zone string
 	plan string
@@ -196,18 +200,92 @@ func (server *Yml_UpcloudFactory_Server) ServerDefinition() ServerDefinition {
 	return ServerDefinition(server)
 }
 
-// Build an upcloud CreateServerReequest
+// Internal ID for the server
 func (server *Yml_UpcloudFactory_Server) Id() string {
 	return server.id
 }
 
+// Internal method for retrieving UpCloud Server details
+func (server *Yml_UpcloudFactory_Server) getServer() (*upcloud.Server, error) {
+	/**
+	 * @TODO This process needs real improvement, as it has a number of flaws
+	 *
+	 *  - it relies on matching titles, which is editable in the UC UI
+	 *
+	 * A better approach would be to tag the server
+	 */
+
+	if servers, err := server.factory.Service().GetServers(); err != nil {
+		return nil, err
+	} else {
+		id := server.Id()
+		titlePrefix := "KRAUT:" + id
+		for index, ucServer := range servers.Servers {
+			if strings.HasPrefix(ucServer.Title, titlePrefix) {
+				log.WithFields(log.Fields{"index": index, "uc.Title": ucServer.Title, "uuid": ucServer.UUID, "id": id}).Debug("YMLServer: located server on Upcloud")
+				return &ucServer, nil
+			}
+		}
+	}
+	return nil, errors.New("No matching server found")
+}
+
+// Retrieve UpCloud Server details
+func (server *Yml_UpcloudFactory_Server) GetServerDetails() (*upcloud.ServerDetails, error) {
+	if uuid, err := server.UUID(); err == nil {
+		details, err2 := server.factory.Service().GetServerDetails(&upcloud_request.GetServerDetailsRequest{UUID: uuid})
+		return details, err2
+	} else {
+		return nil, err
+	}
+}
+
+// UpCloud UUID for the server
+func (server *Yml_UpcloudFactory_Server) UUID() (string, error) {
+	if details, err := server.getServer(); err == nil {
+		log.WithFields(log.Fields{"UUID": details.UUID, "id": server.Id()}).Debug("YMLServer: found UUID for server")
+		return details.UUID, nil
+	} else {
+		return "", err
+	}
+}
+
+// UpCloud Status for the server
+func (server *Yml_UpcloudFactory_Server) GetServerState() (string, error) {
+	if details, err := server.getServer(); err == nil {
+		return details.State, nil
+	} else {
+		return "", err
+	}
+}
+
+// Is the server running?
+func (server *Yml_UpcloudFactory_Server) IsRunning() bool {
+	if status, err := server.GetServerState(); err == nil {
+		return status == "started"
+	} else {
+		return false
+	}
+}
+
+// Is the server running?
+func (server *Yml_UpcloudFactory_Server) IsCreated() bool {
+	_, err := server.UUID()
+	return err == nil
+}
+
 // Build an upcloud CreateServerReequest
 func (server *Yml_UpcloudFactory_Server) CreateServerRequest() upcloud_request.CreateServerRequest {
-	return server.serverDefinition.CreateServerRequest()
+	request := server.serverDefinition.CreateServerRequest()
+
+	// Use a specific title so that we can uniquely identify this server
+	request.Title = "KRAUT:" + server.id + ":" + request.Title
+
+	return request
 }
 
 // Build upcloud FirewallRules for the server
-func (server *Yml_UpcloudFactory_Server) FirewallRules() upcloud.FirewallRules {
+func (server *Yml_UpcloudFactory_Server) CreateFirewallRules() upcloud.FirewallRules {
 	return server.firewallRules.FirewallRules()
 }
 
@@ -230,7 +308,8 @@ type Yml_UpcloudFactory_ServerFirewall struct {
 // Get upcloud FirewallRules
 func (firewall *Yml_UpcloudFactory_ServerFirewall) FirewallRules() upcloud.FirewallRules {
 	rules := upcloud.FirewallRules{}
-	for _, rule := range firewall.Rules {
+	for index, rule := range firewall.Rules {
+		rule.Position = index
 		rules.FirewallRules = append(rules.FirewallRules, rule.FirewallRule())
 	}
 	return rules
@@ -256,11 +335,12 @@ type Yml_UpcloudFactory_ServerFirewall_Rule struct {
 
 // Get upcloud FirewallRules
 func (rule *Yml_UpcloudFactory_ServerFirewall_Rule) FirewallRule() upcloud.FirewallRule {
-	return upcloud.FirewallRule{
+	ucRule := upcloud.FirewallRule{
 		Action:                  rule.Action,
 		Comment:                 rule.Comment,
 		DestinationAddressStart: rule.DestinationAddressStart,
-		DestinationAddressEnd:   strconv.Itoa(rule.DestinationPortStart),
+		DestinationAddressEnd:   rule.DestinationAddressEnd,
+		DestinationPortStart:    strconv.Itoa(rule.DestinationPortStart),
 		DestinationPortEnd:      strconv.Itoa(rule.DestinationPortEnd),
 		Direction:               rule.Direction,
 		Family:                  rule.Family,
@@ -272,6 +352,17 @@ func (rule *Yml_UpcloudFactory_ServerFirewall_Rule) FirewallRule() upcloud.Firew
 		SourcePortStart:         strconv.Itoa(rule.SourcePortStart),
 		SourcePortEnd:           strconv.Itoa(rule.SourcePortEnd),
 	}
+
+	if ucRule.SourceAddressStart == "" && ucRule.SourceAddressEnd == "" {
+		ucRule.SourceAddressStart = "0.0.0.1"
+		ucRule.SourceAddressEnd = "255.255.255.254"
+	}
+	if ucRule.DestinationAddressStart == "" && ucRule.DestinationAddressEnd == "" {
+		ucRule.DestinationAddressStart = "0.0.0.1"
+		ucRule.DestinationAddressEnd = "255.255.255.254"
+	}
+
+	return ucRule
 }
 
 // A horrible copy of the upcloud Server definition, only to add the yml parsing definitions
@@ -281,13 +372,13 @@ type Yml_UpcloudFactory_ServerDefinition struct {
 	CoreNumber       int                                           `yaml:"CoreNumber,omitempty"`
 	Hostname         string                                        `yaml:"Hostname"`
 	Networks         []Yml_UpcloudFactory_ServerDefinition_Network `yaml:"Networks"`
-	LoginUser        Yml_UpcloudFactory_ServerDefinition_User      `yaml:"Userser,omitempty"`
+	LoginUser        Yml_UpcloudFactory_ServerDefinition_User      `yaml:"User,omitempty"`
 	MemoryAmount     int                                           `yaml:"Memory,omitempty"`
 	PasswordDelivery string                                        `yaml:"PasswordDelivery,omitempty"`
 	Plan             string                                        `yaml:"Plan,omitempty"`
 	StorageDevices   []Yml_UpcloudFactory_ServerDefinition_Storage `yaml:"Storage"`
 	TimeZone         string                                        `yaml:"Timezone,omitempty"`
-	Title            string                                        `yaml:"Id"`
+	Title            string                                        `yaml:"Title"`
 	UserData         string                                        `yaml:"UserData,omitempty"`
 	VideoModel       string                                        `yaml:"VideoModel,omitempty"`
 	VNC              bool                                          `yaml:"Vnc,omitempty"`
@@ -350,6 +441,9 @@ func (server *Yml_UpcloudFactory_ServerDefinition) CreateServerRequest() upcloud
 	if request.Hostname == "" {
 		request.Hostname = request.Title
 	}
+	if request.PasswordDelivery == "" {
+		request.PasswordDelivery = "none"
+	}
 
 	return request
 }
@@ -360,14 +454,14 @@ func convertBoolToString(value bool, format string) string {
 		switch format {
 		case "onoff":
 			return "on"
-		default: 
+		default:
 			return "yes"
 		}
 	} else {
 		switch format {
 		case "onoff":
 			return "off"
-		default: 
+		default:
 			return "no"
 		}
 	}

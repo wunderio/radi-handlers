@@ -20,8 +20,16 @@ type UpcloudFactory interface {
 // Definition for a single UpCloud server
 type ServerDefinition interface {
 	Id() string
+	UUID() (string, error)
+
 	CreateServerRequest() upcloud_request.CreateServerRequest
-	FirewallRules() upcloud.FirewallRules
+	CreateFirewallRules() upcloud.FirewallRules
+
+	GetServerDetails() (*upcloud.ServerDetails, error)
+	GetServerState() (string, error)
+
+	IsCreated() bool
+	IsRunning() bool
 }
 
 // An ordered list of server definitions
