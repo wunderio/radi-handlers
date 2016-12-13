@@ -227,8 +227,6 @@ func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Exec() api_operat
 	return api_operation.Result(&result)
 }
 
-
-
 // Apply firewall rules to a running server
 type UpcloudStorageApplyBackupRulesOperation struct {
 	BaseUpcloudServiceOperation
@@ -241,7 +239,7 @@ func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Id() string {
 }
 
 // Return a user readable string label for the Operation
-func (applyBackup *UpcloudStorageApplyBackupRulesOperation)  Label() string {
+func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Label() string {
 	return "Apply storage backup rules"
 }
 
@@ -256,27 +254,34 @@ func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Validate() bool {
 }
 
 // Is this operation an internal Operation
-func (applyBackup *UpcloudStorageApplyBackupRulesOperation)  Internal() bool {
+func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Internal() bool {
 	return true
 }
 
 // What settings/values does the Operation provide to an implemenentor
 func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Properties() *api_operation.Properties {
-	if applyFirewall.properties == nil {
+	if applyBackup.properties == nil {
 		props := api_operation.Properties{}
 
 		props.Add(api_operation.Property(&UpcloudStorageUUIDProperty{}))
 		props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
 
-		applyFirewall.properties = &props
+		applyBackup.properties = &props
 	}
-	return applyFirewall.properties
+	return applyBackup.properties
 }
 
 // Execute the Operation
-func (applyBackup *UpcloudServerApplyFirewallRulesOperation) Exec() api_operation.Result {
+func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Exec() api_operation.Result {
+	result := api_operation.BaseResult{}
+	result.Set(true, []error{})
 
+	// service := applyBackup.ServiceWrapper()
+	// settings := applyBackup.BuilderSettings()
 
+	// properties := applyBackup.Properties()
+
+	return api_operation.Result(&result)
 }
 
 // Delete a server operation
