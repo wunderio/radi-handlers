@@ -174,7 +174,7 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 			log.WithFields(log.Fields{"state": serverDetails.State, "UUID": serverDetails.UUID}).Info("Server successfully created, now finalizing provisioning")
 
 			serverDefinition := createdServer.definition
-			firewallRules := serverDefinition.CreateFirewallRules()
+			firewallRules := serverDefinition.GetFirewallRules()
 
 			if firewallProp, found := firewallProperties.Get(UPCLOUD_FIREWALL_RULES_PROPERTY); found {
 				firewallProp.Set(firewallRules)

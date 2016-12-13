@@ -23,7 +23,9 @@ type ServerDefinition interface {
 	UUID() (string, error)
 
 	CreateServerRequest() upcloud_request.CreateServerRequest
-	CreateFirewallRules() upcloud.FirewallRules
+
+	GetFirewallRules() upcloud.FirewallRules
+	GetStorageDefinitions() StorageDefinitions
 
 	GetServerDetails() (*upcloud.ServerDetails, error)
 	GetServerState() (string, error)
@@ -65,6 +67,47 @@ func (defs *ServerDefinitions) Get(id string) (ServerDefinition, bool) {
 
 // return the ordered def keys
 func (defs *ServerDefinitions) Order() []string {
+	defs.safe()
+	return defs.order
+}
+
+type StorageDefinition interface {
+	Id() string
+	BackupRule() upcloud.BackupRule
+}
+
+type StorageDefinitions struct {
+	defs  map[string]StorageDefinition
+	order []string
+}
+
+// safe lazy initialzier
+func (defs *StorageDefinitions) safe() {
+	if defs.defs == nil {
+		defs.defs = map[string]StorageDefinition{}
+		defs.order = []string{}
+	}
+}
+
+// Add a storage def
+func (defs *StorageDefinitions) Add(storage StorageDefinition) {
+	defs.safe()
+	id := storage.Id()
+	if _, exists := defs.defs[id]; !exists {
+		defs.order = append(defs.order, id)
+	}
+	defs.defs[id] = storage
+}
+
+// Retrieve a storage def by id
+func (defs *StorageDefinitions) Get(id string) (StorageDefinition, bool) {
+	defs.safe()
+	def, exists := defs.defs[id]
+	return def, exists
+}
+
+// return the ordered def keys
+func (defs *StorageDefinitions) Order() []string {
 	defs.safe()
 	return defs.order
 }

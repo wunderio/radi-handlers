@@ -153,8 +153,9 @@ type Yml_UpcloudFactory_Server struct {
 	zone string
 	plan string
 
-	serverDefinition Yml_UpcloudFactory_ServerDefinition
-	firewallRules    Yml_UpcloudFactory_ServerFirewall
+	serverDefinition   Yml_UpcloudFactory_ServerDefinition
+	storageDefinitions []Yml_UpcloudFactory_ServerDefinition_Storage
+	firewallRules      Yml_UpcloudFactory_ServerFirewall
 }
 
 func (server *Yml_UpcloudFactory_Server) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -180,6 +181,16 @@ func (server *Yml_UpcloudFactory_Server) UnmarshalYAML(unmarshal func(interface{
 	}
 	server.serverDefinition = serverHolder
 	// log.WithFields(log.Fields{"server": server.serverDefinition, "holder": serverHolder}).Info("UPCLOUD:FACTORY:YML:SERVER")
+
+	// Storage Holds
+	storagesHolder := struct {
+		Storage []Yml_UpcloudFactory_ServerDefinition_Storage `yaml:"Storage"`
+	}{}
+	if err := unmarshal(&storagesHolder); err != nil {
+		log.Error("YML ERROR STORAGE")
+		return err
+	}
+	server.storageDefinitions = storagesHolder.Storage
 
 	// Firewall rules unmarshall
 	firewallHolder := struct {
@@ -285,8 +296,20 @@ func (server *Yml_UpcloudFactory_Server) CreateServerRequest() upcloud_request.C
 }
 
 // Build upcloud FirewallRules for the server
-func (server *Yml_UpcloudFactory_Server) CreateFirewallRules() upcloud.FirewallRules {
+func (server *Yml_UpcloudFactory_Server) GetFirewallRules() upcloud.FirewallRules {
 	return server.firewallRules.FirewallRules()
+}
+
+// Build upcloud StorageDefinitions for the server
+func (server *Yml_UpcloudFactory_Server) GetStorageDefinitions() StorageDefinitions {
+	defs := StorageDefinitions{}
+	for index, def := range server.storageDefinitions {
+		if def.id == "" {
+			def.id = strconv.Itoa(index)
+			defs.Add(def.StorageDefinition())
+		}
+	}
+	return defs
 }
 
 /**
@@ -309,7 +332,7 @@ type Yml_UpcloudFactory_ServerFirewall struct {
 func (firewall *Yml_UpcloudFactory_ServerFirewall) FirewallRules() upcloud.FirewallRules {
 	rules := upcloud.FirewallRules{}
 	for index, rule := range firewall.Rules {
-		rule.Position = index
+		rule.Position = index + 1
 		rules.FirewallRules = append(rules.FirewallRules, rule.FirewallRule())
 	}
 	return rules
@@ -336,30 +359,30 @@ type Yml_UpcloudFactory_ServerFirewall_Rule struct {
 // Get upcloud FirewallRules
 func (rule *Yml_UpcloudFactory_ServerFirewall_Rule) FirewallRule() upcloud.FirewallRule {
 	ucRule := upcloud.FirewallRule{
-		Action:                  rule.Action,
-		Comment:                 rule.Comment,
-		DestinationAddressStart: rule.DestinationAddressStart,
-		DestinationAddressEnd:   rule.DestinationAddressEnd,
-		DestinationPortStart:    strconv.Itoa(rule.DestinationPortStart),
-		DestinationPortEnd:      strconv.Itoa(rule.DestinationPortEnd),
-		Direction:               rule.Direction,
-		Family:                  rule.Family,
-		ICMPType:                rule.ICMPType,
-		Position:                rule.Position,
-		Protocol:                rule.Protocol,
-		SourceAddressStart:      rule.SourceAddressStart,
-		SourceAddressEnd:        rule.SourceAddressEnd,
-		SourcePortStart:         strconv.Itoa(rule.SourcePortStart),
-		SourcePortEnd:           strconv.Itoa(rule.SourcePortEnd),
+		Action:    rule.Action,
+		Comment:   rule.Comment,
+		Direction: rule.Direction,
+		Family:    rule.Family,
+		ICMPType:  rule.ICMPType,
+		Position:  rule.Position,
+		Protocol:  rule.Protocol,
 	}
 
-	if ucRule.SourceAddressStart == "" && ucRule.SourceAddressEnd == "" {
-		ucRule.SourceAddressStart = "0.0.0.1"
-		ucRule.SourceAddressEnd = "255.255.255.254"
+	if rule.SourceAddressStart != "" || rule.SourceAddressEnd != "" {
+		ucRule.SourceAddressStart = rule.SourceAddressStart
+		ucRule.SourceAddressEnd = rule.SourceAddressEnd
 	}
-	if ucRule.DestinationAddressStart == "" && ucRule.DestinationAddressEnd == "" {
-		ucRule.DestinationAddressStart = "0.0.0.1"
-		ucRule.DestinationAddressEnd = "255.255.255.254"
+	if rule.SourceAddressStart != "" || rule.SourceAddressEnd != "" {
+		ucRule.SourceAddressStart = rule.SourceAddressStart
+		ucRule.SourceAddressEnd = rule.SourceAddressEnd
+	}
+	if rule.SourcePortStart != 0 || rule.SourcePortEnd != 0 {
+		ucRule.SourcePortStart = strconv.Itoa(rule.SourcePortStart)
+		ucRule.SourcePortEnd = strconv.Itoa(rule.SourcePortEnd)
+	}
+	if rule.DestinationPortStart != 0 || rule.DestinationPortEnd != 0 {
+		ucRule.DestinationPortStart = strconv.Itoa(rule.DestinationPortStart)
+		ucRule.DestinationPortEnd = strconv.Itoa(rule.DestinationPortEnd)
 	}
 
 	return ucRule
@@ -367,23 +390,23 @@ func (rule *Yml_UpcloudFactory_ServerFirewall_Rule) FirewallRule() upcloud.Firew
 
 // A horrible copy of the upcloud Server definition, only to add the yml parsing definitions
 type Yml_UpcloudFactory_ServerDefinition struct {
-	AvoidHost        string                                        `yaml:"AvoidHost,omitempty"`
-	BootOrder        string                                        `yaml:"BootOrder,omitempty"`
-	CoreNumber       int                                           `yaml:"CoreNumber,omitempty"`
-	Hostname         string                                        `yaml:"Hostname"`
-	Networks         []Yml_UpcloudFactory_ServerDefinition_Network `yaml:"Networks"`
-	LoginUser        Yml_UpcloudFactory_ServerDefinition_User      `yaml:"User,omitempty"`
-	MemoryAmount     int                                           `yaml:"Memory,omitempty"`
-	PasswordDelivery string                                        `yaml:"PasswordDelivery,omitempty"`
-	Plan             string                                        `yaml:"Plan,omitempty"`
-	StorageDevices   []Yml_UpcloudFactory_ServerDefinition_Storage `yaml:"Storage"`
-	TimeZone         string                                        `yaml:"Timezone,omitempty"`
-	Title            string                                        `yaml:"Title"`
-	UserData         string                                        `yaml:"UserData,omitempty"`
-	VideoModel       string                                        `yaml:"VideoModel,omitempty"`
-	VNC              bool                                          `yaml:"Vnc,omitempty"`
-	VNCPassword      string                                        `yaml:"VncPassword,omitempty"`
-	Zone             string                                        `yaml:"Zone"`
+	AvoidHost        string                                              `yaml:"AvoidHost,omitempty"`
+	BootOrder        string                                              `yaml:"BootOrder,omitempty"`
+	CoreNumber       int                                                 `yaml:"CoreNumber,omitempty"`
+	Hostname         string                                              `yaml:"Hostname"`
+	Networks         []Yml_UpcloudFactory_ServerDefinition_Network       `yaml:"Networks"`
+	LoginUser        Yml_UpcloudFactory_ServerDefinition_User            `yaml:"User,omitempty"`
+	MemoryAmount     int                                                 `yaml:"Memory,omitempty"`
+	PasswordDelivery string                                              `yaml:"PasswordDelivery,omitempty"`
+	Plan             string                                              `yaml:"Plan,omitempty"`
+	StorageDevices   []Yml_UpcloudFactory_ServerDefinition_CreateStorage `yaml:"Storage"`
+	TimeZone         string                                              `yaml:"Timezone,omitempty"`
+	Title            string                                              `yaml:"Title"`
+	UserData         string                                              `yaml:"UserData,omitempty"`
+	VideoModel       string                                              `yaml:"VideoModel,omitempty"`
+	VNC              bool                                                `yaml:"Vnc,omitempty"`
+	VNCPassword      string                                              `yaml:"VncPassword,omitempty"`
+	Zone             string                                              `yaml:"Zone"`
 }
 
 // Build an upcloud CreateServerReequest
@@ -478,7 +501,7 @@ type Yml_UpcloudFactory_ServerDefinition_Network struct {
 	Family string `yaml:"Family"`
 }
 
-type Yml_UpcloudFactory_ServerDefinition_Storage struct {
+type Yml_UpcloudFactory_ServerDefinition_CreateStorage struct {
 	Action  string `yaml:"Action,omitempty"`
 	Address string `yaml:"Address,omitempty"`
 	Storage string `yaml:"Storage"`
@@ -486,4 +509,42 @@ type Yml_UpcloudFactory_ServerDefinition_Storage struct {
 	Size    int    `yaml:"Size,omitempty"`
 	Tier    string `yaml:"Tier,omitempty"`
 	Type    string `yaml:"Type,omitempty"`
+}
+type Yml_UpcloudFactory_ServerDefinition_Storage struct {
+	id string
+	// Access  string  `yaml:"Access"`
+	// License float64 `yaml:"License"`
+	// PartOfPlan bool `yaml:"PartOfPlan"`
+	// Size       int    `yaml:"Size"`
+	// State      string `yaml:"State"`
+	// Tier       string `yaml:"Tier"`
+	// Title      string `yaml:"Title"`
+	// Type       string `yaml:"Type"`
+	// UUID       string `yaml:"UUID"`
+	// Zone       string `yaml:"Zone"`
+	Backup Yml_UpcloudFactory_ServerDefinition_Storage_BackupRule `yaml:"Backup,omitempty"`
+}
+
+func (storage *Yml_UpcloudFactory_ServerDefinition_Storage) StorageDefinition() StorageDefinition {
+	return StorageDefinition(storage)
+}
+func (storage *Yml_UpcloudFactory_ServerDefinition_Storage) Id() string {
+	return storage.id
+}
+func (storage *Yml_UpcloudFactory_ServerDefinition_Storage) BackupRule() upcloud.BackupRule {
+	return storage.Backup.BackupRule()
+}
+
+type Yml_UpcloudFactory_ServerDefinition_Storage_BackupRule struct {
+	Interval  string `yaml:"Interval"`
+	Time      string `yaml:"Time"`
+	Retention int    `yaml:"Retention"`
+}
+
+func (backup *Yml_UpcloudFactory_ServerDefinition_Storage_BackupRule) BackupRule() upcloud.BackupRule {
+	return upcloud.BackupRule{
+		Interval:  backup.Interval,
+		Time:      backup.Time,
+		Retention: backup.Retention,
+	}
 }
