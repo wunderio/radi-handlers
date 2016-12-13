@@ -23,7 +23,7 @@ func (security *UpcloudSecurityHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
-	baseOperation := New_BaseUpcloudServiceOperation(security.ServiceWrapper(), security.Settings())
+	baseOperation := security.BaseUpcloudServiceOperation()
 
 	ops := api_operation.Operations{}
 	ops.Add(api_operation.Operation(&UpcloudSecurityUserOperation{BaseUpcloudServiceOperation: *baseOperation}))
@@ -85,6 +85,7 @@ func (securityUser *UpcloudSecurityUserOperation) Exec() api_operation.Result {
 		log.WithFields(log.Fields{"username": account.UserName, "credits": account.Credits}).Info("Current UpCloud Account")
 	} else {
 		log.WithError(err).Error("Could not retrieve UpCloud account information.")
+		result.Set(false, []error{err})
 	}
 
 	return api_operation.Result(&result)

@@ -18,14 +18,14 @@ import (
 // Constructor for BuilderComponentsConfigWrapperYaml
 func New_BuilderComponentsConfigWrapperYaml(configWrapper api_config.ConfigWrapper) api_builder.BuilderConfigWrapper {
 	return api_builder.BuilderConfigWrapper(&BuilderComponentsConfigWrapperYaml{
-		configWrapper: configWrapper,
+		configWrapper:   configWrapper,
 		buildComponents: api_builder.BuildComponents{},
 	})
 }
 
 // A BuilderComponentsConfigWRapper, that interprets build config as yml
 type BuilderComponentsConfigWrapperYaml struct {
-	configWrapper api_config.ConfigWrapper
+	configWrapper   api_config.ConfigWrapper
 	buildComponents api_builder.BuildComponents
 }
 
@@ -100,7 +100,6 @@ func (buildComponents *BuilderComponentsConfigWrapperYaml) Save() error {
 	 */
 	return errors.New("BuilderComponentsConfigWrapperYaml Set operation not yet written.")
 }
-
 
 // A temporary holder for the list of components from the yml components file
 type Yml_BuildDefintion struct {
