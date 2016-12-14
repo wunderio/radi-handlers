@@ -12,6 +12,11 @@ import (
 	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
 )
 
+const (
+	// config for up orchestration compose settings
+	OPERATION_PROPERTY_LIBCOMPOSE_SETTINGS_UP = "compose.up"
+)
+
 /**
  * Up specific Properties
  */

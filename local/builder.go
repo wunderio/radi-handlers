@@ -71,6 +71,7 @@ func (builder *LocalBuilder) Activate(implementations api_builder.Implementation
 			builder.build_Project()
 		case "orchestrate":
 			builder.build_Orchestrate()
+			builder.build_Monitor()
 		case "command":
 			builder.build_Command()
 		case "security":
@@ -208,6 +209,23 @@ func (builder *LocalBuilder) build_Orchestrate() error {
 	builder.Orchestrate = local_orchestration.OrchestrateWrapper()
 
 	log.WithFields(log.Fields{"OrchestrateWrapper": builder.Orchestrate}).Debug("localBuilder: Built Orchestrate handler")
+
+	return nil
+}
+
+
+// Add local Handlers for Orchestrate operations
+func (builder *LocalBuilder) build_Monitor() error {
+	// Build an orchestration handler
+	local_monitor := LocalHandler_Monitor{
+		LocalHandler_Base:     *builder.base(),
+		BaseLibcomposeHandler: *builder.base_libcompose(),
+	}
+	local_monitor.SetSettingWrapper(builder.Setting)
+	local_monitor.Init()
+	builder.AddHandler(api_handler.Handler(&local_monitor))
+
+	log.Debug("localBuilder: Built Monitor handler")
 
 	return nil
 }
