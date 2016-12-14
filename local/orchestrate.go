@@ -32,6 +32,8 @@ func (handler *LocalHandler_Orchestrate) Init() api_operation.Result {
 	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeMonitorLogsOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
 	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeOrchestrateUpOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
 	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeOrchestrateDownOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
+	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeOrchestrateStartOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
+	ops.Add(api_operation.Operation(&handlers_libcompose.LibcomposeOrchestrateStopOperation{BaseLibcomposeNameFilesOperation: baseLibcompose}))
 
 	handler.operations = &ops
 

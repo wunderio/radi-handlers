@@ -31,11 +31,6 @@ const (
 	 * Operation specific contexts
 	 */
 
-	// config for up orchestration compose settings
-	OPERATION_PROPERTY_LIBCOMPOSE_SETTINGS_UP = "compose.up"
-	// config for down orchestration compose settings
-	OPERATION_PROPERTY_LIBCOMPOSE_SETTINGS_DOWN = "compose.down"
-
 	// Individual possible libcompose properties
 	OPERATION_PROPERTY_LIBCOMPOSE_FORCEREMOVE      = "compose.forceremove"
 	OPERATION_PROPERTY_LIBCOMPOSE_NOCACHE          = "compose.nocache"
@@ -49,6 +44,7 @@ const (
 	OPERATION_PROPERTY_LIBCOMPOSE_REMOVEORPHANS    = "compose.removeorphans"
 	OPERATION_PROPERTY_LIBCOMPOSE_REMOVEIMAGETYPES = "compose.removeimagetypes"
 	OPERATION_PROPERTY_LIBCOMPOSE_REMOVERUNNING    = "compose.removerunning"
+	OPERATION_PROPERTY_LIBCOMPOSE_TIMEOUT          = "compose.timeout"
 )
 
 /**
@@ -482,5 +478,30 @@ func (removerunning *LibcomposeRemoveRunningProperty) Description() string {
 
 // Is the Property internal only
 func (removerunning *LibcomposeRemoveRunningProperty) Internal() bool {
+	return false
+}
+
+// STOP : Property for a docker.libCompose project to indicate that how many seconds a process should run for before timing out
+type LibcomposeTimeoutProperty struct {
+	api_operation.IntProperty
+}
+
+// Id for the Property
+func (timeout *LibcomposeTimeoutProperty) Id() string {
+	return OPERATION_PROPERTY_LIBCOMPOSE_TIMEOUT
+}
+
+// Label for the Property
+func (timeout *LibcomposeTimeoutProperty) Label() string {
+	return "Timeout"
+}
+
+// Description for the Property
+func (timeout *LibcomposeTimeoutProperty) Description() string {
+	return "Timeout in seconds before an operation should force"
+}
+
+// Is the Property internal only
+func (timeout *LibcomposeTimeoutProperty) Internal() bool {
 	return false
 }
