@@ -96,7 +96,7 @@ func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
 	result.Set(true, []error{})
 
 	service := listZones.ServiceWrapper()
-	settings := listZones.BuilderSettings()
+	// settings := listZones.BuilderSettings()
 
 	global := false
 	properties := listZones.Properties()
@@ -115,11 +115,6 @@ func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
 	if err == nil {
 		for index, zone := range zones.Zones {
 			filterOut := false
-
-			// filter out zones that are no a part of the current project
-			if !global {
-				filterOut = !settings.ZoneAllowed(zone)
-			}
 
 			// if some server filters were passed, filter out anything not in the passed list
 			if len(idMatch) > 0 {
@@ -182,7 +177,7 @@ func (listServers *UpcloudMonitorListServersOperation) Properties() *api_operati
 		props := api_operation.Properties{}
 
 		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
 
 		listServers.properties = &props
 	}
@@ -196,6 +191,23 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 
 	service := listServers.ServiceWrapper()
 	settings := listServers.BuilderSettings()
+	serverDefinitions := listServers.ServerDefinitions()
+
+	projectUUIDs := []string{}
+	for _, id := range serverDefinitions.Order() {
+		serverResult := api_operation.BaseResult{}
+		serverResult.Set(true, []error{})
+
+		serverDefinition, _ := serverDefinitions.Get(id)
+
+		if serverDefinition.IsCreated() {
+			uuid, _ := serverDefinition.UUID()
+			log.WithFields(log.Fields{"id": id, "uuid": uuid}).Debug("Monitor: Server added to list")
+			projectUUIDs = append(projectUUIDs, uuid)
+		} else {
+			log.WithFields(log.Fields{"id": id}).Info("Monitor: Server has not been created, so it will be skipped")
+		}
+	}
 
 	global := false
 	properties := listServers.Properties()
@@ -204,10 +216,19 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("GLOBAL")
 	}
 	uuidMatch := []string{}
-	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
-		newUUIDs := uuidProp.Get().([]string)
-		uuidMatch = append(uuidMatch, newUUIDs...)
-		log.WithFields(log.Fields{"key": UPCLOUD_SERVER_UUID_PROPERTY, "prop": uuidMatch, "value": uuidMatch}).Debug("Filter: Server UUID")
+	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
+		for _, newUUID := range uuidProp.Get().([]string) {
+			if global {
+				uuidMatch = append(uuidMatch, newUUID)
+			} else {
+				for _, projectUUID := range projectUUIDs {
+					if projectUUID == newUUID {
+						uuidMatch = append(uuidMatch, newUUID)
+						break
+					}
+				}
+			}
+		}
 	}
 
 	servers, err := service.GetServers()
@@ -286,7 +307,7 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Properties() *api_oper
 		props := api_operation.Properties{}
 
 		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
 
 		serverDetail.properties = &props
 	}
@@ -300,6 +321,23 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 
 	service := serverDetail.ServiceWrapper()
 	settings := serverDetail.BuilderSettings()
+	serverDefinitions := serverDetail.ServerDefinitions()
+
+	projectUUIDs := []string{}
+	for _, id := range serverDefinitions.Order() {
+		serverResult := api_operation.BaseResult{}
+		serverResult.Set(true, []error{})
+
+		serverDefinition, _ := serverDefinitions.Get(id)
+
+		if serverDefinition.IsCreated() {
+			uuid, _ := serverDefinition.UUID()
+			log.WithFields(log.Fields{"id": id, "uuid": uuid}).Debug("Monitor: Server added to list")
+			projectUUIDs = append(projectUUIDs, uuid)
+		} else {
+			log.WithFields(log.Fields{"id": id}).Info("Monitor: Server has not been created, so it will be skipped")
+		}
+	}
 
 	global := false
 	properties := serverDetail.Properties()
@@ -308,10 +346,25 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("GLOBAL")
 	}
 	uuidMatch := []string{}
-	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
-		newUUIDs := uuidProp.Get().([]string)
-		uuidMatch = append(uuidMatch, newUUIDs...)
-		log.WithFields(log.Fields{"key": UPCLOUD_SERVER_UUID_PROPERTY, "prop": uuidMatch, "value": uuidMatch}).Debug("Filter: Server UUID")
+	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
+		for _, newUUID := range uuidProp.Get().([]string) {
+			if global {
+				uuidMatch = append(uuidMatch, newUUID)
+			} else {
+				for _, projectUUID := range projectUUIDs {
+					if projectUUID == newUUID {
+						uuidMatch = append(uuidMatch, newUUID)
+						break
+					}
+				}
+			}
+		}
+	}
+	if len(uuidMatch) == 0 {
+		uuidMatch = projectUUIDs
+		log.WithFields(log.Fields{"uuids": uuidMatch}).Debug("Filter: Server UUIDs")
+	} else {
+		log.WithFields(log.Fields{"uuids": uuidMatch}).Debug("Filter: All Server UUIDs")
 	}
 
 	if len(uuidMatch) > 0 {
