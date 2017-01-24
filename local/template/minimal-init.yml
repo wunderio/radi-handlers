@@ -1,8 +1,8 @@
 - Type: File
-  path: .kraut/settings.yml
+  path: .radi/settings.yml
   Contents: |2
     Project: wundertest
 - Type: File
-  path: .kraut/commands.yml
+  path: .radi/commands.yml
   Contents: |2
     

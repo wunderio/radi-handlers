@@ -6,7 +6,7 @@ import (
 	upcloud "github.com/Jalle19/upcloud-go-sdk/upcloud"
 	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
 )
 
 /**
@@ -304,14 +304,14 @@ func (request *UpcloudServerCreateRequestProperty) Type() string {
 }
 
 func (request *UpcloudServerCreateRequestProperty) Get() interface{} {
-	// // prov_project := "krauttest"
+	// // prov_project := "raditest"
 	// prov_zone := "fi-hel1"
 
 	// prov_initscript := "" // Initialize script. Can be a URL
 
 	// prov_user := upcloud_request.LoginUser{
 	// 	CreatePassword: "no", // Allow SSH only with key
-	// 	Username:       "kraut",
+	// 	Username:       "radi",
 	// 	SSHKeys: []string{
 	// 		"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDEI7j4EaK2RRKgp7rA9gDIL279WtNBWsPQwKn6YNjb7i1EUAM+IYzdQbPgpYr0rMx67DhvbK1pBeL0HTXfk1ZnSbbZe2xktk+YJo6l8zQ7wYydWMcCcB5HUvgG1/ugTj6wxImYAx7sEuXY4MVO7aHmfMnjV+7Re0uXHjAPL9k5O2Xvt75RmrgG8YpE6MvZtYTzIRmINbuSAX9CWKi46ZuRNYKDyZTSarqA1TOaGKiO6vf2dM7bWqsvitOxwEC6Z0c5nIAjcAGhg+yBEEloWTqNqkxPzbh0AIIO9HjGlnbSaIffwrv78UzrHatukUQOcsg6PBvMPvhjdoB0JrscLneDy0DhF6ptAQporg3SieypB/3hiZ0RfT94c35DQufFphfsphIBXIsqENJKR383sz57PPDtVgyXKSu5ujhXUPgC1rwldGUqVtMLsvC4tcnOIbOK917QjUQ+8cJoC08XBUG10knUoIWP8ebv55sfnBTHW27g+4B1V6ub3Zyq/ZRzeJXWzSh1QmOUXp1Q47bEz3eT2/VRtKyUYAo3ChvceMSERsVtwfRgIcAreIqGy2GJQPe7NkYOAPrirwhfppoFJ/nx3xGFjg0iZIg4Z1nTpwEWBWcC5eo/yfORnhdAooJWRYO37nOrjryUZJsRbFC/Uj7JOIX2QrZEX1bm4SwgSF8tTQ==", // JRN
 	// 	},
@@ -421,7 +421,7 @@ func (request *UpcloudServerCreateRequestProperty) Get() interface{} {
 	// 	},
 	// }
 
-	// // hardcoded_tag := "kraut-provisioned-" + prov_project
+	// // hardcoded_tag := "radi-provisioned-" + prov_project
 
 	// request.value = upcloud_request.CreateServerRequest{
 	// 	//AvoidHost  string `xml:"avoid_host,omitempty"`
@@ -436,7 +436,7 @@ func (request *UpcloudServerCreateRequestProperty) Get() interface{} {
 	// 	Plan:             "1xCPU-1GB",
 	// 	StorageDevices:   prov_storages,
 	// 	TimeZone:         "Europe/Helsinki",
-	// 	Title:            prov_project + ": provisioned automatically by kraut",
+	// 	Title:            prov_project + ": provisioned automatically by radi",
 	// 	UserData:         prov_initscript,
 	// 	//VNC: "off",
 	// 	Zone: prov_zone,

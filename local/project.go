@@ -8,9 +8,9 @@ import (
 
 	jn_init "github.com/james-nesbitt/init-go"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_project "github.com/james-nesbitt/kraut-api/operation/project"
-	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_project "github.com/james-nesbitt/radi-api/operation/project"
+	handlers_bytesource "github.com/james-nesbitt/radi-handlers/bytesource"
 )
 
 /**
@@ -45,7 +45,7 @@ func (handler *LocalHandler_Project) Init() api_operation.Result {
 }
 
 /**
- * Operation to initialize the current project as a kraut project
+ * Operation to initialize the current project as a radi project
  */
 
 type LocalProjectInitOperation struct {
@@ -63,7 +63,7 @@ func (init *LocalProjectInitOperation) Id() string {
 
 // Description for the LocalProjectCreateOperation
 func (init *LocalProjectInitOperation) Description() string {
-	return "Initialize the current project path as a kraut project"
+	return "Initialize the current project path as a radi project"
 }
 
 // Validate the operation
@@ -98,9 +98,9 @@ func (init *LocalProjectInitOperation) Exec() api_operation.Result {
 
 	demoMode := demoModeProp.Get().(bool)
 
-	source := "https://raw.githubusercontent.com/james-nesbitt/kraut-handlers/master/local/template/minimal-init.yml"
+	source := "https://raw.githubusercontent.com/james-nesbitt/radi-handlers/master/local/template/minimal-init.yml"
 	if demoMode {
-		source = "https://raw.githubusercontent.com/james-nesbitt/kraut-handlers/master/local/template/demo-init.yml"
+		source = "https://raw.githubusercontent.com/james-nesbitt/radi-handlers/master/local/template/demo-init.yml"
 	}
 
 	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
@@ -260,7 +260,7 @@ func (generate *LocalProjectGenerateOperation) Exec() api_operation.Result {
 		log.WithFields(log.Fields{"root": settings.ProjectRootPath, "path": destination}).Info("Running YML generator")
 
 		/** @TODO REMOVE THIS HARDCODED PATH : make skip allow full paths*/
-		skip = append(skip, "kraut/init.yml")
+		skip = append(skip, "radi/init.yml")
 
 		if fileWriter, err := destination.Writer(); err != nil {
 			log.WithError(err).Error("Failed to create template file")

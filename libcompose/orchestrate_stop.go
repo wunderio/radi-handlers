@@ -6,8 +6,8 @@ import (
 	// log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_orchestrate "github.com/james-nesbitt/radi-api/operation/orchestrate"
 )
 
 // Base Stop operation

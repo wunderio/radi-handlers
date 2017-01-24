@@ -1,8 +1,8 @@
 package null
 
 import (
-	"github.com/james-nesbitt/kraut-api/operation/command"
-	"github.com/james-nesbitt/kraut-api/operation/config"
+	"github.com/james-nesbitt/radi-api/operation/command"
+	"github.com/james-nesbitt/radi-api/operation/config"
 )
 
 type NullConfigWrapper struct{}

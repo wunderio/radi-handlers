@@ -9,8 +9,8 @@ import (
 	upcloud "github.com/Jalle19/upcloud-go-sdk/upcloud"
 	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_provision "github.com/james-nesbitt/kraut-api/operation/provision"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_provision "github.com/james-nesbitt/radi-api/operation/provision"
 )
 
 /**

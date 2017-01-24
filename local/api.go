@@ -3,7 +3,7 @@ package local
 import (
 	"golang.org/x/net/context"
 
-	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
+	handlers_bytesource "github.com/james-nesbitt/radi-handlers/bytesource"
 )
 
 // Settings needed to make a local API

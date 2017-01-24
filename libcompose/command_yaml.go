@@ -11,9 +11,9 @@ import (
 	libCompose_config "github.com/docker/libcompose/config"
 	libCompose_project_options "github.com/docker/libcompose/project/options"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_command "github.com/james-nesbitt/kraut-api/operation/command"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_command "github.com/james-nesbitt/radi-api/operation/command"
+	api_config "github.com/james-nesbitt/radi-api/operation/config"
 )
 
 // Constructor for BaseCommandConfigWrapperYmlOperation

@@ -6,8 +6,8 @@ package null
  */
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_monitor "github.com/james-nesbitt/kraut-api/operation/monitor"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_monitor "github.com/james-nesbitt/radi-api/operation/monitor"
 )
 
 // NullHandler Constructor, doesn't do much preprocessing really

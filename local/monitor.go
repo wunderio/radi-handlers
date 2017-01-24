@@ -1,8 +1,8 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	handlers_libcompose "github.com/james-nesbitt/radi-handlers/libcompose"
 )
 
 // A handler for local monitoring using libcompose

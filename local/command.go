@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_command "github.com/james-nesbitt/kraut-api/operation/command"
-	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_command "github.com/james-nesbitt/radi-api/operation/command"
+	handlers_libcompose "github.com/james-nesbitt/radi-handlers/libcompose"
 )
 
 /**

@@ -1,10 +1,10 @@
 package null
 
 import (
-	api_api "github.com/james-nesbitt/kraut-api/api"
-	api_builder "github.com/james-nesbitt/kraut-api/builder"
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_monitor "github.com/james-nesbitt/kraut-api/operation/monitor"
+	api_api "github.com/james-nesbitt/radi-api/api"
+	api_builder "github.com/james-nesbitt/radi-api/builder"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_monitor "github.com/james-nesbitt/radi-api/operation/monitor"
 )
 
 /**

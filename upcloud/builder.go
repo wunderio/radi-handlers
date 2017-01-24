@@ -3,15 +3,15 @@ package upcloud
 import (
 	log "github.com/Sirupsen/logrus"
 
-	api_api "github.com/james-nesbitt/kraut-api/api"
-	api_builder "github.com/james-nesbitt/kraut-api/builder"
-	api_handler "github.com/james-nesbitt/kraut-api/handler"
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
+	api_api "github.com/james-nesbitt/radi-api/api"
+	api_builder "github.com/james-nesbitt/radi-api/builder"
+	api_handler "github.com/james-nesbitt/radi-api/handler"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_config "github.com/james-nesbitt/radi-api/operation/config"
 )
 
 /**
- * A kraut builder for upcloud handlers
+ * A radi builder for upcloud handlers
  */
 
 // Upcloud Builder

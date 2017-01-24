@@ -3,8 +3,8 @@ package libcompose
 import (
 	"errors"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_command "github.com/james-nesbitt/kraut-api/operation/command"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_command "github.com/james-nesbitt/radi-api/operation/command"
 )
 
 /**

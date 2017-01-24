@@ -7,7 +7,7 @@ import (
 
 	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
 )
 
 /**
@@ -255,7 +255,7 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 				}
 
 				if !filterOut {
-					log.WithFields(log.Fields{"index": index, "uuid": server.UUID, "title": server.Title, "plan": server.Plan, "zone": server.Zone, "state": server.State, "tags": server.Tags}).Info("Server")
+					log.WithFields(log.Fields{"index": index, "uuid": server.UUID, "title": server.Title, "plan": server.Plan, "zone": server.Zone, "state": server.State, "progress": server.Progress, "tags": server.Tags}).Info("Server")
 				}
 			}
 		} else {
@@ -305,7 +305,6 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Validate() bool {
 func (serverDetail *UpcloudMonitorServerDetailsOperation) Properties() *api_operation.Properties {
 	if serverDetail.properties == nil {
 		props := api_operation.Properties{}
-
 		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
 		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
 

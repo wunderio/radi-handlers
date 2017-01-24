@@ -13,7 +13,7 @@ import (
 	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 	upcloud_service "github.com/Jalle19/upcloud-go-sdk/upcloud/service"
 
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
+	api_config "github.com/james-nesbitt/radi-api/operation/config"
 )
 
 /**

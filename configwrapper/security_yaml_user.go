@@ -7,9 +7,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
-	// api_operation "github.com/james-nesbitt/kraut-api/operation"
-	// api_config "github.com/james-nesbitt/kraut-api/operation/config"
-	api_security "github.com/james-nesbitt/kraut-api/operation/security"
+	// api_operation "github.com/james-nesbitt/radi-api/operation"
+	// api_config "github.com/james-nesbitt/radi-api/operation/config"
+	api_security "github.com/james-nesbitt/radi-api/operation/security"
 )
 
 // Retrieve values by parsing bytes from the wrapper

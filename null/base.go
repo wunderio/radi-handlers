@@ -1,7 +1,7 @@
 package null
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
 )
 
 /**

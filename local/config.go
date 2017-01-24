@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
-	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_config "github.com/james-nesbitt/radi-api/operation/config"
+	handlers_bytesource "github.com/james-nesbitt/radi-handlers/bytesource"
 )
 
 // A handler for local config

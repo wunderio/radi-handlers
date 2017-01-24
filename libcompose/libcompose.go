@@ -10,8 +10,8 @@ import (
 	libCompose_dockerctx "github.com/docker/libcompose/docker/ctx"
 	libCompose_project "github.com/docker/libcompose/project"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	handlers_bytesource "github.com/james-nesbitt/kraut-handlers/bytesource"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	handlers_bytesource "github.com/james-nesbitt/radi-handlers/bytesource"
 )
 
 /**

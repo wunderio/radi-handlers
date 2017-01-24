@@ -6,16 +6,16 @@ import (
 	"os"
 	"path"
 
-	api_api "github.com/james-nesbitt/kraut-api/api"
-	api_builder "github.com/james-nesbitt/kraut-api/builder"
-	api_handler "github.com/james-nesbitt/kraut-api/handler"
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_command "github.com/james-nesbitt/kraut-api/operation/command"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
-	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
-	api_security "github.com/james-nesbitt/kraut-api/operation/security"
-	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
-	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
+	api_api "github.com/james-nesbitt/radi-api/api"
+	api_builder "github.com/james-nesbitt/radi-api/builder"
+	api_handler "github.com/james-nesbitt/radi-api/handler"
+	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_command "github.com/james-nesbitt/radi-api/operation/command"
+	api_config "github.com/james-nesbitt/radi-api/operation/config"
+	api_orchestrate "github.com/james-nesbitt/radi-api/operation/orchestrate"
+	api_security "github.com/james-nesbitt/radi-api/operation/security"
+	api_setting "github.com/james-nesbitt/radi-api/operation/setting"
+	handlers_libcompose "github.com/james-nesbitt/radi-handlers/libcompose"
 )
 
 /**
