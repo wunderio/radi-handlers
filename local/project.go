@@ -6,11 +6,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	jn_init "github.com/james-nesbitt/init-go"
+	jn_init "github.com/wunderkraut/init-go"
 
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_project "github.com/james-nesbitt/radi-api/operation/project"
-	handlers_bytesource "github.com/james-nesbitt/radi-handlers/bytesource"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_project "github.com/wunderkraut/radi-api/operation/project"
+	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
 
 /**
@@ -98,9 +98,9 @@ func (init *LocalProjectInitOperation) Exec() api_operation.Result {
 
 	demoMode := demoModeProp.Get().(bool)
 
-	source := "https://raw.githubusercontent.com/james-nesbitt/radi-handlers/master/local/template/minimal-init.yml"
+	source := "https://raw.githubusercontent.com/wunderkraut/radi-handlers/master/local/template/minimal-init.yml"
 	if demoMode {
-		source = "https://raw.githubusercontent.com/james-nesbitt/radi-handlers/master/local/template/demo-init.yml"
+		source = "https://raw.githubusercontent.com/wunderkraut/radi-handlers/master/local/template/demo-init.yml"
 	}
 
 	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)

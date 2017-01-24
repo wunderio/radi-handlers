@@ -8,8 +8,8 @@ import (
 
 	libCompose_options "github.com/docker/libcompose/project/options"
 
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_orchestrate "github.com/james-nesbitt/radi-api/operation/orchestrate"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_orchestrate "github.com/wunderkraut/radi-api/operation/orchestrate"
 )
 
 const (

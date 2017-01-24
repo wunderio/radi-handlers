@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_setting "github.com/james-nesbitt/radi-api/operation/setting"
-	handlers_configwrapper "github.com/james-nesbitt/radi-handlers/configwrapper"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_setting "github.com/wunderkraut/radi-api/operation/setting"
+	handlers_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
 )
 
 // A handler for local settings

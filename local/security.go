@@ -1,10 +1,10 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_config "github.com/james-nesbitt/radi-api/operation/config"
-	api_security "github.com/james-nesbitt/radi-api/operation/security"
-	handlers_configwrapper "github.com/james-nesbitt/radi-handlers/configwrapper"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_config "github.com/wunderkraut/radi-api/operation/config"
+	api_security "github.com/wunderkraut/radi-api/operation/security"
+	handlers_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
 )
 
 /**

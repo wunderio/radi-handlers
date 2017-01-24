@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_command "github.com/james-nesbitt/radi-api/operation/command"
-	handlers_libcompose "github.com/james-nesbitt/radi-handlers/libcompose"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_command "github.com/wunderkraut/radi-api/operation/command"
+	handlers_libcompose "github.com/wunderkraut/radi-handlers/libcompose"
 )
 
 /**

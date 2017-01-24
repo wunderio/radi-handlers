@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	api_config "github.com/james-nesbitt/radi-api/operation/config"
+	api_config "github.com/wunderkraut/radi-api/operation/config"
 )
 
 const (

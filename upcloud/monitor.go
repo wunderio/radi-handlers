@@ -7,7 +7,7 @@ import (
 
 	upcloud_request "github.com/Jalle19/upcloud-go-sdk/upcloud/request"
 
-	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_operation "github.com/wunderkraut/radi-api/operation"
 )
 
 /**

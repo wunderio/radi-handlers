@@ -5,8 +5,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_setting "github.com/james-nesbitt/radi-api/operation/setting"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_setting "github.com/wunderkraut/radi-api/operation/setting"
 )
 
 const (

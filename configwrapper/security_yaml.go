@@ -6,9 +6,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 	// "gopkg.in/yaml.v2"
 
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_config "github.com/james-nesbitt/radi-api/operation/config"
-	api_security "github.com/james-nesbitt/radi-api/operation/security"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_config "github.com/wunderkraut/radi-api/operation/config"
+	api_security "github.com/wunderkraut/radi-api/operation/security"
 )
 
 // Constructor for SecurityConfigWrapperYml

@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/radi-api/operation"
-	api_config "github.com/james-nesbitt/radi-api/operation/config"
-	api_setting "github.com/james-nesbitt/radi-api/operation/setting"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_config "github.com/wunderkraut/radi-api/operation/config"
+	api_setting "github.com/wunderkraut/radi-api/operation/setting"
 )
 
 /**

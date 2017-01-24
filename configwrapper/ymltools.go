@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	api_operation "github.com/james-nesbitt/radi-api/operation"
+	api_operation "github.com/wunderkraut/radi-api/operation"
 )
 
 // Convert Authorize string to int, invert it if asked to
