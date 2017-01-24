@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
-	handlers_libcompose "github.com/james-nesbitt/kraut-handlers/libcompose"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_orchestrate "github.com/wunderkraut/radi-api/operation/orchestrate"
+	handlers_libcompose "github.com/wunderkraut/radi-handlers/libcompose"
 )
 
 // A handler for local orchestration using libcompose

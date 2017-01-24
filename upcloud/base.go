@@ -1,7 +1,7 @@
 package upcloud
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/wunderkraut/radi-api/operation"
 )
 
 /**
@@ -32,12 +32,12 @@ func (base *BaseUpcloudServiceHandler) BaseUpcloudServiceOperation() *BaseUpclou
 	return New_BaseUpcloudServiceOperation(base.factory, base.builderSettings)
 }
 
-// Get the service
+// Get the operations from the handler
 func (base *BaseUpcloudServiceHandler) Operations() *api_operation.Operations {
 	return base.operations
 }
 
-// Get the service
+// Get the factory
 func (base *BaseUpcloudServiceHandler) Factory() UpcloudFactory {
 	return base.factory
 }

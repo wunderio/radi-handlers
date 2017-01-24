@@ -7490,7 +7490,7 @@
     source/composer.lock
     
 - Type: File
-  path: .kraut/settings.yml
+  path: .radi/settings.yml
   Contents: |2
     Author: James Nesbitt
     Client: Internal
@@ -7502,7 +7502,7 @@
     time: Mon Oct 24 14:51:39 EEST 2016
     
 - Type: File
-  path: .kraut/commands.yml
+  path: .radi/commands.yml
   Contents: |2
     
     shell:
@@ -7624,7 +7624,7 @@
     			}
     		},
     		{
-    			"file": ".kraut/settings.yml",
+    			"file": ".radi/settings.yml",
     			"settings":
     			{
     				"buffer_size": 151,
@@ -7676,7 +7676,7 @@
     			}
     		},
     		{
-    			"file": ".kraut/commands.yml",
+    			"file": ".radi/commands.yml",
     			"settings":
     			{
     				"buffer_size": 1794,
@@ -7726,7 +7726,7 @@
     	"expanded_folders":
     	[
     		"/home/james/Documents/Test/wundertest",
-    		"/home/james/Documents/Test/wundertest/.kraut",
+    		"/home/james/Documents/Test/wundertest/.radi",
     		"/home/james/Documents/Test/wundertest/settings",
     		"/home/james/Documents/Test/wundertest/settings/drupal-console",
     		"/home/james/Documents/Test/wundertest/settings/drush",
@@ -7737,18 +7737,18 @@
     	],
     	"file_history":
     	[
-    		"/home/james/Documents/Developer/docker/tools/kraut/kraut-cli/build/.os-detect",
-    		"/home/james/Documents/Test/wundertest/kraut/init.yml",
+    		"/home/james/Documents/Developer/docker/tools/radi/radi-cli/build/.os-detect",
+    		"/home/james/Documents/Test/wundertest/radi/init.yml",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/build/getdeps",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/build.sh",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/Makefile",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/operation/project/create.go",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/project.go",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/bytesource/file.go",
-    		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/templates/wundertools/kraut/README.md",
-    		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/templates/wundertools/kraut/commands.yml",
+    		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/templates/wundertools/radi/README.md",
+    		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/templates/wundertools/radi/commands.yml",
     		"/home/james/Documents/Test/wundertest/.gitignore",
-    		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/templates/wundertools/kraut/init.yml",
+    		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/templates/wundertools/radi/init.yml",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/operation/project/generate.go",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/api/handler/local/initialize/init.go",
     		"/home/james/Documents/Developer/docker/tools/wundertools-go/cli/local/properties.go",
@@ -8188,7 +8188,7 @@
     				},
     				{
     					"buffer": 1,
-    					"file": ".kraut/settings.yml",
+    					"file": ".radi/settings.yml",
     					"semi_transient": true,
     					"settings":
     					{
@@ -8366,7 +8366,7 @@
     				},
     				{
     					"buffer": 7,
-    					"file": ".kraut/commands.yml",
+    					"file": ".radi/commands.yml",
     					"semi_transient": false,
     					"settings":
     					{

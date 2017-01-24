@@ -5,14 +5,14 @@ package null
  */
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_command "github.com/james-nesbitt/kraut-api/operation/command"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
-	api_document "github.com/james-nesbitt/kraut-api/operation/document"
-	api_monitor "github.com/james-nesbitt/kraut-api/operation/monitor"
-	api_orchestrate "github.com/james-nesbitt/kraut-api/operation/orchestrate"
-	api_security "github.com/james-nesbitt/kraut-api/operation/security"
-	api_setting "github.com/james-nesbitt/kraut-api/operation/setting"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_command "github.com/wunderkraut/radi-api/operation/command"
+	api_config "github.com/wunderkraut/radi-api/operation/config"
+	api_document "github.com/wunderkraut/radi-api/operation/document"
+	api_monitor "github.com/wunderkraut/radi-api/operation/monitor"
+	api_orchestrate "github.com/wunderkraut/radi-api/operation/orchestrate"
+	api_security "github.com/wunderkraut/radi-api/operation/security"
+	api_setting "github.com/wunderkraut/radi-api/operation/setting"
 )
 
 /**
