@@ -1,8 +1,8 @@
 package configwrapper
 
 import (
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_security "github.com/james-nesbitt/kraut-api/operation/security"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_security "github.com/wunderkraut/radi-api/operation/security"
 )
 
 /**

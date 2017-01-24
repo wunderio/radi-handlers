@@ -7,8 +7,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
-	api_builder "github.com/james-nesbitt/kraut-api/builder"
-	api_config "github.com/james-nesbitt/kraut-api/operation/config"
+	api_builder "github.com/wunderkraut/radi-api/builder"
+	api_config "github.com/wunderkraut/radi-api/operation/config"
 )
 
 /**

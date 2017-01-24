@@ -8,8 +8,8 @@ import (
 	"golang.org/x/net/context"
 	log "github.com/Sirupsen/logrus"	
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
-	api_monitor "github.com/james-nesbitt/kraut-api/operation/monitor"
+	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_monitor "github.com/wunderkraut/radi-api/operation/monitor"
 )
 
 /**

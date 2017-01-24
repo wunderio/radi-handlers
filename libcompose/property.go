@@ -3,7 +3,7 @@ package libcompose
 import (
 	// libCompose_options "github.com/docker/libcompose/project/options"
 
-	api_operation "github.com/james-nesbitt/kraut-api/operation"
+	api_operation "github.com/wunderkraut/radi-api/operation"
 )
 
 const (
