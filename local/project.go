@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	jn_init "github.com/wunderkraut/init-go"
+	jn_init "github.com/james-nesbitt/init-go"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_project "github.com/wunderkraut/radi-api/operation/project"
