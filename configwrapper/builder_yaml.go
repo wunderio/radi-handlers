@@ -81,6 +81,7 @@ func (buildComponents *BuilderComponentsConfigWrapperYaml) Load() error {
 					log.WithFields(log.Fields{"ymlSettings": values, "key": key}).Debug("Each yml")
 					buildComponents.buildComponents.Set(key, *values.MakeBuildComponent())
 				}
+				break;
 			} else {
 				log.WithError(err).WithFields(log.Fields{"scope": scope}).Error("Couldn't marshall yml scope")
 			}
@@ -131,5 +132,8 @@ func (ymlSettingsProvider *Yml_BuildSettingSettingsProvider) UnmarshalYAML(unmar
 
 // UnMarshaller function
 func (ymlSettingsProvider Yml_BuildSettingSettingsProvider) AssignSettings(target interface{}) error {
-	return ymlSettingsProvider.UnMarshaler(target)
+	if ymlSettingsProvider.UnMarshaler != nil {
+		return ymlSettingsProvider.UnMarshaler(target)
+	}
+	return nil
 }
