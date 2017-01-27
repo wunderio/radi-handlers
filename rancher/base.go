@@ -1,26 +1,32 @@
 package rancher
 
+import (
+	rancher_client "github.com/rancher/go-rancher/client"
+
+	api_operation "github.com/wunderkraut/radi-api/operation"
+)
+
 /**
  * Some base structs to share upcloud functionality
  */
 
 // Shared base handler
-type RancherBaseHandler struct {
-	settings RancherSettings
+type RancherBaseClientHandler struct {
+	configSource RancherConfigSource
 
 	operations *api_operation.Operations
 }
 
-// Constructor for RancherBaseHandler
-func New_RancherBaseHandler(settings RancherSettings) *RancherBaseHandler {
-	return &RancherBaseHandler{
-		settings: settings,
-		operations: &api_operation.Opeartions{},
+// Constructor for RancherBaseClientHandler
+func New_RancherBaseClientHandler(configSource RancherConfigSource) *RancherBaseClientHandler {
+	return &RancherBaseClientHandler{
+		configSource: configSource,
+		operations: &api_operation.Operations{},
 	}
 }
 
 // Get the operations from the handler
-func (base *RancherBaseHandler) Operations() *api_operation.Operations {
+func (base *RancherBaseClientHandler) Operations() *api_operation.Operations {
 	if base.operations == nil {
 		return &api_operation.Operations{}
 	} else {
@@ -29,6 +35,10 @@ func (base *RancherBaseHandler) Operations() *api_operation.Operations {
 }
 
 // Retrieve the base settings
-func (base *RnacherBaseHandler) Settings() RancherSettings {
-	return base.settings
+func (base *RancherBaseClientHandler) Client() *rancher_client.RancherClient {
+	return base.configSource.Client()
+}
+// Retrieve the base settings
+func (base *RancherBaseClientHandler) Settings() RancherSettings {
+	return base.configSource.Settings()
 }

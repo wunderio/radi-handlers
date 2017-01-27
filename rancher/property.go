@@ -1,7 +1,9 @@
 package rancher
 
 import (
-	gorancher_client "github.com/rancher/go-rancher/client"
+	log "github.com/Sirupsen/logrus"
+	
+	rancher_client "github.com/rancher/go-rancher/client"
 )
 
 /**
@@ -14,7 +16,7 @@ const (
 
 // A single Rancher client options configuration
 type RancherClientOptsProperty struct {
-	options gorancher_client.ClientOpts
+	options rancher_client.ClientOpts
 }
 
 // Id for the Property
@@ -46,8 +48,8 @@ func (clientOpts *RancherClientOptsProperty) Get() interface{} {
 	return interface{}(clientOpts.options)
 }
 func (clientOpts *RancherClientOptsProperty) Set(value interface{}) bool {
-	if converted, ok := value.(gorancher_client.ClientOpts); ok {
-		property.options = converted
+	if converted, ok := value.(rancher_client.ClientOpts); ok {
+		clientOpts.options = converted
 		return true
 	} else {
 		log.WithFields(log.Fields{"value": value}).Error("Could not assign Property value, because the passed parameter was the wrong type. Expected go-rancher client ClientOpts")

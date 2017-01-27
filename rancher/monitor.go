@@ -5,16 +5,16 @@ import (
 )
 
 /**
- * Orchestration Handler using Rancher
+ * Monitor Handler using Rancher
  */
 
-// Rancher Orchestration Handler
-type RancherOrchestrateHandler struct {
+// Rancher Monitor Handler
+type RancherMonitorHandler struct {
 	RancherBaseClientHandler
 }
 
 // Initialize and activate the Handler
-func (orchestrate *RancherOrchestrateHandler) Init() api_operation.Result {
+func (monitor *RancherMonitorHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
@@ -25,12 +25,12 @@ func (orchestrate *RancherOrchestrateHandler) Init() api_operation.Result {
 	// ops.Add(api_operation.Operation(&RancherOrchestrateStopOperation{BaseRancherServiceOperation: *baseOperation}))
 	// ops.Add(api_operation.Operation(&RancherOrchestrateDownOperation{BaseRancherServiceOperation: *baseOperation}))
 
-	orchestrate.operations = &ops
+	monitor.operations = &ops
 
 	return api_operation.Result(&result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
-func (orchestrate *RancherOrchestrateHandler) Id() string {
-	return "rancher.orchestrate"
+func (monitor *RancherMonitorHandler) Id() string {
+	return "rancher.monitor"
 }
