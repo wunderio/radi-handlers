@@ -18,7 +18,6 @@ func (command *RancherCommandHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
-
 	ops := api_operation.Operations{}
 
 	// ops.Add(api_operation.Operation(&RancherCommandUpOperation{BaseRancherServiceOperation: *baseOperation}))

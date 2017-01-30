@@ -21,7 +21,7 @@ type RancherBaseClientHandler struct {
 func New_RancherBaseClientHandler(configSource RancherConfigSource) *RancherBaseClientHandler {
 	return &RancherBaseClientHandler{
 		configSource: configSource,
-		operations: &api_operation.Operations{},
+		operations:   &api_operation.Operations{},
 	}
 }
 
@@ -35,10 +35,33 @@ func (base *RancherBaseClientHandler) Operations() *api_operation.Operations {
 }
 
 // Retrieve the base settings
-func (base *RancherBaseClientHandler) Client() *rancher_client.RancherClient {
-	return base.configSource.Client()
+func (base *RancherBaseClientHandler) ConfigSource() RancherConfigSource {
+	return base.configSource
 }
+
+// Share base operation
+type RancherBaseClientOperation struct {
+	configSource RancherConfigSource
+}
+
+// constructor for configSource RancherConfigSource
+func New_RancherBaseClientOperation(configSource RancherConfigSource) *RancherBaseClientOperation {
+	return &RancherBaseClientOperation{
+		configSource: configSource,
+	}
+}
+
+// Retrieve a rancher client
+func (base *RancherBaseClientOperation) RancherClient() *rancher_client.RancherClient {
+	return base.configSource.RancherClient()
+}
+
 // Retrieve the base settings
-func (base *RancherBaseClientHandler) Settings() RancherSettings {
-	return base.configSource.Settings()
+func (base *RancherBaseClientOperation) RancherClientSettings() RancherClientSettings {
+	return base.configSource.RancherClientSettings()
+}
+
+// Retrieve the base settings
+func (base *RancherBaseClientOperation) RancherEnvironmentSettings() RancherEnvironmentSettings {
+	return base.configSource.RancherEnvironmentSettings()
 }

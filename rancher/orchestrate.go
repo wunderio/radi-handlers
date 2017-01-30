@@ -18,12 +18,12 @@ func (orchestrate *RancherOrchestrateHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
+	base := New_RancherBaseClientOperation(orchestrate.ConfigSource())
 
 	ops := api_operation.Operations{}
 
-	// ops.Add(api_operation.Operation(&RancherOrchestrateUpOperation{BaseRancherServiceOperation: *baseOperation}))
-	// ops.Add(api_operation.Operation(&RancherOrchestrateStopOperation{BaseRancherServiceOperation: *baseOperation}))
-	// ops.Add(api_operation.Operation(&RancherOrchestrateDownOperation{BaseRancherServiceOperation: *baseOperation}))
+	ops.Add(api_operation.Operation(&RancherOrchestrateUpOperation{RancherBaseClientOperation: *base}))
+	ops.Add(api_operation.Operation(&RancherOrchestrateDownOperation{RancherBaseClientOperation: *base}))
 
 	orchestrate.operations = &ops
 

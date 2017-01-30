@@ -3,27 +3,33 @@ package rancher
 import (
 	"time"
 
-	rancher_client "github.com/rancher/go-rancher/client"	
+	rancher_client "github.com/rancher/go-rancher/client"
 )
 
-// All of the settings needed to get a Rancher client connection : see github.com/rancher/go-rancher/client/ClientOpts
+// Settings that can come fomr the project configuration.
+// @NOTE Not sure what we want to put in here
 type RancherSettings struct {
-	Url       string	`yaml:"Url"`
-	AccessKey string	`yaml:"AccessKey"`
-	SecretKey string	`yaml:"SecretKey"`
-	Timeout   time.Duration  `yaml:"Timeout"`
+}
+
+// All of the settings needed to get a Rancher client connection : see github.com/rancher/go-rancher/client/ClientOpts
+type RancherClientSettings struct {
+	Url       string
+	AccessKey string
+	SecretKey string
+	Timeout   time.Duration
 }
 
 // Convert RancherSettings to the rancher library client settings object natively.
-func (settings *RancherSettings) rancher_client_ClientOpts() rancher_client.ClientOpts {
+func (settings *RancherClientSettings) rancher_client_ClientOpts() rancher_client.ClientOpts {
 	return rancher_client.ClientOpts{
-		Url: settings.Url,
+		Url:       settings.Url,
 		AccessKey: settings.AccessKey,
 		SecretKey: settings.SecretKey,
-		Timeout: settings.Timeout,
+		Timeout:   settings.Timeout,
 	}
 }
-// Is this struct empty
-func (settings *RancherSettings) Empty() bool {
-	return settings.Url == ""
+
+// All settings related to the environment used for the project
+type RancherEnvironmentSettings struct {
+	Id string
 }

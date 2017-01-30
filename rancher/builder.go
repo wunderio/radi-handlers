@@ -5,8 +5,8 @@ import (
 
 	api_api "github.com/wunderkraut/radi-api/api"
 	api_builder "github.com/wunderkraut/radi-api/builder"
-	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_handler "github.com/wunderkraut/radi-api/handler"
+	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 )
 
@@ -18,13 +18,14 @@ type RancherBuilder struct {
 	settings RancherSettings
 
 	parent   api_api.API
-	handlers api_handler.Handlers	
+	handlers api_handler.Handlers
 }
 
 // Set a API for this Handler
 func (builder *RancherBuilder) SetAPI(parent api_api.API) {
 	builder.parent = parent
 }
+
 // Initialize and activate the Handler
 func (builder *RancherBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
 	if &builder.handlers == nil {
@@ -66,7 +67,6 @@ func (builder *RancherBuilder) Operations() *api_operation.Operations {
 	ops := builder.handlers.Operations()
 	return &ops
 }
-
 
 // Return a shared BaseUpcloudServiceOperation for any operation that needs it
 func (builder *RancherBuilder) base_RancherBaseClientHandler(settingsProvider api_builder.SettingsProvider) *RancherBaseClientHandler {

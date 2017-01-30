@@ -18,12 +18,11 @@ func (monitor *RancherMonitorHandler) Init() api_operation.Result {
 	result := api_operation.BaseResult{}
 	result.Set(true, []error{})
 
+	base := New_RancherBaseClientOperation(monitor.ConfigSource())
 
 	ops := api_operation.Operations{}
 
-	// ops.Add(api_operation.Operation(&RancherOrchestrateUpOperation{BaseRancherServiceOperation: *baseOperation}))
-	// ops.Add(api_operation.Operation(&RancherOrchestrateStopOperation{BaseRancherServiceOperation: *baseOperation}))
-	// ops.Add(api_operation.Operation(&RancherOrchestrateDownOperation{BaseRancherServiceOperation: *baseOperation}))
+	ops.Add(api_operation.Operation(&RancherMonitorListEnvironmentsOperation{RancherBaseClientOperation: *base}))
 
 	monitor.operations = &ops
 
