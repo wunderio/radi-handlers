@@ -5,8 +5,8 @@ import (
 	"io"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
-	log "github.com/Sirupsen/logrus"	
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_monitor "github.com/wunderkraut/radi-api/operation/monitor"
@@ -93,7 +93,6 @@ func (logs *LibcomposeMonitorLogsOperation) Exec() api_operation.Result {
 	return api_operation.Result(&result)
 }
 
-
 // LibCompose based ps orchestrate operation
 type LibcomposeOrchestratePsOperation struct {
 	BaseLibcomposeNameFilesOperation
@@ -175,4 +174,3 @@ func (ps *LibcomposeOrchestratePsOperation) Exec() api_operation.Result {
 
 	return api_operation.Result(&result)
 }
-

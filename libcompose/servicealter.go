@@ -35,7 +35,7 @@ func (project *ComposeProject) alterService_ProjectNetwork(service *libCompose_c
 	 *
 	 * This requirement came up after an update to the libcompose upstream library, which broke
 	 * the existing missing network setup.  What is happening is that we are alteting a serviceconfig
-	 * which will be added to a libcompose.Project::Project struct, and that struct has already 
+	 * which will be added to a libcompose.Project::Project struct, and that struct has already
 	 * run its initializer, which does the default network configuration.  This means that it is
 	 * too late to simply add an empty network.  An alternative is to re-run the initializer, but
 	 * as we have no access to that functionality from the Interface, there is little we can do.
@@ -47,7 +47,7 @@ func (project *ComposeProject) alterService_ProjectNetwork(service *libCompose_c
 			Networks: []*libCompose_yaml.Network{
 				{
 					Name:     "default",
-					RealName: project.composeContext.Context.ProjectName+"_default",
+					RealName: project.composeContext.Context.ProjectName + "_default",
 				},
 			},
 		}
