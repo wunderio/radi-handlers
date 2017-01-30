@@ -81,7 +81,7 @@ func (buildComponents *BuilderComponentsConfigWrapperYaml) Load() error {
 					log.WithFields(log.Fields{"ymlSettings": values, "key": key}).Debug("Each yml")
 					buildComponents.buildComponents.Set(key, *values.MakeBuildComponent())
 				}
-				break;
+				break
 			} else {
 				log.WithError(err).WithFields(log.Fields{"scope": scope}).Error("Couldn't marshall yml scope")
 			}

@@ -14,7 +14,7 @@ type RancherBaseHandler struct {
 // Constructor for RancherBaseHandler
 func New_RancherBaseHandler(settings RancherSettings) *RancherBaseHandler {
 	return &RancherBaseHandler{
-		settings: settings,
+		settings:   settings,
 		operations: &api_operation.Opeartions{},
 	}
 }
