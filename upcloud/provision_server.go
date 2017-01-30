@@ -33,8 +33,7 @@ type UpcloudServerHandler struct {
 
 // Initialize and activate the Handler
 func (server *UpcloudServerHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	baseOperation := server.BaseUpcloudServiceOperation()
 
@@ -61,7 +60,6 @@ func (server *UpcloudServerHandler) Id() string {
 // Create a new server operation
 type UpcloudServerCreateOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -90,16 +88,13 @@ func (create *UpcloudServerCreateOperation) Internal() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (create *UpcloudServerCreateOperation) Properties() *api_operation.Properties {
-	if create.properties == nil {
-		props := api_operation.Properties{}
+func (create *UpcloudServerCreateOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudServerCreateRequestProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerCreateRequestProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
 
-		create.properties = &props
-	}
-	return create.properties
+	return props
 }
 
 // Execute the Operation
@@ -109,9 +104,8 @@ func (create *UpcloudServerCreateOperation) Properties() *api_operation.Properti
  *     1. are the servies already provisioned?
  *     2. get the servers defintions from settings
  */
-func (create *UpcloudServerCreateOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (create *UpcloudServerCreateOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := create.ServiceWrapper()
 	// settings := create.BuilderSettings()
@@ -128,15 +122,18 @@ func (create *UpcloudServerCreateOperation) Exec() api_operation.Result {
 	serverDetails, err := service.CreateServer(&request)
 
 	if err == nil {
-
 		if detailsProp, found := properties.Get(UPCLOUD_SERVER_DETAILS_PROPERTY); found {
 			detailsProp.Set(*serverDetails)
 		}
 		log.WithFields(log.Fields{"UUID": serverDetails.UUID}).Debug("server: Server created")
 
+		result.MarkSuccess()
 	} else {
-		result.Set(false, []error{err, errors.New("Unable to provision new server.")})
+		result.AddError(errors.New("Unable to provision new server."))
+		result.MarkFailed()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -144,7 +141,6 @@ func (create *UpcloudServerCreateOperation) Exec() api_operation.Result {
 // Apply firewall rules to a running server
 type UpcloudServerApplyFirewallRulesOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -173,36 +169,30 @@ func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Internal() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Properties() *api_operation.Properties {
-	if applyFirewall.properties == nil {
-		props := api_operation.Properties{}
+func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudFirewallRulesProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
+	props.Add(api_operation.Property(&UpcloudFirewallRulesProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
 
-		applyFirewall.properties = &props
-	}
-	return applyFirewall.properties
+	return props
 }
 
 // Execute the Operation
-func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := applyFirewall.ServiceWrapper()
 	// settings := applyFirewall.BuilderSettings()
 
-	properties := applyFirewall.Properties()
-
 	rules := upcloud.FirewallRules{}
-	if rulesProp, found := properties.Get(UPCLOUD_FIREWALL_RULES_PROPERTY); found {
+	if rulesProp, found := props.Get(UPCLOUD_FIREWALL_RULES_PROPERTY); found {
 		rules = rulesProp.Get().(upcloud.FirewallRules)
 		log.WithFields(log.Fields{"key": UPCLOUD_FIREWALL_RULES_PROPERTY, "prop": rulesProp, "value": rules}).Debug("Retrieved firewall rules")
 	}
 	uuid := ""
-	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
+	if uuidProp, found := props.Get(UPCLOUD_SERVER_UUID_PROPERTY); found {
 		uuid = uuidProp.Get().(string)
 		log.WithFields(log.Fields{"key": UPCLOUD_SERVER_UUID_PROPERTY, "prop": uuidProp, "value": uuid}).Debug("Retrieved server UUID")
 	}
@@ -219,18 +209,22 @@ func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Exec() api_operat
 
 		if err != nil {
 			log.WithError(err).WithFields(log.Fields{"index": index, "position": rule.Position, "rule": rule, "rule-details": ruleDetails, "uuid": uuid}).Error("Failed to create server firewall rule")
-			result.Set(false, []error{err})
+			result.AddError(err)
+			result.MarkFailed()
 		} else {
 			log.WithFields(log.Fields{"position": ruleDetails.Position, "comment": ruleDetails.Comment, "uuid": uuid}).Info("Created server firewall rule")
+			result.MarkSuccess()
 		}
 	}
+
+	result.MarkFinished()
+
 	return api_operation.Result(&result)
 }
 
 // Apply firewall rules to a running server
 type UpcloudStorageApplyBackupRulesOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -259,22 +253,18 @@ func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Internal() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Properties() *api_operation.Properties {
-	if applyBackup.properties == nil {
-		props := api_operation.Properties{}
+func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudStorageUUIDProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
+	props.Add(api_operation.Property(&UpcloudStorageUUIDProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerDetailsProperty{}))
 
-		applyBackup.properties = &props
-	}
-	return applyBackup.properties
+	return props
 }
 
 // Execute the Operation
-func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	// service := applyBackup.ServiceWrapper()
 	// settings := applyBackup.BuilderSettings()
@@ -287,7 +277,6 @@ func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Exec() api_operation
 // Delete a server operation
 type UpcloudServerDeleteOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -316,30 +305,27 @@ func (delete *UpcloudServerDeleteOperation) Internal() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (delete *UpcloudServerDeleteOperation) Properties() *api_operation.Properties {
-	if delete.properties == nil {
-		props := api_operation.Properties{}
+func (delete *UpcloudServerDeleteOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudWaitProperty{}))
-		props.Add(api_operation.Property(&UpcloudForceProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
+	props.Add(api_operation.Property(&UpcloudWaitProperty{}))
+	props.Add(api_operation.Property(&UpcloudForceProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
 
-		delete.properties = &props
-	}
-	return delete.properties
+	return props
 }
 
 // Execute the Operation
 /**
  * @NOTE this is a first version.
+ * @TODO this is a prime candidate for goroutines now that we have threaded options
  *
  * We will want to :
  *  1. retrieve servers by tag
  *  2. have a "remove-specific-uuid" option?
  */
-func (delete *UpcloudServerDeleteOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (delete *UpcloudServerDeleteOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := delete.ServiceWrapper()
 	settings := delete.BuilderSettings()
@@ -417,20 +403,27 @@ func (delete *UpcloudServerDeleteOperation) Exec() api_operation.Result {
 						count++
 						log.WithFields(log.Fields{"UUID": uuid, "state": details.State, "progress": details.Progress}).Info("Removed UpCloud server")
 					} else {
-						result.Set(false, []error{err, errors.New("timeout waiting for server be removed.")})
+						result.AddError(err)
+						result.AddError(errors.New("timeout waiting for server be removed."))
+						result.MarkFailed()
 					}
 				} else {
 					count++
 					log.WithFields(log.Fields{"UUID": uuid}).Info("Removed UpCloud server")
 				}
 			} else {
-				result.Set(false, []error{err, errors.New("Could not remove UpCloud server")})
+				result.AddError(err)
+				result.AddError(errors.New("Could not remove UpCloud server"))
+				result.MarkFailed()
 			}
 		}
 
 	} else {
 		log.Info("No servers requested.  You should have passed a server UUID") // @TODO remove this when we are tagging servers
+		result.MarkSuccess()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -438,7 +431,6 @@ func (delete *UpcloudServerDeleteOperation) Exec() api_operation.Result {
 // Provision up operation
 type UpcloudServerStopOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -467,44 +459,38 @@ func (stop *UpcloudServerStopOperation) Internal() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (stop *UpcloudServerStopOperation) Properties() *api_operation.Properties {
-	if stop.properties == nil {
-		props := api_operation.Properties{}
+func (stop *UpcloudServerStopOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudWaitProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
+	props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	props.Add(api_operation.Property(&UpcloudWaitProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
 
-		stop.properties = &props
-	}
-	return stop.properties
+	return props
 }
 
 // Execute the Operation
 /**
  * @NOTE this is a first version.
  */
-func (stop *UpcloudServerStopOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (stop *UpcloudServerStopOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := stop.ServiceWrapper()
 	settings := stop.BuilderSettings()
 
-	properties := stop.Properties()
-
 	global := false
-	if globalProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
+	if globalProp, found := props.Get(UPCLOUD_GLOBAL_PROPERTY); found {
 		global = globalProp.Get().(bool)
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("Allowing global access")
 	}
 	wait := false
-	if waitProp, found := properties.Get(UPCLOUD_WAIT_PROPERTY); found {
+	if waitProp, found := props.Get(UPCLOUD_WAIT_PROPERTY); found {
 		wait = waitProp.Get().(bool)
 		log.WithFields(log.Fields{"key": UPCLOUD_WAIT_PROPERTY, "prop": waitProp, "value": wait}).Debug("Wait for operation to complete")
 	}
 	uuidMatch := []string{}
-	if uuidsProp, found := properties.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
+	if uuidsProp, found := props.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
 		newUUIDs := uuidsProp.Get().([]string)
 		uuidMatch = append(uuidMatch, newUUIDs...)
 		log.WithFields(log.Fields{"key": UPCLOUD_SERVER_UUIDS_PROPERTY, "prop": uuidsProp, "value": uuidMatch}).Debug("Filter: Server UUID")
@@ -540,13 +526,17 @@ func (stop *UpcloudServerStopOperation) Exec() api_operation.Result {
 					if err == nil {
 						log.WithFields(log.Fields{"UUID": uuid, "state": details.State, "progress": details.Progress}).Info("Stopped UpCloud server")
 					} else {
-						result.Set(false, []error{err, errors.New("timeout waiting for server stop.")})
+						result.AddError(err)
+						result.AddError(errors.New("timeout waiting for server stop."))
+						result.MarkFailed()
 					}
 				} else {
 					log.WithFields(log.Fields{"UUID": uuid, "state": details.State, "progress": details.Progress}).Info("Stopped UpCloud server")
 				}
 			} else {
-				result.Set(false, []error{err, errors.New("Could not stop UpCloud server")})
+				result.AddError(err)
+				result.AddError(errors.New("Could not stop UpCloud server"))
+				result.MarkFailed()
 			}
 		}
 

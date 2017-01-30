@@ -198,13 +198,7 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 		comm.serviceConfig = serviceHolder
 	}
 
-	if comm.properties == nil {
-		properties := api_operation.Properties{}
-
-		properties.Add(api_operation.Property(&api_command.CommandFlagsProperty{}))
-
-		comm.properties = &properties
-	}
+	// @TODO can we get properties from the commands yml?
 
 	return nil
 }
@@ -255,13 +249,18 @@ func (ymlCommand *CommandYmlCommand) Description() string {
 }
 
 // Return string Description
-func (ymlCommand *CommandYmlCommand) Properties() *api_operation.Properties {
-	return ymlCommand.properties
+func (ymlCommand *CommandYmlCommand) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
+
+	// @TODO find a way to add more dynamic properties
+
+	props.Add(api_operation.Property(&api_command.CommandFlagsProperty{}))
+
+	return props
 }
 
-func (ymlCommand *CommandYmlCommand) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	flags := []string{}
 	if propFlags, found := ymlCommand.Properties().Get(api_command.OPERATION_PROPERTY_COMMAND_FLAGS); found {
@@ -293,6 +292,9 @@ func (ymlCommand *CommandYmlCommand) Exec() api_operation.Result {
 		}
 		project.Delete(runContext, deleteOptions, ymlCommand.Id())
 	}
+
+	result.MarkSuccess()
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }

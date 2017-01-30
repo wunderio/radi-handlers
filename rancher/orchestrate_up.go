@@ -40,7 +40,7 @@ func (up *RancherOrchestrateUpOperation) Properties() *api_operation.Properties 
 
 // Execute the operation
 func (up *RancherOrchestrateUpOperation) Exec() api_operation.Result {
-	result := api_operation.New_StandardResult())
+	result := api_operation.New_StandardResult()
 	log.WithFields(log.Fields{"clientsettings": up.RancherClientSettings(), "envsettings": up.RancherEnvironmentSettings()}).Info("SETTINGS")
 
 	result.AddError(errors.New("RANCHER UP OPERATION NOT YET WRITTEN"))

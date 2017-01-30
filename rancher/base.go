@@ -29,6 +29,6 @@ func (base *RancherBaseHandler) Operations() *api_operation.Operations {
 }
 
 // Retrieve the base settings
-func (base *RnacherBaseHandler) Settings() RancherSettings {
+func (base *RancherBaseHandler) Settings() RancherSettings {
 	return base.settings
 }

@@ -32,8 +32,7 @@ type LibcomposeCommandListOperation struct {
 	api_command.BaseCommandKeyKeysOperation
 	BaseLibcomposeNameFilesOperation
 
-	Wrapper    CommandConfigWrapper
-	properties *api_operation.Properties
+	Wrapper CommandConfigWrapper
 }
 
 // Validate the operation
@@ -42,23 +41,19 @@ func (list *LibcomposeCommandListOperation) Validate() bool {
 }
 
 // Get properties
-func (list *LibcomposeCommandListOperation) Properties() *api_operation.Properties {
-	baseProps := api_operation.Properties{}
+func (list *LibcomposeCommandListOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-	keyKeysProps := list.BaseCommandKeyKeysOperation.Properties()
-	baseProps.Merge(*keyKeysProps)
-	libComposeBaseProps := list.BaseLibcomposeNameFilesOperation.Properties()
-	baseProps.Merge(*libComposeBaseProps)
+	props.Merge(list.BaseCommandKeyKeysOperation.Properties())
+	props.Merge(list.BaseLibcomposeNameFilesOperation.Properties())
 
-	return &baseProps
+	return &props
 }
 
 // Execute the libCompose Command List operation
-func (list *LibcomposeCommandListOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (list *LibcomposeCommandListOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := list.BaseCommandKeyKeysOperation.Properties()
 	keyProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_KEY)
 	keysProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_KEYS)
 
@@ -69,9 +64,13 @@ func (list *LibcomposeCommandListOperation) Exec() api_operation.Result {
 
 	if keyList, err := list.Wrapper.List(parent); err == nil {
 		keysProp.Set(keyList)
+		result.MarkSuccess()
 	} else {
-		result.Set(false, []error{err})
+		result.MarkFailed()
+		result.AddError(err)
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -82,8 +81,7 @@ type LibcomposeCommandGetOperation struct {
 	api_command.BaseCommandKeyCommandOperation
 	BaseLibcomposeNameFilesOperation
 
-	Wrapper    CommandConfigWrapper
-	properties *api_operation.Properties
+	Wrapper CommandConfigWrapper
 }
 
 // Validate the operation
@@ -92,23 +90,19 @@ func (get *LibcomposeCommandGetOperation) Validate() bool {
 }
 
 // Get properties
-func (get *LibcomposeCommandGetOperation) Properties() *api_operation.Properties {
-	baseProps := api_operation.Properties{}
+func (get *LibcomposeCommandGetOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-	keyCommandProps := get.BaseCommandKeyCommandOperation.Properties()
-	baseProps.Merge(*keyCommandProps)
-	libComposeBaseProps := get.BaseLibcomposeNameFilesOperation.Properties()
-	baseProps.Merge(*libComposeBaseProps)
+	props.Merge(get.BaseCommandKeyCommandOperation.Properties())
+	props.Merge(get.BaseLibcomposeNameFilesOperation.Properties())
 
-	return &baseProps
+	return props
 }
 
 // Execute the libCompose Command Get operation
-func (get *LibcomposeCommandGetOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (get *LibcomposeCommandGetOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := get.BaseCommandKeyCommandOperation.Properties()
 	keyProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_KEY)
 	commandProp, _ := props.Get(api_command.OPERATION_PROPERTY_COMMAND_COMMAND)
 
@@ -118,13 +112,18 @@ func (get *LibcomposeCommandGetOperation) Exec() api_operation.Result {
 			// pass all props to make a project
 			com := comYml.Command(get.BaseLibcomposeNameFilesOperation.Properties())
 			commandProp.Set(com)
+			result.MarkSuccess()
 		} else {
-			result.Set(false, []error{err})
+			result.AddError(err)
+			result.MarkFailed()
 		}
 
 	} else {
-		result.Set(false, []error{errors.New("No command name provided.")})
+		result.AddError(errors.New("No command name provided."))
+		result.MarkFailed()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }

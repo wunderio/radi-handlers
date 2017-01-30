@@ -29,8 +29,7 @@ func (handler *LocalHandler_Project) Id() string {
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
 func (handler *LocalHandler_Project) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+	result := api_operation.New_StandardResult()
 
 	ops := api_operation.Operations{}
 
@@ -52,7 +51,6 @@ type LocalProjectInitOperation struct {
 	api_project.ProjectInitOperation
 	handlers_bytesource.BaseBytesourceFilesettingsOperation
 
-	properties   *api_operation.Properties
 	fileSettings handlers_bytesource.BytesourceFileSettings
 }
 
@@ -72,27 +70,24 @@ func (init *LocalProjectInitOperation) Validate() bool {
 }
 
 // Get properties
-func (init *LocalProjectInitOperation) Properties() *api_operation.Properties {
-	if init.properties == nil {
-		init.properties = &api_operation.Properties{}
+func (init *LocalProjectInitOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		init.properties.Add(api_operation.Property(&api_project.ProjectInitDemoModeProperty{}))
+	props.Add(api_operation.Property(&api_project.ProjectInitDemoModeProperty{}))
 
-		init.properties.Merge(*init.BaseBytesourceFilesettingsOperation.Properties())
-
-		if fileSettingsProp, exists := init.properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
-			fileSettingsProp.Set(init.fileSettings)
-		}
+	bytesourceFilesettings := init.BaseBytesourceFilesettingsOperation.Properties()
+	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+		fileSettingsProp.Set(init.fileSettings)
 	}
-	return init.properties
+	props.Merge(bytesourceFilesettings)
+
+	return props
 }
 
 // Execute the local project init operation
-func (init *LocalProjectInitOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (init *LocalProjectInitOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := init.Properties()
 	demoModeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_INIT_DEMOMODE)
 	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
@@ -110,10 +105,14 @@ func (init *LocalProjectInitOperation) Exec() api_operation.Result {
 	tasks := jn_init.InitTasks{}
 	tasks.Init(settings.ProjectRootPath)
 	if !tasks.Init_Yaml_Run(source) {
-		result.Set(false, []error{errors.New("YML Generator failed")})
+		result.MarkFailed()
+		result.AddError(errors.New("YML Generator failed"))
 	} else {
 		tasks.RunTasks()
+		result.MarkSuccess()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -126,7 +125,6 @@ type LocalProjectCreateOperation struct {
 	api_project.ProjectCreateOperation
 	handlers_bytesource.BaseBytesourceFilesettingsOperation
 
-	properties   *api_operation.Properties
 	fileSettings handlers_bytesource.BytesourceFileSettings
 }
 
@@ -146,28 +144,25 @@ func (create *LocalProjectCreateOperation) Validate() bool {
 }
 
 // Get properties
-func (create *LocalProjectCreateOperation) Properties() *api_operation.Properties {
-	if create.properties == nil {
-		create.properties = &api_operation.Properties{}
+func (create *LocalProjectCreateOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		//create.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
-		create.properties.Add(api_operation.Property(&api_project.ProjectCreateSourceProperty{}))
+	//create.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
+	props.Add(api_operation.Property(&api_project.ProjectCreateSourceProperty{}))
 
-		create.properties.Merge(*create.BaseBytesourceFilesettingsOperation.Properties())
-
-		if fileSettingsProp, exists := create.properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
-			fileSettingsProp.Set(create.fileSettings)
-		}
+	bytesourceFilesettings := create.BaseBytesourceFilesettingsOperation.Properties()
+	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+		fileSettingsProp.Set(create.fileSettings)
 	}
-	return create.properties
+	props.Merge(bytesourceFilesettings)
+
+	return props
 }
 
 // Execute the local project init operation
-func (create *LocalProjectCreateOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (create *LocalProjectCreateOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := create.Properties()
 	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
 	sourceProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_SOURCE)
 	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
@@ -180,10 +175,17 @@ func (create *LocalProjectCreateOperation) Exec() api_operation.Result {
 	tasks := jn_init.InitTasks{}
 	tasks.Init(settings.ProjectRootPath)
 	if !tasks.Init_Yaml_Run(source) {
-		result.Set(false, []error{errors.New("YML Generator failed")})
+		result.MarkFailed()
+		result.AddError(errors.New("YML Generator failed"))
 	} else {
 		tasks.RunTasks()
+
+		// @TODO Get some err from the tasks run ?
+
+		result.MarkSuccess()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -196,7 +198,6 @@ type LocalProjectGenerateOperation struct {
 	api_project.ProjectGenerateOperation
 	handlers_bytesource.BaseBytesourceFilesettingsOperation
 
-	properties   *api_operation.Properties
 	fileSettings handlers_bytesource.BytesourceFileSettings
 }
 
@@ -216,27 +217,25 @@ func (generate *LocalProjectGenerateOperation) Validate() bool {
 }
 
 // Get properties
-func (generate *LocalProjectGenerateOperation) Properties() *api_operation.Properties {
-	if generate.properties == nil {
-		generate.properties = &api_operation.Properties{}
+func (generate *LocalProjectGenerateOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		//generate.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
+	//generate.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
+	generate.properties.Merge(*generate.BaseBytesourceFilesettingsOperation.Properties())
 
-		generate.properties.Merge(*generate.BaseBytesourceFilesettingsOperation.Properties())
-
-		if fileSettingsProp, exists := generate.properties.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
-			fileSettingsProp.Set(generate.fileSettings)
-		}
+	bytesourceFilesettings := generate.BaseBytesourceFilesettingsOperation.Properties()
+	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+		fileSettingsProp.Set(generate.fileSettings)
 	}
-	return generate.properties
+	props.Merge(bytesourceFilesettings)
+
+	return props
 }
 
 // Execute the local project init operation
-func (generate *LocalProjectGenerateOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := generate.Properties()
 	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
 	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
@@ -272,12 +271,16 @@ func (generate *LocalProjectGenerateOperation) Exec() api_operation.Result {
 	}
 
 	if settings.ProjectDoesntExist {
-		result.Set(false, []error{errors.New("No project root path has been defined, so no project can be generated.")})
+		result.MarkFailed()
+		result.AddError(errors.New("No project root path has been defined, so no project can be generated."))
+	} else if !jn_init.Init_Generate(method, settings.ProjectRootPath, skip, 1024*1024, writer) {
+		result.MarkFailed()
+		result.AddError(errors.New("YML Generator failed"))
 	} else {
-		if !jn_init.Init_Generate(method, settings.ProjectRootPath, skip, 1024*1024, writer) {
-			result.Set(false, []error{errors.New("YML Generator failed")})
-		}
+		result.MarkSuccess()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }

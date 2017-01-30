@@ -28,8 +28,7 @@ type UpcloudProvisionHandler struct {
 
 // Initialize and activate the Handler
 func (provision *UpcloudProvisionHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	baseOperation := provision.BaseUpcloudServiceOperation()
 
@@ -57,7 +56,6 @@ func (provision *UpcloudProvisionHandler) Id() string {
 type UpcloudProvisionUpOperation struct {
 	BaseUpcloudServiceOperation
 	api_provision.BaseProvisionUpOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -81,12 +79,10 @@ func (up *UpcloudProvisionUpOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (up *UpcloudProvisionUpOperation) Properties() *api_operation.Properties {
-	if up.properties == nil {
-		props := api_operation.Properties{}
-		up.properties = &props
-	}
-	return up.properties
+func (up *UpcloudProvisionUpOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
+
+	return props
 }
 
 /**
@@ -97,9 +93,8 @@ func (up *UpcloudProvisionUpOperation) Properties() *api_operation.Properties {
  *   2. create the firewall rules
  *   3. tag the server
  */
-func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	createOp := UpcloudServerCreateOperation{BaseUpcloudServiceOperation: up.BaseUpcloudServiceOperation}
 	createProperties := createOp.Properties()
@@ -112,7 +107,7 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 	createdServers := map[string]processedServer{}
 
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.BaseResult{}
+		serverResult := api_operation.StandardResult{}
 		serverResult.Set(true, []error{})
 
 		serverDefinition, _ := serverDefinitions.Get(id)
@@ -156,7 +151,7 @@ func (up *UpcloudProvisionUpOperation) Exec() api_operation.Result {
 
 	// process tags and firewall rules
 	for _, createdServer := range createdServers {
-		serverResult := api_operation.BaseResult{}
+		serverResult := api_operation.StandardResult{}
 		serverResult.Set(true, []error{})
 
 		uuid := createdServer.uuid
@@ -242,7 +237,7 @@ func (down *UpcloudProvisionDownOperation) Properties() *api_operation.Propertie
 
 // Execute the Operation
 func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
+	result := api_operation.StandardResult{}
 	result.Set(true, []error{})
 
 	downProperties := down.Properties()
@@ -256,7 +251,7 @@ func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
 	// collect UUIDs of project servers
 	uuids := []string{}
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.BaseResult{}
+		serverResult := api_operation.StandardResult{}
 		serverResult.Set(true, []error{})
 
 		serverDefinition, _ := serverDefinitions.Get(id)
@@ -345,7 +340,7 @@ func (stop *UpcloudProvisionStopOperation) Properties() *api_operation.Propertie
  *  2. have a "remove-specific-uuid" option?
  */
 func (stop *UpcloudProvisionStopOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
+	result := api_operation.StandardResult{}
 	result.Set(true, []error{})
 
 	return api_operation.Result(&result)

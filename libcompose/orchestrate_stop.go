@@ -11,12 +11,10 @@ import (
 )
 
 // Base Stop operation
-type BaseLibcomposeOrchestrateStopParametrizedOperation struct {
-	properties *api_operation.Properties
-}
+type BaseLibcomposeOrchestrateStopParametrizedOperation struct{}
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateStopParametrizedOperation) Properties() *api_operation.Properties {
+func (base *BaseLibcomposeOrchestrateStopParametrizedOperation) Properties() api_operation.Properties {
 	if base.properties == nil {
 		newProperties := &api_operation.Properties{}
 
@@ -54,7 +52,7 @@ func (stop *LibcomposeOrchestrateStopOperation) Properties() *api_operation.Prop
 
 // Execute the libCompose Orchestrate Stop operation
 func (stop *LibcomposeOrchestrateStopOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
+	result := api_operation.StandardResult{}
 	result.Set(true, nil)
 
 	properties := stop.Properties()

@@ -20,8 +20,7 @@ type UpcloudSecurityHandler struct {
 
 // Initialize and activate the Handler
 func (security *UpcloudSecurityHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	baseOperation := security.BaseUpcloudServiceOperation()
 
@@ -69,24 +68,27 @@ func (securityUser *UpcloudSecurityUserOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (securityUser *UpcloudSecurityUserOperation) Properties() *api_operation.Properties {
-	return &api_operation.Properties{}
+func (securityUser *UpcloudSecurityUserOperation) Properties() api_operation.Properties {
+	return api_operation.Properties{}
 }
 
 // Execute the Operation
-func (securityUser *UpcloudSecurityUserOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (securityUser *UpcloudSecurityUserOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := securityUser.ServiceWrapper()
 
 	account, err := service.GetAccount()
 	if err == nil {
 		log.WithFields(log.Fields{"username": account.UserName, "credits": account.Credits}).Info("Current UpCloud Account")
+		result.MarkSuccess()
 	} else {
 		log.WithError(err).Error("Could not retrieve UpCloud account information.")
-		result.Set(false, []error{err})
+		log.AddError(err)
+		log.MarkFailed()
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }

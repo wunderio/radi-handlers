@@ -19,7 +19,9 @@ const (
 
 /**
  * Up specific Properties
- */
+ *
+ * @TODO I think that this is deprecated.  Can we remove it?
+
 
 // A libcompose Property for net context limiting
 type LibcomposeOptionsUpProperty struct {
@@ -64,10 +66,6 @@ func (optionsConf *LibcomposeOptionsUpProperty) Set(value interface{}) bool {
 	}
 }
 
-/**
- * Operation
- */
-
 // Base Up operation
 type BaseLibcomposeOrchestrateUpSingleOperation struct {
 	properties *api_operation.Properties
@@ -85,24 +83,25 @@ func (base *BaseLibcomposeOrchestrateUpSingleOperation) Properties() *api_operat
 	return base.properties
 }
 
+*/
+
+/**
+ * Operation
+ */
+
 // Base Up operation
-type BaseLibcomposeOrchestrateUpParametrizedOperation struct {
-	properties *api_operation.Properties
-}
+type BaseLibcomposeOrchestrateUpParametrizedOperation struct{}
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateUpParametrizedOperation) Properties() *api_operation.Properties {
-	if base.properties == nil {
-		newProperties := &api_operation.Properties{}
+func (base *BaseLibcomposeOrchestrateUpParametrizedOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		newProperties.Add(api_operation.Property(&LibcomposeNoRecreateProperty{}))
-		newProperties.Add(api_operation.Property(&LibcomposeForceRecreateProperty{}))
-		newProperties.Add(api_operation.Property(&LibcomposeNoBuildProperty{}))
-		newProperties.Add(api_operation.Property(&LibcomposeForceRebuildProperty{}))
+	props.Add(api_operation.Property(&LibcomposeNoRecreateProperty{}))
+	props.Add(api_operation.Property(&LibcomposeForceRecreateProperty{}))
+	props.Add(api_operation.Property(&LibcomposeNoBuildProperty{}))
+	props.Add(api_operation.Property(&LibcomposeForceRebuildProperty{}))
 
-		base.properties = newProperties
-	}
-	return base.properties
+	return props
 }
 
 // LibCompose based up orchestrate operation
@@ -110,8 +109,6 @@ type LibcomposeOrchestrateUpOperation struct {
 	api_orchestrate.BaseOrchestrationUpOperation
 	BaseLibcomposeNameFilesOperation
 	BaseLibcomposeOrchestrateUpParametrizedOperation
-
-	properties *api_operation.Properties
 }
 
 // Validate the libCompose Orchestrate Up operation
@@ -120,19 +117,18 @@ func (up *LibcomposeOrchestrateUpOperation) Validate() bool {
 }
 
 // Provide static properties for the operation
-func (up *LibcomposeOrchestrateUpOperation) Properties() *api_operation.Properties {
-	if up.properties == nil {
-		newProperties := &api_operation.Properties{}
-		newProperties.Merge(*up.BaseLibcomposeOrchestrateUpParametrizedOperation.Properties())
-		newProperties.Merge(*up.BaseLibcomposeNameFilesOperation.Properties())
-		up.properties = newProperties
-	}
-	return up.properties
+func (up *LibcomposeOrchestrateUpOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
+
+	props.Merge(up.BaseLibcomposeOrchestrateUpParametrizedOperation.Properties())
+	props.Merge(up.BaseLibcomposeNameFilesOperation.Properties())
+
+	return props
 }
 
 // Execute the libCompose Orchestrate Up operation
 func (up *LibcomposeOrchestrateUpOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
+	result := api_operation.StandardResult{}
 	result.Set(true, nil)
 
 	properties := up.Properties()

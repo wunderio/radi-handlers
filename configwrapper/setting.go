@@ -187,11 +187,10 @@ func (get SettingConfigWrapperGetOperation) Internal() bool {
 }
 
 // Execute the operation
-func (get SettingConfigWrapperGetOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+// @TODO Make this non-blocking
+func (get SettingConfigWrapperGetOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := get.Properties()
 	keyProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_KEY)
 	scopeProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_SCOPE)
 	valueProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_VALUE)
@@ -210,7 +209,8 @@ func (get SettingConfigWrapperGetOperation) Exec() api_operation.Result {
 				if scopeValue, found := value.Get(scope); found {
 					valueProp.Set(scopeValue)
 				} else {
-					result.Set(false, []error{errors.New("Setting connector did not find the value in the scope that you were looking for")})
+					result.MarkFailed()
+					result.AddError(errors.New("Setting connector did not find the value in the scope that you were looking for"))
 				}
 			} else {
 				// 2. check for a default scope
@@ -229,19 +229,24 @@ func (get SettingConfigWrapperGetOperation) Exec() api_operation.Result {
 							break
 						}
 					} else {
-						result.Set(false, []error{errors.New("Setting connector did not find any value for the key that you were looking for")})
+						result.MarkFailed()
+						result.AddError(errors.New("Setting connector did not find any value for the key that you were looking for"))
 					}
 				}
 			}
 
 		} else {
 			log.Error("Setting connector did not find the value you were looking for")
-			result.Set(false, []error{errors.New("Setting connector did not find the value you were looking for")})
+			result.MarkFailed()
+			result.AddError(errors.New("Setting connector did not find the value you were looking for"))
 		}
 	} else {
 		log.Error("Could not get a string value for Key from the config connector")
-		result.Set(false, []error{errors.New("Could not get a string value for Key from the config connector")})
+		result.MarkFailed()
+		result.AddError(errors.New("Could not get a string value for Key from the config connector"))
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -258,11 +263,9 @@ func (set SettingConfigWrapperSetOperation) Validate() bool {
 }
 
 // Execute the operation
-func (set SettingConfigWrapperSetOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (set SettingConfigWrapperSetOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := set.Properties()
 	keyProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_KEY)
 	scopeProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_SCOPE)
 	valueProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_VALUE)
@@ -278,16 +281,22 @@ func (set SettingConfigWrapperSetOperation) Exec() api_operation.Result {
 			values.Set(scope, value)
 
 			if okSet := set.Wrapper.Set(key, values); !okSet {
-				result.Set(false, []error{errors.New("Failed to set setting value")})
+				result.MarkFailed()
+				result.AddError(errors.New("Failed to set setting value"))
 			} else {
 				log.WithFields(log.Fields{"key": okKey, "scope": scope, "values": values}).Debug("Set config value")
+				result.MarkSuccess()
 			}
 		} else {
-			result.Set(false, []error{errors.New("Could not retrieve Value property for setting Set api_operation. No value to set.")})
+			result.MarkFailed()
+			result.AddError(errors.New("Could not retrieve Value property for setting Set api_operation. No value to set."))
 		}
 	} else {
-		result.Set(false, []error{errors.New("Could not assign value to key property for setting Set operation")})
+		result.MarkFailed()
+		result.AddError(errors.New("Could not assign value to key property for setting Set operation"))
 	}
+
+	result.MarkFinished()
 
 	return api_operation.Result(&result)
 }
@@ -305,11 +314,9 @@ func (list SettingConfigWrapperListOperation) Validate() bool {
 }
 
 // Execute the operation
-func (list SettingConfigWrapperListOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+func (list SettingConfigWrapperListOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	props := list.BaseSettingKeyScopeKeysOperation.Properties()
 	keyProp, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_KEY)
 	keysConf, _ := props.Get(api_setting.OPERATION_PROPERTY_SETTING_KEYS)
 
