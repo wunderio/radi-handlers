@@ -40,7 +40,7 @@ func (provision *UpcloudProvisionHandler) Init() api_operation.Result {
 
 	provision.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
@@ -92,6 +92,9 @@ func (up *UpcloudProvisionUpOperation) Properties() api_operation.Properties {
  *   1. create the server - then wait for it to be considered running
  *   2. create the firewall rules
  *   3. tag the server
+ *
+ * @TODO build properties properly from the child operations
+ * @TODO This operation should operate in parrallel
  */
 func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api_operation.Result {
 	result := api_operation.New_StandardResult()
@@ -107,9 +110,6 @@ func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api
 	createdServers := map[string]processedServer{}
 
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.StandardResult{}
-		serverResult.Set(true, []error{})
-
 		serverDefinition, _ := serverDefinitions.Get(id)
 		createRequest := serverDefinition.CreateServerRequest()
 
@@ -119,11 +119,13 @@ func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api
 
 		log.WithFields(log.Fields{"id": serverDefinition.Id()}).Info("Creating new server")
 
-		createResult := createOp.Exec()
-		if success, errs := createResult.Success(); !success {
-			errs = append(errs, errors.New("Could not provision new UpCloud server"))
-			serverResult.Set(false, errs)
-			result.Merge(createResult)
+		createResult := createOp.Exec(&createProperties)
+		<-createResult.Finished()
+
+		if !createResult.Success() {
+			result.AddErrors(createResult.Errors())
+			result.AddError(errors.New("Could not provision new UpCloud server: " + id))
+			result.MarkFailed()
 			continue
 		} else {
 
@@ -142,8 +144,6 @@ func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api
 
 			log.WithFields(log.Fields{"id": serverDefinition.Id(), "UUID": uuid, "state": createDetails.State}).Info("Created new server")
 		}
-
-		result.Merge(api_operation.Result(&serverResult))
 	}
 
 	firewallOp := UpcloudServerApplyFirewallRulesOperation{BaseUpcloudServiceOperation: up.BaseUpcloudServiceOperation}
@@ -151,20 +151,18 @@ func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api
 
 	// process tags and firewall rules
 	for _, createdServer := range createdServers {
-		serverResult := api_operation.StandardResult{}
-		serverResult.Set(true, []error{})
-
 		uuid := createdServer.uuid
 		serverDefinition := createdServer.definition
 
 		// Before running anything, give the server a chance to get into the proper state
 		log.WithFields(log.Fields{"id": serverDefinition.Id(), "UUID": uuid}).Info("Waiting for new server to start")
 		if serverDetails, err := service.WaitForServerState(&upcloud_request.WaitForServerStateRequest{UUID: uuid, UndesiredState: "maintenance", Timeout: time.Minute * 2}); err != nil {
-			if serverDetails == nil {
-				serverResult.Set(false, []error{err, errors.New("Server failed to start properly : " + uuid)})
-			} else {
-				serverResult.Set(false, []error{err, errors.New("Server failed to start properly : " + serverDetails.UUID)})
+			if serverDetails != nil {
+				uuid = serverDetails.UUID
 			}
+			result.AddError(err)
+			result.AddError(errors.New("Server failed to start properly : " + uuid))
+			result.MarkFailed()
 		} else {
 			log.WithFields(log.Fields{"state": serverDetails.State, "UUID": serverDetails.UUID}).Info("Server successfully created, now finalizing provisioning")
 
@@ -178,8 +176,10 @@ func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api
 				uuidProp.Set(uuid)
 			}
 
-			firewallResult := firewallOp.Exec()
-			if success, _ := firewallResult.Success(); !success {
+			firewallResult := firewallOp.Exec(&firewallProperties)
+			<-firewallResult.Finished()
+
+			if !firewallResult.Success() {
 				result.Merge(firewallResult)
 				continue
 			}
@@ -189,11 +189,11 @@ func (up *UpcloudProvisionUpOperation) Exec(props *api_operation.Properties) api
 			// 	serverDetails = detailsProp.Get().(upcloud.ServerDetails)
 			// }
 		}
-
-		result.Merge(api_operation.Result(&serverResult))
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }
 
 // Provision up operation
@@ -224,21 +224,20 @@ func (down *UpcloudProvisionDownOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (down *UpcloudProvisionDownOperation) Properties() *api_operation.Properties {
-	if down.properties == nil {
-		props := api_operation.Properties{}
+func (down *UpcloudProvisionDownOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudForceProperty{}))
+	props.Add(api_operation.Property(&UpcloudForceProperty{}))
 
-		down.properties = &props
-	}
-	return down.properties
+	return props
 }
 
 // Execute the Operation
-func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
-	result := api_operation.StandardResult{}
-	result.Set(true, []error{})
+//
+// @TODO Add a way to remove the storage
+// @TODO this operation could be optimized to work parrallel
+func (down *UpcloudProvisionDownOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	downProperties := down.Properties()
 	deleteOp := UpcloudServerDeleteOperation{BaseUpcloudServiceOperation: down.BaseUpcloudServiceOperation}
@@ -251,9 +250,6 @@ func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
 	// collect UUIDs of project servers
 	uuids := []string{}
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.StandardResult{}
-		serverResult.Set(true, []error{})
-
 		serverDefinition, _ := serverDefinitions.Get(id)
 
 		if serverDefinition.IsCreated() {
@@ -281,20 +277,25 @@ func (down *UpcloudProvisionDownOperation) Exec() api_operation.Result {
 		}
 
 		log.WithFields(log.Fields{"uuids": uuids}).Info("Downing project servers")
-		result.Merge(deleteOp.Exec())
+
+		downResult := deleteOp.Exec(&downProperties)
+		<-downResult.Finished()
+
+		result.Merge(downResult)
 
 	} else {
 		log.Info("No active servers found to take down.")
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }
 
 // Provision up operation
 type UpcloudProvisionStopOperation struct {
 	BaseUpcloudServiceOperation
 	api_provision.BaseProvisionStopOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -318,17 +319,14 @@ func (stop *UpcloudProvisionStopOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (stop *UpcloudProvisionStopOperation) Properties() *api_operation.Properties {
-	if stop.properties == nil {
-		props := api_operation.Properties{}
+func (stop *UpcloudProvisionStopOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudWaitProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+	props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	props.Add(api_operation.Property(&UpcloudWaitProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
 
-		stop.properties = &props
-	}
-	return stop.properties
+	return props
 }
 
 // Execute the Operation
@@ -339,11 +337,10 @@ func (stop *UpcloudProvisionStopOperation) Properties() *api_operation.Propertie
  *  1. retrieve servers by tag
  *  2. have a "remove-specific-uuid" option?
  */
-func (stop *UpcloudProvisionStopOperation) Exec() api_operation.Result {
-	result := api_operation.StandardResult{}
-	result.Set(true, []error{})
+func (stop *UpcloudProvisionStopOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // hold info about a server that we have processed

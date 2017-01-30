@@ -103,7 +103,7 @@ func (info *NullMonitorInfoOperation) Exec(props *api_operation.Properties) api_
 	message := "App is using NULL Info handler\n"
 	info.WriteMessage(message)
 
-	return info.NullAllwaysTrueOperation.Exec()
+	return info.NullAllwaysTrueOperation.Exec(props)
 }
 
 // Null operation for monitoring status
@@ -118,7 +118,7 @@ func (status *NullMonitorStatusOperation) Exec(props *api_operation.Properties) 
 	message := "App is using NULL status handler\n"
 	status.WriteMessage(message)
 
-	return status.NullAllwaysTrueOperation.Exec()
+	return status.NullAllwaysTrueOperation.Exec(props)
 }
 
 /**

@@ -47,7 +47,7 @@ func (list *LibcomposeCommandListOperation) Properties() api_operation.Propertie
 	props.Merge(list.BaseCommandKeyKeysOperation.Properties())
 	props.Merge(list.BaseLibcomposeNameFilesOperation.Properties())
 
-	return &props
+	return props
 }
 
 // Execute the libCompose Command List operation
@@ -72,7 +72,7 @@ func (list *LibcomposeCommandListOperation) Exec(props *api_operation.Properties
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // LibCompose Command Get operation
@@ -110,7 +110,8 @@ func (get *LibcomposeCommandGetOperation) Exec(props *api_operation.Properties) 
 
 		if comYml, err := get.Wrapper.Get(key); err == nil {
 			// pass all props to make a project
-			com := comYml.Command(get.BaseLibcomposeNameFilesOperation.Properties())
+			comProps := get.BaseLibcomposeNameFilesOperation.Properties()
+			com := comYml.Command(&comProps)
 			commandProp.Set(com)
 			result.MarkSuccess()
 		} else {
@@ -125,5 +126,5 @@ func (get *LibcomposeCommandGetOperation) Exec(props *api_operation.Properties) 
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

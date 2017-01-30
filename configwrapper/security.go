@@ -84,9 +84,9 @@ func (userOp *SecurityConfigWrapperUserOperation) Exec(props *api_operation.Prop
 	userProp.Set(currentUser)
 	result.MarkSuccess()
 
-	result.SetFinished()
+	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // ConfigWrapper based security Authorize operation
@@ -140,5 +140,5 @@ func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec(props *api_operat
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

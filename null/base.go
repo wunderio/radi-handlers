@@ -31,8 +31,9 @@ func (alwaystrue *NullAllwaysTrueOperation) Validate() bool {
 // Exec the operation
 func (alwaystrue *NullAllwaysTrueOperation) Exec(props *api_operation.Properties) api_operation.Result {
 	result := api_operation.New_StandardResult()
+
 	result.MarkSuccess()
 	result.MarkFinished()
 
-	return api_operation.Result(&baseResult)
+	return api_operation.Result(result)
 }

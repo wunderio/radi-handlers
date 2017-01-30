@@ -3,7 +3,6 @@ package libcompose
 import (
 	"errors"
 
-	// log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
@@ -15,14 +14,11 @@ type BaseLibcomposeOrchestrateStopParametrizedOperation struct{}
 
 // Provide static Properties for the operation
 func (base *BaseLibcomposeOrchestrateStopParametrizedOperation) Properties() api_operation.Properties {
-	if base.properties == nil {
-		newProperties := &api_operation.Properties{}
+	props := api_operation.Properties{}
 
-		newProperties.Add(api_operation.Property(&LibcomposeTimeoutProperty{}))
+	props.Add(api_operation.Property(&LibcomposeTimeoutProperty{}))
 
-		base.properties = newProperties
-	}
-	return base.properties
+	return props
 }
 
 // LibCompose based stop orchestrate operation
@@ -40,48 +36,51 @@ func (stop *LibcomposeOrchestrateStopOperation) Validate() bool {
 }
 
 // Provide static properties for the operation
-func (stop *LibcomposeOrchestrateStopOperation) Properties() *api_operation.Properties {
-	if stop.properties == nil {
-		newProperties := &api_operation.Properties{}
-		newProperties.Merge(*stop.BaseLibcomposeOrchestrateStopParametrizedOperation.Properties())
-		newProperties.Merge(*stop.BaseLibcomposeNameFilesOperation.Properties())
-		stop.properties = newProperties
-	}
-	return stop.properties
+func (stop *LibcomposeOrchestrateStopOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
+
+	props.Merge(stop.BaseLibcomposeOrchestrateStopParametrizedOperation.Properties())
+	props.Merge(stop.BaseLibcomposeNameFilesOperation.Properties())
+
+	return props
 }
 
 // Execute the libCompose Orchestrate Stop operation
-func (stop *LibcomposeOrchestrateStopOperation) Exec() api_operation.Result {
-	result := api_operation.StandardResult{}
-	result.Set(true, nil)
+func (stop *LibcomposeOrchestrateStopOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	properties := stop.Properties()
 	// pass all props to make a project
-	project, _ := MakeComposeProject(properties)
+	project, _ := MakeComposeProject(props)
 
 	// some props we will use locally
 
 	var netContext context.Context
 
 	// net context
-	if netContextProp, found := properties.Get(OPERATION_PROPERTY_LIBCOMPOSE_CONTEXT); found {
+	if netContextProp, found := props.Get(OPERATION_PROPERTY_LIBCOMPOSE_CONTEXT); found {
 		netContext = netContextProp.Get().(context.Context)
 	} else {
-		result.Set(false, []error{errors.New("Libcompose stop operation is missing the context property")})
+		result.AddError(errors.New("Libcompose stop operation is missing the context property"))
+		result.MarkFailed()
 	}
 
 	// stop options
 	timeout := 10 // timeout in seconds
 
-	if stopOptionsProp, found := properties.Get(OPERATION_PROPERTY_LIBCOMPOSE_TIMEOUT); found {
+	if stopOptionsProp, found := props.Get(OPERATION_PROPERTY_LIBCOMPOSE_TIMEOUT); found {
 		timeout = stopOptionsProp.Get().(int)
 	}
 
-	if success, _ := result.Success(); success {
+	if result.Success() {
 		if err := project.APIProject.Stop(netContext, timeout); err != nil {
-			result.Set(false, []error{err})
+			result.AddError(err)
+			result.MarkFailed()
+		} else {
+			result.MarkSuccess()
 		}
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }

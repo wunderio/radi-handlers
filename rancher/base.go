@@ -1,26 +1,32 @@
 package rancher
 
+import (
+	rancher_client "github.com/rancher/go-rancher/client"
+
+	api_operation "github.com/wunderkraut/radi-api/operation"
+)
+
 /**
  * Some base structs to share upcloud functionality
  */
 
 // Shared base handler
-type RancherBaseHandler struct {
-	settings RancherSettings
+type RancherBaseClientHandler struct {
+	configSource RancherConfigSource
 
 	operations *api_operation.Operations
 }
 
-// Constructor for RancherBaseHandler
-func New_RancherBaseHandler(settings RancherSettings) *RancherBaseHandler {
-	return &RancherBaseHandler{
-		settings:   settings,
-		operations: &api_operation.Opeartions{},
+// Constructor for RancherBaseClientHandler
+func New_RancherBaseClientHandler(configSource RancherConfigSource) *RancherBaseClientHandler {
+	return &RancherBaseClientHandler{
+		configSource: configSource,
+		operations:   &api_operation.Operations{},
 	}
 }
 
 // Get the operations from the handler
-func (base *RancherBaseHandler) Operations() *api_operation.Operations {
+func (base *RancherBaseClientHandler) Operations() *api_operation.Operations {
 	if base.operations == nil {
 		return &api_operation.Operations{}
 	} else {
@@ -29,6 +35,33 @@ func (base *RancherBaseHandler) Operations() *api_operation.Operations {
 }
 
 // Retrieve the base settings
-func (base *RancherBaseHandler) Settings() RancherSettings {
-	return base.settings
+func (base *RancherBaseClientHandler) ConfigSource() RancherConfigSource {
+	return base.configSource
+}
+
+// Share base operation
+type RancherBaseClientOperation struct {
+	configSource RancherConfigSource
+}
+
+// constructor for configSource RancherConfigSource
+func New_RancherBaseClientOperation(configSource RancherConfigSource) *RancherBaseClientOperation {
+	return &RancherBaseClientOperation{
+		configSource: configSource,
+	}
+}
+
+// Retrieve a rancher client
+func (base *RancherBaseClientOperation) RancherClient() *rancher_client.RancherClient {
+	return base.configSource.RancherClient()
+}
+
+// Retrieve the base settings
+func (base *RancherBaseClientOperation) RancherClientSettings() RancherClientSettings {
+	return base.configSource.RancherClientSettings()
+}
+
+// Retrieve the base settings
+func (base *RancherBaseClientOperation) RancherEnvironmentSettings() RancherEnvironmentSettings {
+	return base.configSource.RancherEnvironmentSettings()
 }

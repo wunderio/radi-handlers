@@ -248,7 +248,7 @@ func (get SettingConfigWrapperGetOperation) Exec(props *api_operation.Properties
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // A Setting Set operation that uses a ConfigWrapper to assign values
@@ -298,7 +298,7 @@ func (set SettingConfigWrapperSetOperation) Exec(props *api_operation.Properties
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 //A setting List operation that uses a ConfigWrapper to list keys
@@ -326,5 +326,5 @@ func (list SettingConfigWrapperListOperation) Exec(props *api_operation.Properti
 		keysConf.Set(list.Wrapper.List(""))
 	}
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

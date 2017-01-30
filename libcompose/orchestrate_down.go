@@ -3,7 +3,6 @@ package libcompose
 import (
 	"errors"
 
-	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	libCompose_options "github.com/docker/libcompose/project/options"
@@ -49,7 +48,7 @@ func (down *LibcomposeOrchestrateDownOperation) Validate() bool {
 
 // Provide static properties for the operation
 func (down *LibcomposeOrchestrateDownOperation) Properties() api_operation.Properties {
-	props = api_operation.Properties{}
+	props := api_operation.Properties{}
 
 	props.Merge(down.BaseLibcomposeOrchestrateDownParametrizedOperation.Properties())
 	props.Merge(down.BaseLibcomposeNameFilesOperation.Properties())
@@ -59,7 +58,7 @@ func (down *LibcomposeOrchestrateDownOperation) Properties() api_operation.Prope
 
 // Execute the libCompose Orchestrate Down operation
 func (down *LibcomposeOrchestrateDownOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.StandardResult{}
+	result := api_operation.New_StandardResult()
 
 	// pass all props to make a project
 	project, _ := MakeComposeProject(props)
@@ -97,5 +96,5 @@ func (down *LibcomposeOrchestrateDownOperation) Exec(props *api_operation.Proper
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

@@ -25,7 +25,9 @@ func (command *RancherCommandHandler) Init() api_operation.Result {
 
 	command.operations = &ops
 
-	return api_operation.Result(&result)
+	result.MarkSuccess()
+	result.MarkFinished()
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)

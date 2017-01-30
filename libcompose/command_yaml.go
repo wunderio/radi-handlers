@@ -206,7 +206,7 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 // Turn this CommandYmlCommand into a command.Command
 func (ymlCommand *CommandYmlCommand) Command(projectProps *api_operation.Properties) api_command.Command {
 	// merge the properties, keeping local over project.
-	projectProps.Merge(*ymlCommand.Properties())
+	projectProps.Merge(ymlCommand.Properties())
 	ymlCommand.properties = projectProps
 	return api_command.Command(ymlCommand)
 }
@@ -263,7 +263,7 @@ func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_o
 	result := api_operation.New_StandardResult()
 
 	flags := []string{}
-	if propFlags, found := ymlCommand.Properties().Get(api_command.OPERATION_PROPERTY_COMMAND_FLAGS); found {
+	if propFlags, found := props.Get(api_command.OPERATION_PROPERTY_COMMAND_FLAGS); found {
 		flags = propFlags.Get().([]string)
 	}
 
@@ -278,7 +278,7 @@ func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_o
 	service := ymlCommand.serviceConfig
 
 	// create a libcompose project
-	project, _ := MakeComposeProject(ymlCommand.Properties())
+	project, _ := MakeComposeProject(props)
 
 	// allow our app to alter the service, to do some string replacements etc
 	project.AlterService(&service)
@@ -296,5 +296,5 @@ func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_o
 	result.MarkSuccess()
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

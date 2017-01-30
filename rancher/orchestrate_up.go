@@ -30,22 +30,21 @@ func (up *RancherOrchestrateUpOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (up *RancherOrchestrateUpOperation) Properties() *api_operation.Properties {
-	if up.properties == nil {
-		props := api_operation.Properties{}
-		up.properties = &props
-	}
-	return up.properties
+func (up *RancherOrchestrateUpOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
+
+	return props
 }
 
 // Execute the operation
-func (up *RancherOrchestrateUpOperation) Exec() api_operation.Result {
+func (up *RancherOrchestrateUpOperation) Exec(props *api_operation.Properties) api_operation.Result {
 	result := api_operation.New_StandardResult()
+
 	log.WithFields(log.Fields{"clientsettings": up.RancherClientSettings(), "envsettings": up.RancherEnvironmentSettings()}).Info("SETTINGS")
 
 	result.AddError(errors.New("RANCHER UP OPERATION NOT YET WRITTEN"))
 	result.MarkFailed()
-	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+	return api_operation.Result(result)
 }

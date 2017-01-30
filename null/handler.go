@@ -27,7 +27,7 @@ func (handler *NullHandler) Id() string {
 // [Handler.]Init tells the NullHandler to process itself. Return true as Null Handler always validates true
 func (handler *NullHandler) Init() api_operation.Result {
 	result := api_operation.New_StandardResult()
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // [Handler.]Operations returns an Operations list of a number of different Null operations

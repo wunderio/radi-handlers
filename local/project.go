@@ -40,7 +40,7 @@ func (handler *LocalHandler_Project) Init() api_operation.Result {
 
 	handler.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -114,7 +114,7 @@ func (init *LocalProjectInitOperation) Exec(props *api_operation.Properties) api
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -187,7 +187,7 @@ func (create *LocalProjectCreateOperation) Exec(props *api_operation.Properties)
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -221,7 +221,7 @@ func (generate *LocalProjectGenerateOperation) Properties() api_operation.Proper
 	props := api_operation.Properties{}
 
 	//generate.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
-	generate.properties.Merge(*generate.BaseBytesourceFilesettingsOperation.Properties())
+	props.Merge(generate.BaseBytesourceFilesettingsOperation.Properties())
 
 	bytesourceFilesettings := generate.BaseBytesourceFilesettingsOperation.Properties()
 	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
@@ -282,5 +282,5 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

@@ -47,7 +47,7 @@ func (handler *LocalHandler_Security) Init() api_operation.Result {
 
 	handler.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Make ConfigWrapper

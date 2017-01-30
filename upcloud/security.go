@@ -1,6 +1,8 @@
 package upcloud
 
 import (
+	"errors"
+
 	log "github.com/Sirupsen/logrus"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
@@ -28,7 +30,7 @@ func (security *UpcloudSecurityHandler) Init() api_operation.Result {
 	ops.Add(api_operation.Operation(&UpcloudSecurityUserOperation{BaseUpcloudServiceOperation: *baseOperation}))
 	security.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
@@ -83,12 +85,12 @@ func (securityUser *UpcloudSecurityUserOperation) Exec(props *api_operation.Prop
 		log.WithFields(log.Fields{"username": account.UserName, "credits": account.Credits}).Info("Current UpCloud Account")
 		result.MarkSuccess()
 	} else {
-		log.WithError(err).Error("Could not retrieve UpCloud account information.")
-		log.AddError(err)
-		log.MarkFailed()
+		result.AddError(err)
+		result.AddError(errors.New("Could not retrieve UpCloud account information."))
+		result.MarkFailed()
 	}
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

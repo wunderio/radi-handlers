@@ -45,7 +45,7 @@ func (server *UpcloudServerHandler) Init() api_operation.Result {
 
 	server.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
@@ -135,7 +135,7 @@ func (create *UpcloudServerCreateOperation) Exec(props *api_operation.Properties
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Apply firewall rules to a running server
@@ -219,7 +219,7 @@ func (applyFirewall *UpcloudServerApplyFirewallRulesOperation) Exec(props *api_o
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Apply firewall rules to a running server
@@ -271,7 +271,7 @@ func (applyBackup *UpcloudStorageApplyBackupRulesOperation) Exec(props *api_oper
 
 	// properties := applyBackup.Properties()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Delete a server operation
@@ -366,7 +366,9 @@ func (delete *UpcloudServerDeleteOperation) Exec(props *api_operation.Properties
 			details, err := service.GetServerDetails(&upcloud_request.GetServerDetailsRequest{UUID: uuid})
 
 			if err != nil {
-				result.Set(false, []error{err, errors.New("Server not found, so cannot be deleted.")})
+				result.AddError(err)
+				result.AddError(errors.New("Server not found, so cannot be deleted."))
+				result.MarkFailed()
 				continue
 			}
 
@@ -425,7 +427,7 @@ func (delete *UpcloudServerDeleteOperation) Exec(props *api_operation.Properties
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Provision up operation
@@ -544,5 +546,5 @@ func (stop *UpcloudServerStopOperation) Exec(props *api_operation.Properties) ap
 		log.Info("No servers requested.  You should have passed a server UUID") // @TODO remove this when we are tagging servers
 	}
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

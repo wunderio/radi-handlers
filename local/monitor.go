@@ -31,5 +31,5 @@ func (handler *LocalHandler_Monitor) Init() api_operation.Result {
 
 	handler.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

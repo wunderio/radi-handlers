@@ -31,7 +31,7 @@ func (monitor *UpcloudMonitorHandler) Init() api_operation.Result {
 	ops.Add(api_operation.Operation(&UpcloudMonitorListStoragesOperation{BaseUpcloudServiceOperation: *baseOperation}))
 	monitor.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
@@ -134,7 +134,7 @@ func (listZones *UpcloudMonitorListZonesOperation) Exec(props *api_operation.Pro
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -189,8 +189,6 @@ func (listServers *UpcloudMonitorListServersOperation) Exec(props *api_operation
 
 	projectUUIDs := []string{}
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.New_StandardResult()
-
 		serverDefinition, _ := serverDefinitions.Get(id)
 
 		if serverDefinition.IsCreated() {
@@ -264,7 +262,7 @@ func (listServers *UpcloudMonitorListServersOperation) Exec(props *api_operation
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -319,9 +317,6 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec(props *api_operat
 
 	projectUUIDs := []string{}
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.StandardResult{}
-		serverResult.Set(true, []error{})
-
 		serverDefinition, _ := serverDefinitions.Get(id)
 
 		if serverDefinition.IsCreated() {
@@ -392,7 +387,7 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec(props *api_operat
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -455,10 +450,11 @@ func (listPlans *UpcloudMonitorListPlansOperation) Exec(props *api_operation.Pro
 		}
 
 	} else {
-		result.Set(false, []error{err})
+		result.AddError(err)
+		result.MarkFailed()
 	}
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -564,5 +560,5 @@ func (listStorages *UpcloudMonitorListStoragesOperation) Exec(props *api_operati
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

@@ -40,7 +40,7 @@ func (down *RancherOrchestrateDownOperation) Exec(props *api_operation.Propertie
 
 	result.AddError(errors.New("RANCHER DOWN OPERATION NOT YET WRITTEN"))
 	result.MarkFailed()
-	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+	return api_operation.Result(result)
 }

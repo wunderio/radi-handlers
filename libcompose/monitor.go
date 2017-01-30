@@ -72,7 +72,8 @@ func (logs *LibcomposeMonitorLogsOperation) Exec(props *api_operation.Properties
 	if followProp, found := props.Get(OPERATION_PROPERTY_LIBCOMPOSE_DETACH); found {
 		follow = !followProp.Get().(bool)
 	} else {
-		result.Set(true, []error{errors.New("Libcompose logs operation is missing the detach property")})
+		result.AddError(errors.New("Libcompose logs operation is missing the detach property"))
+		result.MarkFailed()
 	}
 
 	// output handling test
@@ -83,14 +84,14 @@ func (logs *LibcomposeMonitorLogsOperation) Exec(props *api_operation.Properties
 	if result.Success() {
 		if err := project.APIProject.Log(netContext, follow); err != nil {
 			result.MarkFailed()
-			result.AddErrors(err)
+			result.AddError(err)
 			result.AddError(errors.New("Could not attach to the project for logs"))
 		}
 	}
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // LibCompose based ps orchestrate operation
@@ -164,5 +165,5 @@ func (ps *LibcomposeOrchestratePsOperation) Exec(props *api_operation.Properties
 		}
 	}
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

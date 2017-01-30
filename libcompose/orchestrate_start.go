@@ -3,7 +3,6 @@ package libcompose
 import (
 	"errors"
 
-	// log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
@@ -14,13 +13,10 @@ import (
 type BaseLibcomposeOrchestrateStartParametrizedOperation struct{}
 
 // Provide static Properties for the operation
-func (base *BaseLibcomposeOrchestrateStartParametrizedOperation) Properties() *api_operation.Properties {
-	if base.properties == nil {
-		newProperties := &api_operation.Properties{}
+func (base *BaseLibcomposeOrchestrateStartParametrizedOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		base.properties = newProperties
-	}
-	return base.properties
+	return props
 }
 
 // LibCompose based start orchestrate operation
@@ -60,7 +56,8 @@ func (start *LibcomposeOrchestrateStartOperation) Exec(props *api_operation.Prop
 	if netContextProp, found := props.Get(OPERATION_PROPERTY_LIBCOMPOSE_CONTEXT); found {
 		netContext = netContextProp.Get().(context.Context)
 	} else {
-		result.Set(false, []error{errors.New("Libcompose start operation is missing the context property")})
+		result.AddError(errors.New("Libcompose start operation is missing the context property"))
+		result.MarkFailed()
 	}
 
 	if result.Success() {
@@ -74,5 +71,5 @@ func (start *LibcomposeOrchestrateStartOperation) Exec(props *api_operation.Prop
 
 	result.MarkFinished()
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }

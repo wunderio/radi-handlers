@@ -1,7 +1,6 @@
 package libcompose
 
 import (
-	"errors"
 	"io"
 
 	"golang.org/x/net/context"
@@ -26,9 +25,8 @@ type BaseLibcomposeHandler struct {
 
 // Constructor for BaseLibcomposeHandler
 func New_BaseLibcomposeHandler(projectName string, dockerComposeFiles []string, runContext context.Context, outputWriter io.Writer, errorWriter io.Writer, filesettings handlers_bytesource.BytesourceFileSettings) *BaseLibcomposeHandler {
-	baseLibcomposeOp, _ := New_BaseLibcomposeNameFilesOperation(projectName, dockerComposeFiles, runContext, outputWriter, errorWriter, filesettings)
-	base := &BaseLibcomposeHandler{LibComposeBaseOp: &baseLibcomposeOp}
-	return base
+	baseLibcomposeOp := New_BaseLibcomposeNameFilesOperation(projectName, dockerComposeFiles, runContext, outputWriter, errorWriter, filesettings)
+	return &BaseLibcomposeHandler{LibComposeBaseOp: baseLibcomposeOp}
 }
 
 /**
@@ -52,21 +50,21 @@ func New_BaseLibcomposeNameFilesOperation(projectName string, dockerComposeFiles
 		dockerComposeFiles: dockerComposeFiles,
 		runContext:         runContext,
 		outputWriter:       outputWriter,
-		fileSettings:       fileSettings,
+		filesettings:       filesettings,
 	}
 }
 
 // Provide static Properties for the operation - set values from the default
 func (base *BaseLibcomposeNameFilesOperation) Properties() api_operation.Properties {
-	props := &api_operation.Properties{}
+	props := api_operation.Properties{}
 
 	projectName := LibcomposeProjectnameProperty{}
 	projectName.Set(base.projectName)
 	props.Add(api_operation.Property(&projectName))
 
-	fileSettings := handlers_bytesource.BytesourceFilesettingsProperty{}
-	fileSettings.Set(base.fileSettings)
-	props.Add(api_operation.Property(&fileSettings))
+	filesettings := handlers_bytesource.BytesourceFilesettingsProperty{}
+	filesettings.Set(base.filesettings)
+	props.Add(api_operation.Property(&filesettings))
 
 	composeFiles := LibcomposeComposefilesProperty{}
 	composeFiles.Set(base.dockerComposeFiles)
