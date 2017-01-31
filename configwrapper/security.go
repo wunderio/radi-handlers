@@ -20,6 +20,7 @@ const (
 type SecurityConfigWrapper interface {
 	AuthorizeOperation(api_operation.Operation) api_security.RuleResult
 	CurrentUser() api_security.SecurityUser
+	// AuthenticateUser()
 }
 
 /**

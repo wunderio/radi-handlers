@@ -91,9 +91,12 @@ func (logs *LibcomposeMonitorLogsOperation) Exec(props *api_operation.Properties
 
 	result.MarkFinished()
 
+<<<<<<< HEAD
 	return api_operation.Result(result)
 }
 
+=======
+>>>>>>> origin/master
 // LibCompose based ps orchestrate operation
 type LibcomposeOrchestratePsOperation struct {
 	BaseLibcomposeNameFilesOperation

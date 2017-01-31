@@ -81,6 +81,7 @@ func (listEnvironments *RancherMonitorListEnvironmentsOperation) Exec(props *api
 	// }
 
 	log.WithFields(log.Fields{"client": client}).Info("RancherClient")
+
 	result.MarkSuccess()
 
 	result.MarkFinished()
