@@ -50,6 +50,7 @@ func New_BaseLibcomposeNameFilesOperation(projectName string, dockerComposeFiles
 		dockerComposeFiles: dockerComposeFiles,
 		runContext:         runContext,
 		outputWriter:       outputWriter,
+		errorWriter:        errorWriter,
 		filesettings:       filesettings,
 	}
 }
