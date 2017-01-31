@@ -33,8 +33,7 @@ func (handler *LocalHandler_Security) Id() string {
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
 func (handler *LocalHandler_Security) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, nil)
+	result := api_operation.New_StandardResult()
 
 	ops := api_operation.Operations{}
 
@@ -48,7 +47,7 @@ func (handler *LocalHandler_Security) Init() api_operation.Result {
 
 	handler.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Make ConfigWrapper

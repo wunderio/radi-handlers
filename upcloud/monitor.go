@@ -19,8 +19,7 @@ type UpcloudMonitorHandler struct {
 
 // Initialize and activate the Handler
 func (monitor *UpcloudMonitorHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	baseOperation := monitor.BaseUpcloudServiceOperation()
 
@@ -32,7 +31,7 @@ func (monitor *UpcloudMonitorHandler) Init() api_operation.Result {
 	ops.Add(api_operation.Operation(&UpcloudMonitorListStoragesOperation{BaseUpcloudServiceOperation: *baseOperation}))
 	monitor.operations = &ops
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)
@@ -49,7 +48,6 @@ func (monitor *UpcloudMonitorHandler) Id() string {
  */
 type UpcloudMonitorListZonesOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -78,34 +76,29 @@ func (listZones *UpcloudMonitorListZonesOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (listZones *UpcloudMonitorListZonesOperation) Properties() *api_operation.Properties {
-	if listZones.properties == nil {
-		props := api_operation.Properties{}
+func (listZones *UpcloudMonitorListZonesOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudZoneIdProperty{}))
+	props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	props.Add(api_operation.Property(&UpcloudZoneIdProperty{}))
 
-		listZones.properties = &props
-	}
-	return listZones.properties
+	return props
 }
 
 // Execute the Operation
-func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (listZones *UpcloudMonitorListZonesOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := listZones.ServiceWrapper()
 	// settings := listZones.BuilderSettings()
 
 	global := false
-	properties := listZones.Properties()
-	if globalProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
+	if globalProp, found := props.Get(UPCLOUD_GLOBAL_PROPERTY); found {
 		global = globalProp.Get().(bool)
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("Filter: global")
 	}
 	idMatch := []string{}
-	if idProp, found := properties.Get(UPCLOUD_ZONE_ID_PROPERTY); found {
+	if idProp, found := props.Get(UPCLOUD_ZONE_ID_PROPERTY); found {
 		ids := idProp.Get().([]string)
 		idMatch = append(idMatch, ids...)
 		log.WithFields(log.Fields{"key": UPCLOUD_ZONE_ID_PROPERTY, "prop": idProp, "value": idMatch}).Debug("Filter: zone id")
@@ -131,11 +124,17 @@ func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
 				log.WithFields(log.Fields{"index": index, "id": zone.Id, "description": zone.Description}).Info("UpCloud zone")
 			}
 		}
+
+		result.MarkSuccess()
 	} else {
-		result.Set(false, []error{err, errors.New("Could not retrieve UpCloud zones information.")})
+		result.AddError(err)
+		result.AddError(errors.New("Could not retrieve UpCloud zones information."))
+		result.MarkFailed()
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }
 
 /**
@@ -143,7 +142,6 @@ func (listZones *UpcloudMonitorListZonesOperation) Exec() api_operation.Result {
  */
 type UpcloudMonitorListServersOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -172,22 +170,18 @@ func (listServers *UpcloudMonitorListServersOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (listServers *UpcloudMonitorListServersOperation) Properties() *api_operation.Properties {
-	if listServers.properties == nil {
-		props := api_operation.Properties{}
+func (listServers *UpcloudMonitorListServersOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
+	props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
 
-		listServers.properties = &props
-	}
-	return listServers.properties
+	return props
 }
 
 // Execute the Operation
-func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (listServers *UpcloudMonitorListServersOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := listServers.ServiceWrapper()
 	settings := listServers.BuilderSettings()
@@ -195,9 +189,6 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 
 	projectUUIDs := []string{}
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.BaseResult{}
-		serverResult.Set(true, []error{})
-
 		serverDefinition, _ := serverDefinitions.Get(id)
 
 		if serverDefinition.IsCreated() {
@@ -261,11 +252,17 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
 		} else {
 			log.WithFields(log.Fields{"Filter UUIDs": uuidMatch}).Info("No servers found")
 		}
+
+		result.MarkSuccess()
 	} else {
-		result.Set(false, []error{err, errors.New("Could not retrieve upcloud server list.")})
+		result.AddError(err)
+		result.AddError(errors.New("Could not retrieve upcloud server list."))
+		result.MarkFailed()
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }
 
 /**
@@ -273,7 +270,6 @@ func (listServers *UpcloudMonitorListServersOperation) Exec() api_operation.Resu
  */
 type UpcloudMonitorServerDetailsOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -302,21 +298,18 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (serverDetail *UpcloudMonitorServerDetailsOperation) Properties() *api_operation.Properties {
-	if serverDetail.properties == nil {
-		props := api_operation.Properties{}
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		serverDetail.properties = &props
-	}
-	return serverDetail.properties
+	props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	props.Add(api_operation.Property(&UpcloudServerUUIDSProperty{}))
+
+	return props
 }
 
 // Execute the Operation
-func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := serverDetail.ServiceWrapper()
 	settings := serverDetail.BuilderSettings()
@@ -324,9 +317,6 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 
 	projectUUIDs := []string{}
 	for _, id := range serverDefinitions.Order() {
-		serverResult := api_operation.BaseResult{}
-		serverResult.Set(true, []error{})
-
 		serverDefinition, _ := serverDefinitions.Get(id)
 
 		if serverDefinition.IsCreated() {
@@ -339,13 +329,12 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 	}
 
 	global := false
-	properties := serverDetail.Properties()
-	if globalProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
+	if globalProp, found := props.Get(UPCLOUD_GLOBAL_PROPERTY); found {
 		global = globalProp.Get().(bool)
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("GLOBAL")
 	}
 	uuidMatch := []string{}
-	if uuidProp, found := properties.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
+	if uuidProp, found := props.Get(UPCLOUD_SERVER_UUIDS_PROPERTY); found {
 		for _, newUUID := range uuidProp.Get().([]string) {
 			if global {
 				uuidMatch = append(uuidMatch, newUUID)
@@ -382,19 +371,23 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
 				log.WithFields(log.Fields{"index": count, "UUID": uuid, "tags": details.Tags, "details": details}).Info("Server Details")
 			} else {
 				log.WithError(err).WithFields(log.Fields{"UUID": uuid}).Error("Could not fetch server details.")
-				result.Set(true, []error{err})
+				result.AddError(err)
 			}
 		}
 
 		if count == 0 {
-			result.Set(false, []error{errors.New("No servers were matched.")})
+			result.AddError(errors.New("No servers were matched."))
 		}
 
+		result.MarkSuccess()
 	} else {
-		result.Set(false, []error{errors.New("No servers uuids were passed to monitor server details operation, so no details can be shown.")})
+		result.AddError(errors.New("No servers uuids were passed to monitor server details operation, so no details can be shown."))
+		result.MarkFailed()
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }
 
 /**
@@ -402,7 +395,6 @@ func (serverDetail *UpcloudMonitorServerDetailsOperation) Exec() api_operation.R
  */
 type UpcloudMonitorListPlansOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -431,22 +423,18 @@ func (listPlans *UpcloudMonitorListPlansOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (listPlans *UpcloudMonitorListPlansOperation) Properties() *api_operation.Properties {
-	if listPlans.properties == nil {
-		props := api_operation.Properties{}
+func (listPlans *UpcloudMonitorListPlansOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		// props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		// props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
+	// props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	// props.Add(api_operation.Property(&UpcloudServerUUIDProperty{}))
 
-		listPlans.properties = &props
-	}
-	return listPlans.properties
+	return props
 }
 
 // Execute the Operation
-func (listPlans *UpcloudMonitorListPlansOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (listPlans *UpcloudMonitorListPlansOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := listPlans.ServiceWrapper()
 	//settings := listPlans.BuilderSettings()
@@ -462,10 +450,11 @@ func (listPlans *UpcloudMonitorListPlansOperation) Exec() api_operation.Result {
 		}
 
 	} else {
-		result.Set(false, []error{err})
+		result.AddError(err)
+		result.MarkFailed()
 	}
 
-	return api_operation.Result(&result)
+	return api_operation.Result(result)
 }
 
 /**
@@ -473,7 +462,6 @@ func (listPlans *UpcloudMonitorListPlansOperation) Exec() api_operation.Result {
  */
 type UpcloudMonitorListStoragesOperation struct {
 	BaseUpcloudServiceOperation
-	properties *api_operation.Properties
 }
 
 // Return the string machinename/id of the Operation
@@ -502,34 +490,29 @@ func (listStorages *UpcloudMonitorListStoragesOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (listStorages *UpcloudMonitorListStoragesOperation) Properties() *api_operation.Properties {
-	if listStorages.properties == nil {
-		props := api_operation.Properties{}
+func (listStorages *UpcloudMonitorListStoragesOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
-		props.Add(api_operation.Property(&UpcloudStorageUUIDProperty{}))
+	props.Add(api_operation.Property(&UpcloudGlobalProperty{}))
+	props.Add(api_operation.Property(&UpcloudStorageUUIDProperty{}))
 
-		listStorages.properties = &props
-	}
-	return listStorages.properties
+	return props
 }
 
 // Execute the Operation
-func (listStorages *UpcloudMonitorListStoragesOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (listStorages *UpcloudMonitorListStoragesOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	service := listStorages.ServiceWrapper()
 	settings := listStorages.BuilderSettings()
 
 	global := false
-	properties := listStorages.Properties()
-	if globalProp, found := properties.Get(UPCLOUD_GLOBAL_PROPERTY); found {
+	if globalProp, found := props.Get(UPCLOUD_GLOBAL_PROPERTY); found {
 		global = globalProp.Get().(bool)
 		log.WithFields(log.Fields{"key": UPCLOUD_GLOBAL_PROPERTY, "prop": globalProp, "value": global}).Debug("Filter: Global")
 	}
 	uuidMatch := []string{}
-	if uuidProp, found := properties.Get(UPCLOUD_STORAGE_UUID_PROPERTY); found {
+	if uuidProp, found := props.Get(UPCLOUD_STORAGE_UUID_PROPERTY); found {
 		newUUIDs := uuidProp.Get().([]string)
 		uuidMatch = append(uuidMatch, newUUIDs...)
 		log.WithFields(log.Fields{"key": UPCLOUD_STORAGE_UUID_PROPERTY, "prop": uuidMatch, "value": uuidMatch}).Debug("Filter: Storage UUID")
@@ -568,9 +551,14 @@ func (listStorages *UpcloudMonitorListStoragesOperation) Exec() api_operation.Re
 		} else {
 			log.WithFields(log.Fields{"acces": request.Access, "type": request.Type, "favoriate": request.Favorite}).Info("No storages found")
 		}
+
+		result.MarkSuccess()
 	} else {
-		result.Set(false, []error{err, errors.New("Could not retrieve upcloud storage list.")})
+		result.AddError(errors.New("Could not retrieve upcloud storage list."))
+		result.MarkFailed()
 	}
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }

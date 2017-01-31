@@ -15,8 +15,7 @@ type RancherOrchestrateHandler struct {
 
 // Initialize and activate the Handler
 func (orchestrate *RancherOrchestrateHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	base := New_RancherBaseClientOperation(orchestrate.ConfigSource())
 
@@ -27,7 +26,9 @@ func (orchestrate *RancherOrchestrateHandler) Init() api_operation.Result {
 
 	orchestrate.operations = &ops
 
-	return api_operation.Result(&result)
+	result.MarkSuccess()
+	result.MarkFinished()
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)

@@ -15,8 +15,7 @@ type RancherMonitorHandler struct {
 
 // Initialize and activate the Handler
 func (monitor *RancherMonitorHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	base := New_RancherBaseClientOperation(monitor.ConfigSource())
 
@@ -26,7 +25,9 @@ func (monitor *RancherMonitorHandler) Init() api_operation.Result {
 
 	monitor.operations = &ops
 
-	return api_operation.Result(&result)
+	result.MarkSuccess()
+	result.MarkFinished()
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)

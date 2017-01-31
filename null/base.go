@@ -12,8 +12,8 @@ import (
 type NullNoPropertiesOperation struct{}
 
 // Return operation properties
-func (null *NullNoPropertiesOperation) Properties() *api_operation.Properties {
-	return &api_operation.Properties{}
+func (null *NullNoPropertiesOperation) Properties() api_operation.Properties {
+	return api_operation.Properties{}
 }
 
 // Null base operation which always execs TRUE
@@ -29,8 +29,11 @@ func (alwaystrue *NullAllwaysTrueOperation) Validate() bool {
 // 	return &operation.Configurations{}
 // }
 // Exec the operation
-func (alwaystrue *NullAllwaysTrueOperation) Exec() api_operation.Result {
-	baseResult := api_operation.BaseResult{}
-	baseResult.Set(true, []error{})
-	return api_operation.Result(&baseResult)
+func (alwaystrue *NullAllwaysTrueOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
+
+	result.MarkSuccess()
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }

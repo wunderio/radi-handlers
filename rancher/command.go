@@ -15,8 +15,7 @@ type RancherCommandHandler struct {
 
 // Initialize and activate the Handler
 func (command *RancherCommandHandler) Init() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+	result := api_operation.New_StandardResult()
 
 	ops := api_operation.Operations{}
 
@@ -26,7 +25,9 @@ func (command *RancherCommandHandler) Init() api_operation.Result {
 
 	command.operations = &ops
 
-	return api_operation.Result(&result)
+	result.MarkSuccess()
+	result.MarkFinished()
+	return api_operation.Result(result)
 }
 
 // Rturn a string identifier for the Handler (not functionally needed yet)

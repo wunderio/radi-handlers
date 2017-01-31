@@ -28,20 +28,19 @@ func (down *RancherOrchestrateDownOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (down *RancherOrchestrateDownOperation) Properties() *api_operation.Properties {
-	if down.properties == nil {
-		props := api_operation.Properties{}
-		down.properties = &props
-	}
-	return down.properties
+func (down *RancherOrchestrateDownOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
+
+	return props
 }
 
 // Execute the operation
-func (down *RancherOrchestrateDownOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (down *RancherOrchestrateDownOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
-	result.Set(false, []error{errors.New("RANCHER DOWN OPERATION NOT YET WRITTEN")})
+	result.AddError(errors.New("RANCHER DOWN OPERATION NOT YET WRITTEN"))
+	result.MarkFailed()
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+	return api_operation.Result(result)
 }

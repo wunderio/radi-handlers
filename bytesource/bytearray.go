@@ -27,12 +27,12 @@ func (operation *BaseByteArraySourceOperation) FromReader(reader io.Reader) {
 	}
 }
 
-//
+// Output the source to a writer
 func (operation *BaseByteArraySourceOperation) ToWriter(writer io.Writer) {
 	writer.Write(operation.source)
 }
 
-//
+// Input the source from a file
 func (operation *BaseByteArraySourceOperation) FromFile(fileSource *FileByteSource) {
 	reader, err := fileSource.Reader()
 	if err == nil {
@@ -42,7 +42,7 @@ func (operation *BaseByteArraySourceOperation) FromFile(fileSource *FileByteSour
 	}
 }
 
-//
+// Output this source to a file
 func (operation *BaseByteArraySourceOperation) ToFile(fileSource *FileByteSource) {
 	writer, err := fileSource.Writer()
 	if err == nil {

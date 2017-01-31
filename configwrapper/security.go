@@ -54,8 +54,6 @@ func (base *SecurityWrapperBaseOperation) SecurityConfigWrapper() SecurityConfig
 type SecurityConfigWrapperUserOperation struct {
 	SecurityWrapperBaseOperation
 	api_security.BaseSecurityUserOperation
-
-	properties *api_operation.Properties
 }
 
 // Run a validation check on the Operation
@@ -64,34 +62,32 @@ func (userOp *SecurityConfigWrapperUserOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (userOp *SecurityConfigWrapperUserOperation) Properties() *api_operation.Properties {
-	if userOp.properties == nil {
-		ops := api_operation.Properties{}
+func (userOp *SecurityConfigWrapperUserOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		ops.Add(api_operation.Property(&api_security.SecurityUserProperty{}))
+	props.Add(api_operation.Property(&api_security.SecurityUserProperty{}))
 
-		userOp.properties = &ops
-	}
-
-	return userOp.properties
+	return props
 }
 
 // Execute the Operation
+//
 // @TODO Better error checking is needed in this exec
-func (userOp *SecurityConfigWrapperUserOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+// @TODO Make this threaded and non-blocking
+func (userOp *SecurityConfigWrapperUserOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	securityWrapper := userOp.SecurityConfigWrapper()
-
-	props := userOp.Properties()
 
 	userProp, _ := props.Get(api_security.SECURITY_USER_PROPERTY_KEY)
 
 	currentUser := securityWrapper.CurrentUser()
 	userProp.Set(currentUser)
+	result.MarkSuccess()
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }
 
 // ConfigWrapper based security Authorize operation
@@ -100,8 +96,6 @@ type SecurityConfigWrapperAuthorizeOperation struct {
 	api_security.BaseSecurityAuthorizeOperation
 
 	targetOperation api_operation.Operation
-
-	properties *api_operation.Properties
 }
 
 // Run a validation check on the Operation
@@ -110,27 +104,20 @@ func (authorize *SecurityConfigWrapperAuthorizeOperation) Validate() bool {
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (authorize *SecurityConfigWrapperAuthorizeOperation) Properties() *api_operation.Properties {
-	if authorize.properties == nil {
-		ops := api_operation.Properties{}
+func (authorize *SecurityConfigWrapperAuthorizeOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		ops.Add(api_operation.Property(&api_security.SecurityUserProperty{}))
-		ops.Add(api_operation.Property(&api_security.SecurityAuthorizationOperationProperty{}))
-		ops.Add(api_operation.Property(&api_security.SecurityAuthorizationRuleResultProperty{}))
-		ops.Add(api_operation.Property(&api_security.SecurityAuthorizationSucceededProperty{}))
+	props.Add(api_operation.Property(&api_security.SecurityUserProperty{}))
+	props.Add(api_operation.Property(&api_security.SecurityAuthorizationOperationProperty{}))
+	props.Add(api_operation.Property(&api_security.SecurityAuthorizationRuleResultProperty{}))
+	props.Add(api_operation.Property(&api_security.SecurityAuthorizationSucceededProperty{}))
 
-		authorize.properties = &ops
-	}
-
-	return authorize.properties
+	return props
 }
 
 // Execute the Operation
-func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
-
-	props := authorize.Properties()
+func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	securityWrapper := authorize.SecurityConfigWrapper()
 
@@ -150,6 +137,9 @@ func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec() api_operation.R
 	propRuleResult.Set(ruleResult)
 	propSuccess, _ := props.Get(api_security.SECURITY_AUTHORIZATION_SUCCEEDED_PROPERTY_KEY)
 	propSuccess.Set(ruleResult.Allow())
+	result.MarkSuccess()
 
-	return api_operation.Result(&result)
+	result.MarkFinished()
+
+	return api_operation.Result(result)
 }

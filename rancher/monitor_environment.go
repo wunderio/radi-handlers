@@ -44,19 +44,15 @@ func (listEnvironments *RancherMonitorListEnvironmentsOperation) Validate() bool
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (listEnvironments *RancherMonitorListEnvironmentsOperation) Properties() *api_operation.Properties {
-	if listEnvironments.properties == nil {
-		props := api_operation.Properties{}
+func (listEnvironments *RancherMonitorListEnvironmentsOperation) Properties() api_operation.Properties {
+	props := api_operation.Properties{}
 
-		listEnvironments.properties = &props
-	}
-	return listEnvironments.properties
+	return props
 }
 
 // Execute the Operation
-func (listEnvironments *RancherMonitorListEnvironmentsOperation) Exec() api_operation.Result {
-	result := api_operation.BaseResult{}
-	result.Set(true, []error{})
+func (listEnvironments *RancherMonitorListEnvironmentsOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
 
 	client := listEnvironments.RancherClient()
 
@@ -86,5 +82,8 @@ func (listEnvironments *RancherMonitorListEnvironmentsOperation) Exec() api_oper
 
 	log.WithFields(log.Fields{"client": client}).Info("RancherClient")
 
-	return api_operation.Result(&result)
+	result.MarkSuccess()
+
+	result.MarkFinished()
+	return api_operation.Result(result)
 }
