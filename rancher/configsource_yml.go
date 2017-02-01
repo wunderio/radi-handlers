@@ -122,7 +122,6 @@ func (settings *RancherSettings_yml) RancherClientSettings() RancherClientSettin
 		Url:       "http://127.0.0.1:8080/v2-beta",
 		AccessKey: "75AAAFB2BCFA7DD83BE2",
 		SecretKey: "XMJM2EgZia7ohYKpyfXPZxdq63C3UJEGe8qBYnt4",
-		Timeout:   0,
 	}
 	log.WithFields(log.Fields{"settings": clientSettings}).Debug("OVERRIDE RANCHER CLIENT SETTINGS WITH SOME MANUAL VALUE")
 	return clientSettings
