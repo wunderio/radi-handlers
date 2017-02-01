@@ -3,7 +3,7 @@ package libcompose
 import (
 	"errors"
 
-	"golang.org/x/net/context"
+	"context"
 
 	libCompose_options "github.com/docker/libcompose/project/options"
 
