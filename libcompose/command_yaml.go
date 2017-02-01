@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"golang.org/x/net/context"
+	"context"
 	"gopkg.in/yaml.v2"
 
 	libCompose_config "github.com/docker/libcompose/config"
@@ -168,9 +168,9 @@ type CommandYmlCommand struct {
 	persistant bool
 	internal   bool
 
-	project       *ComposeProject
-	properties    *api_operation.Properties
-	serviceConfig libCompose_config.ServiceConfig
+	project           *ComposeProject
+	projectProperties *api_operation.Properties
+	serviceConfig     libCompose_config.ServiceConfig
 }
 
 // Yaml UnMarshaller
@@ -205,9 +205,7 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 
 // Turn this CommandYmlCommand into a command.Command
 func (ymlCommand *CommandYmlCommand) Command(projectProps *api_operation.Properties) api_command.Command {
-	// merge the properties, keeping local over project.
-	projectProps.Merge(ymlCommand.Properties())
-	ymlCommand.properties = projectProps
+	ymlCommand.projectProperties = projectProps
 	return api_command.Command(ymlCommand)
 }
 
@@ -278,7 +276,7 @@ func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_o
 	service := ymlCommand.serviceConfig
 
 	// create a libcompose project
-	project, _ := MakeComposeProject(props)
+	project, _ := MakeComposeProject(ymlCommand.projectProperties)
 
 	// allow our app to alter the service, to do some string replacements etc
 	project.AlterService(&service)

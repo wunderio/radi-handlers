@@ -4,7 +4,7 @@ import (
 	"io"
 
 	log "github.com/Sirupsen/logrus"
-	"golang.org/x/net/context"
+	"context"
 
 	libCompose_docker "github.com/docker/libcompose/docker"
 	libCompose_dockerctx "github.com/docker/libcompose/docker/ctx"

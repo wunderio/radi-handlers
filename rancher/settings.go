@@ -1,8 +1,6 @@
 package rancher
 
 import (
-	"time"
-
 	rancher_client "github.com/rancher/go-rancher/client"
 )
 
@@ -16,7 +14,6 @@ type RancherClientSettings struct {
 	Url       string
 	AccessKey string
 	SecretKey string
-	Timeout   time.Duration
 }
 
 // Convert RancherSettings to the rancher library client settings object natively.
@@ -25,7 +22,6 @@ func (settings *RancherClientSettings) rancher_client_ClientOpts() rancher_clien
 		Url:       settings.Url,
 		AccessKey: settings.AccessKey,
 		SecretKey: settings.SecretKey,
-		Timeout:   settings.Timeout,
 	}
 }
 

@@ -3,7 +3,7 @@ package libcompose
 import (
 	"errors"
 
-	"golang.org/x/net/context"
+	"context"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_orchestrate "github.com/wunderkraut/radi-api/operation/orchestrate"

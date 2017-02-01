@@ -3,7 +3,7 @@ package libcompose
 import (
 	"io"
 
-	"golang.org/x/net/context"
+	"context"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"

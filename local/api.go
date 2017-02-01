@@ -1,7 +1,7 @@
 package local
 
 import (
-	"golang.org/x/net/context"
+	"context"
 
 	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )

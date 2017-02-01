@@ -118,7 +118,7 @@ func (contextConf *LibcomposeContextProperty) Label() string {
 
 // Description for the Property
 func (contextConf *LibcomposeContextProperty) Description() string {
-	return "A golang.org/x/net/context for controling execution."
+	return "A context for controling execution."
 }
 
 // Is the Property internal only
