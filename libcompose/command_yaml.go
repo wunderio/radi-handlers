@@ -1,11 +1,11 @@
 package libcompose
 
 import (
+	"context"
 	"errors"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"context"
 	"gopkg.in/yaml.v2"
 
 	libCompose_config "github.com/docker/libcompose/config"
@@ -165,6 +165,7 @@ type CommandYmlCommand struct {
 	label       string
 	description string
 
+	active     bool
 	persistant bool
 	internal   bool
 
@@ -177,13 +178,14 @@ type CommandYmlCommand struct {
 func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	var holder struct {
-		Scope       string
-		Id          string
-		Label       string
-		Description string
+		Scope       string `yaml:"Scope,omitempty"`
+		Id          string `yaml:"Id,omitempty"`
+		Label       string `yaml:"Label,omitempty"`
+		Description string `yaml:"Description,omitempty"`
 
-		Persistant bool
-		Internal   bool
+		Persistant bool `yaml:"Persistant,omitempty"`
+		Internal   bool `yaml:"Internal,omitempty"`
+		Disabled   bool `yaml:"Disabled,omitempty"`
 	}
 	if error := unmarshal(&holder); error == nil {
 		comm.id = holder.Id
@@ -191,6 +193,10 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 		comm.scope = holder.Scope
 		comm.persistant = holder.Persistant
 		comm.internal = holder.Internal
+		if holder.Disabled {
+			comm.active = false
+			comm.internal = true
+		}
 	}
 
 	var serviceHolder libCompose_config.ServiceConfig

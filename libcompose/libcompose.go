@@ -1,10 +1,10 @@
 package libcompose
 
 import (
+	"context"
 	"io"
 
 	log "github.com/Sirupsen/logrus"
-	"context"
 
 	libCompose_docker "github.com/docker/libcompose/docker"
 	libCompose_dockerctx "github.com/docker/libcompose/docker/ctx"
