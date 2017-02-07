@@ -1,12 +1,12 @@
 package libcompose
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"context"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_monitor "github.com/wunderkraut/radi-api/operation/monitor"
