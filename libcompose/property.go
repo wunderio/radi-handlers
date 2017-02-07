@@ -73,7 +73,7 @@ func (name *LibcomposeProjectnameProperty) Description() string {
 
 // Is the Property internal only
 func (name *LibcomposeProjectnameProperty) Internal() bool {
-	return false
+	return true
 }
 
 // YAML file list Property for a docker.libCompose project
@@ -98,7 +98,7 @@ func (files *LibcomposeComposefilesProperty) Description() string {
 
 // Is the Property internal only
 func (files *LibcomposeComposefilesProperty) Internal() bool {
-	return false
+	return true
 }
 
 // A libcompose Property for net context limiting
@@ -123,7 +123,7 @@ func (contextConf *LibcomposeContextProperty) Description() string {
 
 // Is the Property internal only
 func (contextConf *LibcomposeContextProperty) Internal() bool {
-	return false
+	return true
 }
 
 // Output handler Property for a docker.libCompose project
@@ -148,7 +148,7 @@ func (output *LibcomposeOutputProperty) Description() string {
 
 // Is the Property internal only
 func (output *LibcomposeOutputProperty) Internal() bool {
-	return false
+	return true
 }
 
 // Error handler Property for a docker.libCompose project
@@ -173,7 +173,7 @@ func (err *LibcomposeErrorProperty) Description() string {
 
 // Is the Property internal only
 func (err *LibcomposeErrorProperty) Internal() bool {
-	return false
+	return true
 }
 
 /**
