@@ -1,14 +1,9 @@
 package configwrapper
 
 import (
-	// "errors"
-	// "regexp"
-
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
-	// api_operation "github.com/wunderkraut/radi-api/operation"
-	// api_config "github.com/wunderkraut/radi-api/operation/config"
 	api_security "github.com/wunderkraut/radi-api/operation/security"
 )
 
@@ -29,7 +24,7 @@ func (security *SecurityConfigWrapperYml) LoadUser() error {
 		}
 		return nil
 	} else {
-		log.WithError(err).Error("Error loading config for " + CONFIG_KEY_SECURITY_USER)
+		log.WithFields(log.Fields{"config-key": CONFIG_KEY_SECURITY_USER}).WithError(err).Warn("Config wrapper could not load any user definition/configuration")
 		return err
 	}
 }

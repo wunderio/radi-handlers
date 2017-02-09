@@ -1,6 +1,8 @@
 package local
 
 import (
+	log "github.com/Sirupsen/logrus"
+
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 	api_security "github.com/wunderkraut/radi-api/operation/security"
@@ -42,7 +44,7 @@ func (handler *LocalHandler_Security) Init() api_operation.Result {
 	base := handlers_configwrapper.New_SecurityWrapperBaseOperation(securityWrapper)
 
 	// Add operations from using the base
-	ops.Add(api_operation.Operation(&handlers_configwrapper.SecurityConfigWrapperUserOperation{SecurityWrapperBaseOperation: *base}))
+	ops.Add(api_operation.Operation(New_LocalCurrentUserOperation(handler.LocalHandler_Base.settings, base)))
 	ops.Add(api_operation.Operation(&handlers_configwrapper.SecurityConfigWrapperAuthorizeOperation{SecurityWrapperBaseOperation: *base}))
 
 	handler.operations = &ops
@@ -57,10 +59,59 @@ func (handler *LocalHandler_Security) SecurityWrapper() api_security.SecurityWra
 
 /**
  * A local config based CurrentUser operation
+ *
+ * We use this as a wrapper around the SecurityConfigWrapperUserOperation
+ * in order to provide a fallback case for when no user configwrapper source
+ * is available.
  */
 
 // Local Current user
 type LocalCurrentUserOperation struct {
+	handlers_configwrapper.SecurityConfigWrapperUserOperation
 	settings      *LocalAPISettings
 	configWrapper api_config.ConfigWrapper
+}
+
+func New_LocalCurrentUserOperation(settings *LocalAPISettings, base *handlers_configwrapper.SecurityWrapperBaseOperation) *LocalCurrentUserOperation {
+	configWrapperUserOperation := handlers_configwrapper.SecurityConfigWrapperUserOperation{
+		SecurityWrapperBaseOperation: *base,
+	}
+	return &LocalCurrentUserOperation{
+		SecurityConfigWrapperUserOperation: configWrapperUserOperation,
+		settings: settings,
+	}
+}
+
+
+func (userOp *LocalCurrentUserOperation) Exec(props *api_operation.Properties) api_operation.Result {
+	result := api_operation.New_StandardResult()
+	securityWrapper := userOp.SecurityConfigWrapper()
+
+	userProp, _ := props.Get(api_security.SECURITY_USER_PROPERTY_KEY)
+
+	currentUser := securityWrapper.CurrentUser()
+
+	if currentUser == nil || currentUser.Id() == "anonymous" {
+		settings := userOp.settings
+		localUser := &settings.User
+		if localUser != nil {
+			currentUser = api_security.New_CoreUserSecurityUser(localUser).SecurityUser()
+			log.WithFields(log.Fields{"id": currentUser.Id(), "label": currentUser.Label()}).Debug("Retrieved current user from OS user default")
+		} else {
+			log.WithFields(log.Fields{"id": currentUser.Id(), "label": currentUser.Label()}).Debug("Using anonymous user, as no better user was available")
+		}
+	} else {
+		log.WithFields(log.Fields{"id": currentUser.Id(), "label": currentUser.Label()}).Debug("Retrieved current user from config")
+	}
+
+	userProp.Set(currentUser)
+	result.MarkSuccess()
+
+	result.MarkFinished()
+
+	return api_operation.Result(result)
+}
+
+func (userOp *LocalCurrentUserOperation) Internal() bool {
+	return false
 }
