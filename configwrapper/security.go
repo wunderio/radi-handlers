@@ -29,16 +29,16 @@ type SecurityConfigWrapper interface {
  * that are based on using the Wrapper
  */
 
+// SecurityWrapper base operation
+type SecurityWrapperBaseOperation struct {
+	securityConfigWrapper SecurityConfigWrapper
+}
+
 // Constructor for SecurityWrapperBaseOperation
 func New_SecurityWrapperBaseOperation(wrapper SecurityConfigWrapper) *SecurityWrapperBaseOperation {
 	return &SecurityWrapperBaseOperation{
 		securityConfigWrapper: wrapper,
 	}
-}
-
-// SecurityWrapper base operation
-type SecurityWrapperBaseOperation struct {
-	securityConfigWrapper SecurityConfigWrapper
 }
 
 // Get the security wrapper
@@ -73,7 +73,6 @@ func (userOp *SecurityConfigWrapperUserOperation) Properties() api_operation.Pro
 // Execute the Operation
 //
 // @TODO Better error checking is needed in this exec
-// @TODO Make this threaded and non-blocking
 func (userOp *SecurityConfigWrapperUserOperation) Exec(props *api_operation.Properties) api_operation.Result {
 	result := api_operation.New_StandardResult()
 
