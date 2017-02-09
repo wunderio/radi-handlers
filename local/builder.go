@@ -25,13 +25,6 @@ import (
  * the Handlers that are defined in the other files.
  */
 
-// Constructor for LocalBuilder
-func New_LocalBuilder(settings LocalAPISettings) *LocalBuilder {
-	return &LocalBuilder{
-		settings: settings,
-	}
-}
-
 // Provide a handler for building all local operations
 type LocalBuilder struct {
 	settings LocalAPISettings
@@ -47,6 +40,13 @@ type LocalBuilder struct {
 	Setting     api_setting.SettingWrapper
 	Orchestrate api_orchestrate.OrchestrateWrapper
 	Security    api_security.SecurityWrapper
+}
+
+// Constructor for LocalBuilder
+func New_LocalBuilder(settings LocalAPISettings) *LocalBuilder {
+	return &LocalBuilder{
+		settings: settings,
+	}
 }
 
 // IBuilder ID

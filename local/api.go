@@ -2,6 +2,7 @@ package local
 
 import (
 	"context"
+	"os/user"
 
 	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
@@ -10,4 +11,5 @@ import (
 type LocalAPISettings struct {
 	handlers_bytesource.BytesourceFileSettings
 	Context context.Context
+	User user.User
 }
