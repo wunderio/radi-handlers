@@ -19,17 +19,17 @@ import (
 func New_ProjectComponentsConfigWrapperYaml(configWrapper api_config.ConfigWrapper) api_builder.ProjectConfigWrapper {
 	return api_builder.ProjectConfigWrapper(&ProjectComponentsConfigWrapperYaml{
 		configWrapper:   configWrapper,
-		buildComponents: api_builder.ProjectComponents{},
+		projectComponents: api_builder.ProjectComponents{},
 	})
 }
 
 // A ProjectComponentsConfigWRapper, that interprets build config as yml
 type ProjectComponentsConfigWrapperYaml struct {
 	configWrapper   api_config.ConfigWrapper
-	buildComponents api_builder.ProjectComponents
+	projectComponents api_builder.ProjectComponents
 }
 
-func (buildComponents *ProjectComponentsConfigWrapperYaml) DefaultScope() string {
+func (projectComponents *ProjectComponentsConfigWrapperYaml) DefaultScope() string {
 	/**
 	 * @TODO come up with better scopes, but it has to match local conf path keys
 	 * @SEE configconnect/settings_yml.go which has the same issue
@@ -37,40 +37,40 @@ func (buildComponents *ProjectComponentsConfigWrapperYaml) DefaultScope() string
 	return "project"
 }
 
-func (buildComponents *ProjectComponentsConfigWrapperYaml) safe() {
-	if &buildComponents.buildComponents == nil {
-		buildComponents.buildComponents = api_builder.ProjectComponents{}
+func (projectComponents *ProjectComponentsConfigWrapperYaml) safe() {
+	if &projectComponents.projectComponents == nil {
+		projectComponents.projectComponents = api_builder.ProjectComponents{}
 	}
-	if buildComponents.buildComponents.Empty() {
-		if err := buildComponents.Load(); err != nil {
+	if projectComponents.projectComponents.Empty() {
+		if err := projectComponents.Load(); err != nil {
 			log.WithError(err).Error("Could not load build configuration")
 		}
 	}
 }
-func (buildComponents *ProjectComponentsConfigWrapperYaml) Get(key string) (api_builder.ProjectComponent, bool) {
-	buildComponents.safe()
-	builder, found := buildComponents.buildComponents.Get(key)
+func (projectComponents *ProjectComponentsConfigWrapperYaml) Get(key string) (api_builder.ProjectComponent, bool) {
+	projectComponents.safe()
+	builder, found := projectComponents.projectComponents.Get(key)
 	return builder, found == nil
 }
-func (buildComponents *ProjectComponentsConfigWrapperYaml) Set(key string, values api_builder.ProjectComponent) bool {
-	buildComponents.safe()
-	buildComponents.buildComponents.Set(key, values)
-	if err := buildComponents.Save(); err != nil {
+func (projectComponents *ProjectComponentsConfigWrapperYaml) Set(key string, values api_builder.ProjectComponent) bool {
+	projectComponents.safe()
+	projectComponents.projectComponents.Set(key, values)
+	if err := projectComponents.Save(); err != nil {
 		log.WithError(err).Error("Could not save build configuration")
 		return false
 	}
 	return true
 }
-func (buildComponents *ProjectComponentsConfigWrapperYaml) List() []string {
-	buildComponents.safe()
-	return buildComponents.buildComponents.Order()
+func (projectComponents *ProjectComponentsConfigWrapperYaml) List() []string {
+	projectComponents.safe()
+	return projectComponents.projectComponents.Order()
 }
 
 // Retrieve values by parsing bytes from the wrapper
-func (buildComponents *ProjectComponentsConfigWrapperYaml) Load() error {
-	buildComponents.buildComponents = api_builder.ProjectComponents{} // reset stored settings so that we can repopulate it.
+func (projectComponents *ProjectComponentsConfigWrapperYaml) Load() error {
+	projectComponents.projectComponents = api_builder.ProjectComponents{} // reset stored settings so that we can repopulate it.
 
-	if sources, err := buildComponents.configWrapper.Get(CONFIG_KEY_BUILDER); err == nil {
+	if sources, err := projectComponents.configWrapper.Get(CONFIG_KEY_BUILDER); err == nil {
 		for _, scope := range sources.Order() {
 			scopedSource, _ := sources.Get(scope)
 
@@ -79,13 +79,13 @@ func (buildComponents *ProjectComponentsConfigWrapperYaml) Load() error {
 				for index, values := range scopedValues.Components {
 					key := scope + "_" + strconv.Itoa(index) // make a unqique key for this setting
 					log.WithFields(log.Fields{"ymlSettings": values, "key": key}).Debug("Each yml")
-					buildComponents.buildComponents.Set(key, *values.MakeProjectComponent())
+					projectComponents.projectComponents.Set(key, *values.MakeProjectComponent())
 				}
 				break
 			} else {
 				log.WithError(err).WithFields(log.Fields{"scope": scope}).Error("Couldn't marshall yml scope")
 			}
-			log.WithFields(log.Fields{"bytes": string(scopedSource), "values": scopedValues, "settings": buildComponents}).Debug("Project:Config->Load()")
+			log.WithFields(log.Fields{"bytes": string(scopedSource), "values": scopedValues, "settings": projectComponents}).Debug("Project:Config->Load()")
 		}
 		return nil
 	} else {
@@ -95,7 +95,7 @@ func (buildComponents *ProjectComponentsConfigWrapperYaml) Load() error {
 }
 
 // Save the current values to the wrapper
-func (buildComponents *ProjectComponentsConfigWrapperYaml) Save() error {
+func (projectComponents *ProjectComponentsConfigWrapperYaml) Save() error {
 	/**
 	 * @TODO THIS
 	 */
