@@ -13,6 +13,10 @@ import (
 	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
 
+const (
+	LOCAL_PROJECT_GENERATE_SKIP_PROPERTY = "local.project.generate.skip"
+)
+
 /**
  * Local handler for project operations
  */
@@ -220,8 +224,7 @@ func (generate *LocalProjectGenerateOperation) Validate() bool {
 func (generate *LocalProjectGenerateOperation) Properties() api_operation.Properties {
 	props := api_operation.Properties{}
 
-	//generate.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
-	props.Merge(generate.BaseBytesourceFilesettingsOperation.Properties())
+	props.Add(api_operation.Property(&LocalProjectGenerateSkipProperty{}))
 
 	bytesourceFilesettings := generate.BaseBytesourceFilesettingsOperation.Properties()
 	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
@@ -241,10 +244,17 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 
 	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
 
+	skip := []string{}
+	skipProp, _ := props.Get(LOCAL_PROJECT_GENERATE_SKIP_PROPERTY)
+	if skipList, converted := skipProp.Get().([]string); converted {
+		skip = append(skip, skipList...)
+		log.WithFields(log.Fields{"skip": skipList}).Info("Added items to the skip list")
+	}
+
+
 	var method string = "yaml"
 	var writer io.Writer
 
-	skip := []string{}
 
 	if method == "test" {
 		log.WithFields(log.Fields{"root": settings.ProjectRootPath}).Info("Running TEST YML generator")
@@ -259,7 +269,9 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 		log.WithFields(log.Fields{"root": settings.ProjectRootPath, "path": destination}).Info("Running YML generator")
 
 		/** @TODO REMOVE THIS HARDCODED PATH : make skip allow full paths*/
-		skip = append(skip, "radi/init.yml")
+		skip = append(skip, ".radi/init.yml")
+		/** never add a top level git folder */
+		skip = append(skip, ".git")
 
 		if fileWriter, err := destination.Writer(); err != nil {
 			log.WithError(err).Error("Failed to create template file")
@@ -283,4 +295,33 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 	result.MarkFinished()
 
 	return api_operation.Result(result)
+}
+
+/**
+ * Properties
+ */
+
+// Property for generate ignore files
+type LocalProjectGenerateSkipProperty struct {
+	api_operation.StringSliceProperty
+}
+
+// Id for the Property
+func (skip *LocalProjectGenerateSkipProperty) Id() string {
+	return LOCAL_PROJECT_GENERATE_SKIP_PROPERTY
+}
+
+// Label for the Property
+func (skip *LocalProjectGenerateSkipProperty) Label() string {
+	return "Generation skip list"
+}
+
+// Description for the Property
+func (skip *LocalProjectGenerateSkipProperty) Description() string {
+	return "Give a list of relative paths that should be skipped, and not included in the template generation."
+}
+
+// Is the Property internal only
+func (skip *LocalProjectGenerateSkipProperty) Internal() bool {
+	return false
 }

@@ -5,7 +5,7 @@
 [submodule "vendor/github.com/james-nesbitt/init-go"]
 	path = vendor/github.com/james-nesbitt/init-go
 	url = https://github.com/james-nesbitt/init-go.git
-	branch = master
+	branch = 94fcc5d0a408896a653847f7078deac13422c76b
 [submodule "vendor/gopkg.in/yaml.v2"]
 	path = vendor/gopkg.in/yaml.v2
 	url = https://gopkg.in/yaml.v2
