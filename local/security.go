@@ -6,6 +6,9 @@ import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 	api_security "github.com/wunderkraut/radi-api/operation/security"
+	api_property "github.com/wunderkraut/radi-api/property"
+	api_result "github.com/wunderkraut/radi-api/result"
+	api_usage "github.com/wunderkraut/radi-api/usage"
 	handlers_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
 )
 
@@ -34,10 +37,8 @@ func (handler *LocalHandler_Security) Id() string {
 }
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
-func (handler *LocalHandler_Security) Init() api_operation.Result {
-	result := api_operation.New_StandardResult()
-
-	ops := api_operation.Operations{}
+func (handler *LocalHandler_Security) Operations() api_operation.Operations {
+	ops := api_operation.New_SimpleOperations()
 
 	// Make a SecurityWrapper Base operation
 	securityWrapper := handlers_configwrapper.New_SecurityConfigWrapperYml(handler.ConfigWrapper()).SecurityConfigWrapper()
@@ -47,14 +48,12 @@ func (handler *LocalHandler_Security) Init() api_operation.Result {
 	ops.Add(api_operation.Operation(New_LocalCurrentUserOperation(handler.LocalHandler_Base.settings, base)))
 	ops.Add(api_operation.Operation(&handlers_configwrapper.SecurityConfigWrapperAuthorizeOperation{SecurityWrapperBaseOperation: *base}))
 
-	handler.operations = &ops
-
-	return api_operation.Result(result)
+	return ops.Operations()
 }
 
 // Make ConfigWrapper
 func (handler *LocalHandler_Security) SecurityWrapper() api_security.SecurityWrapper {
-	return api_security.New_SimpleSecurityWrapper(handler.operations).SecurityWrapper()
+	return api_security.New_SimpleSecurityWrapper(handler.Operations()).SecurityWrapper()
 }
 
 /**
@@ -82,9 +81,8 @@ func New_LocalCurrentUserOperation(settings *LocalAPISettings, base *handlers_co
 	}
 }
 
-
-func (userOp *LocalCurrentUserOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (userOp *LocalCurrentUserOperation) Exec(props api_property.Properties) api_result.Result {
+	result := api_result.New_StandardResult()
 	securityWrapper := userOp.SecurityConfigWrapper()
 
 	userProp, _ := props.Get(api_security.SECURITY_USER_PROPERTY_KEY)
@@ -109,9 +107,9 @@ func (userOp *LocalCurrentUserOperation) Exec(props *api_operation.Properties) a
 
 	result.MarkFinished()
 
-	return api_operation.Result(result)
+	return api_result.Result(result)
 }
 
-func (userOp *LocalCurrentUserOperation) Internal() bool {
-	return false
+func (userOp *LocalCurrentUserOperation) Usage() api_usage.Usage {
+	return api_operation.Usage_External()
 }

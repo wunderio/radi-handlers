@@ -73,7 +73,7 @@ func (setting *BaseSettingConfigWrapperYmlOperation) Save() error {
 	scopedValues := api_config.ConfigScopedValues{}
 	for scope, values := range configMap {
 		if valuesYml, err := yaml.Marshal(values); err == nil {
-			scopedValues.Add(scope, api_config.ConfigScopedValue(valuesYml))
+			scopedValues.Set(scope, api_config.ConfigScopedValue(valuesYml))
 		} else {
 			return err
 		}

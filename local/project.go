@@ -9,12 +9,19 @@ import (
 	jn_init "github.com/james-nesbitt/init-go"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_property "github.com/wunderkraut/radi-api/property"
+	api_usage "github.com/wunderkraut/radi-api/usage"
+
 	api_project "github.com/wunderkraut/radi-api/operation/project"
+	api_result "github.com/wunderkraut/radi-api/result"
 	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
 
 const (
 	LOCAL_PROJECT_GENERATE_SKIP_PROPERTY = "local.project.generate.skip"
+
+	LOCAL_PROJECT_CREATE_SOURCE_DEFAULT = "https://raw.githubusercontent.com/wunderkraut/radi-handlers/master/local/template/minimal-init.yml"
+	LOCAL_PROJECT_CREATE_SOURCE_DEMO    = "https://raw.githubusercontent.com/wunderkraut/radi-handlers/master/local/template/demo-init.yml"
 )
 
 /**
@@ -32,19 +39,15 @@ func (handler *LocalHandler_Project) Id() string {
 }
 
 // [Handler.]Init tells the LocalHandler_Orchestrate to prepare it's operations
-func (handler *LocalHandler_Project) Init() api_operation.Result {
-	result := api_operation.New_StandardResult()
-
-	ops := api_operation.Operations{}
+func (handler *LocalHandler_Project) Operations() api_operation.Operations {
+	ops := api_operation.New_SimpleOperations()
 
 	// Now we can add project operations that use that Base class
 	ops.Add(api_operation.Operation(&LocalProjectInitOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 	ops.Add(api_operation.Operation(&LocalProjectCreateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 	ops.Add(api_operation.Operation(&LocalProjectGenerateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
 
-	handler.operations = &ops
-
-	return api_operation.Result(result)
+	return ops.Operations()
 }
 
 /**
@@ -69,15 +72,15 @@ func (init *LocalProjectInitOperation) Description() string {
 }
 
 // Validate the operation
-func (init *LocalProjectInitOperation) Validate() bool {
-	return true
+func (init *LocalProjectInitOperation) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // Get properties
-func (init *LocalProjectInitOperation) Properties() api_operation.Properties {
-	props := api_operation.Properties{}
+func (init *LocalProjectInitOperation) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
 
-	props.Add(api_operation.Property(&api_project.ProjectInitDemoModeProperty{}))
+	props.Add(api_property.Property(&api_project.ProjectInitDemoModeProperty{}))
 
 	bytesourceFilesettings := init.BaseBytesourceFilesettingsOperation.Properties()
 	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
@@ -89,17 +92,17 @@ func (init *LocalProjectInitOperation) Properties() api_operation.Properties {
 }
 
 // Execute the local project init operation
-func (init *LocalProjectInitOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (init *LocalProjectInitOperation) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
 	demoModeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_INIT_DEMOMODE)
 	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
 	demoMode := demoModeProp.Get().(bool)
 
-	source := "https://raw.githubusercontent.com/wunderkraut/radi-handlers/master/local/template/minimal-init.yml"
+	source := LOCAL_PROJECT_CREATE_SOURCE_DEFAULT
 	if demoMode {
-		source = "https://raw.githubusercontent.com/wunderkraut/radi-handlers/master/local/template/demo-init.yml"
+		source = LOCAL_PROJECT_CREATE_SOURCE_DEMO
 	}
 
 	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
@@ -109,16 +112,16 @@ func (init *LocalProjectInitOperation) Exec(props *api_operation.Properties) api
 	tasks := jn_init.InitTasks{}
 	tasks.Init(settings.ProjectRootPath)
 	if !tasks.Init_Yaml_Run(source) {
-		result.MarkFailed()
-		result.AddError(errors.New("YML Generator failed"))
+		res.MarkFailed()
+		res.AddError(errors.New("YML Generator failed"))
 	} else {
 		tasks.RunTasks()
-		result.MarkSuccess()
+		res.MarkSuccess()
 	}
 
-	result.MarkFinished()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }
 
 /**
@@ -143,16 +146,16 @@ func (create *LocalProjectCreateOperation) Description() string {
 }
 
 // Validate the operation
-func (create *LocalProjectCreateOperation) Validate() bool {
-	return true
+func (create *LocalProjectCreateOperation) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // Get properties
-func (create *LocalProjectCreateOperation) Properties() api_operation.Properties {
-	props := api_operation.Properties{}
+func (create *LocalProjectCreateOperation) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
 
-	//create.properties.Add(api_operation.Property(&api_project.ProjectCreateTypeProperty{}))
-	props.Add(api_operation.Property(&api_project.ProjectCreateSourceProperty{}))
+	//create.properties.Add(api_property.Property(&api_project.ProjectCreateTypeProperty{}))
+	props.Add(api_property.Property(&api_project.ProjectCreateSourceProperty{}))
 
 	bytesourceFilesettings := create.BaseBytesourceFilesettingsOperation.Properties()
 	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
@@ -164,8 +167,8 @@ func (create *LocalProjectCreateOperation) Properties() api_operation.Properties
 }
 
 // Execute the local project init operation
-func (create *LocalProjectCreateOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (create *LocalProjectCreateOperation) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
 	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
 	sourceProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_SOURCE)
@@ -179,19 +182,19 @@ func (create *LocalProjectCreateOperation) Exec(props *api_operation.Properties)
 	tasks := jn_init.InitTasks{}
 	tasks.Init(settings.ProjectRootPath)
 	if !tasks.Init_Yaml_Run(source) {
-		result.MarkFailed()
-		result.AddError(errors.New("YML Generator failed"))
+		res.MarkFailed()
+		res.AddError(errors.New("YML Generator failed"))
 	} else {
 		tasks.RunTasks()
 
 		// @TODO Get some err from the tasks run ?
 
-		result.MarkSuccess()
+		res.MarkSuccess()
 	}
 
-	result.MarkFinished()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }
 
 /**
@@ -216,15 +219,15 @@ func (generate *LocalProjectGenerateOperation) Description() string {
 }
 
 // Validate the operation
-func (generate *LocalProjectGenerateOperation) Validate() bool {
-	return true
+func (generate *LocalProjectGenerateOperation) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // Get properties
-func (generate *LocalProjectGenerateOperation) Properties() api_operation.Properties {
-	props := api_operation.Properties{}
+func (generate *LocalProjectGenerateOperation) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
 
-	props.Add(api_operation.Property(&LocalProjectGenerateSkipProperty{}))
+	props.Add(api_property.Property(&LocalProjectGenerateSkipProperty{}))
 
 	bytesourceFilesettings := generate.BaseBytesourceFilesettingsOperation.Properties()
 	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
@@ -236,8 +239,8 @@ func (generate *LocalProjectGenerateOperation) Properties() api_operation.Proper
 }
 
 // Execute the local project init operation
-func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (generate *LocalProjectGenerateOperation) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
 	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
 	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
@@ -251,10 +254,8 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 		log.WithFields(log.Fields{"skip": skipList}).Info("Added items to the skip list")
 	}
 
-
 	var method string = "yaml"
 	var writer io.Writer
-
 
 	if method == "test" {
 		log.WithFields(log.Fields{"root": settings.ProjectRootPath}).Info("Running TEST YML generator")
@@ -283,18 +284,18 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 	}
 
 	if settings.ProjectDoesntExist {
-		result.MarkFailed()
-		result.AddError(errors.New("No project root path has been defined, so no project can be generated."))
+		res.MarkFailed()
+		res.AddError(errors.New("No project root path has been defined, so no project can be generated."))
 	} else if !jn_init.Init_Generate(method, settings.ProjectRootPath, skip, 1024*1024, writer) {
-		result.MarkFailed()
-		result.AddError(errors.New("YML Generator failed"))
+		res.MarkFailed()
+		res.AddError(errors.New("YML Generator failed"))
 	} else {
-		result.MarkSuccess()
+		res.MarkSuccess()
 	}
 
-	result.MarkFinished()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }
 
 /**
@@ -303,7 +304,7 @@ func (generate *LocalProjectGenerateOperation) Exec(props *api_operation.Propert
 
 // Property for generate ignore files
 type LocalProjectGenerateSkipProperty struct {
-	api_operation.StringSliceProperty
+	api_property.StringSliceProperty
 }
 
 // Id for the Property
@@ -322,6 +323,6 @@ func (skip *LocalProjectGenerateSkipProperty) Description() string {
 }
 
 // Is the Property internal only
-func (skip *LocalProjectGenerateSkipProperty) Internal() bool {
-	return false
+func (skip *LocalProjectGenerateSkipProperty) Usage() api_usage.Usage {
+	return api_property.Usage_Optional()
 }

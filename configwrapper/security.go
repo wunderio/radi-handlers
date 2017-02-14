@@ -2,6 +2,10 @@ package configwrapper
 
 import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_property "github.com/wunderkraut/radi-api/property"
+	api_result "github.com/wunderkraut/radi-api/result"
+	api_usage "github.com/wunderkraut/radi-api/usage"
+
 	api_security "github.com/wunderkraut/radi-api/operation/security"
 )
 
@@ -57,24 +61,29 @@ type SecurityConfigWrapperUserOperation struct {
 }
 
 // Run a validation check on the Operation
-func (userOp *SecurityConfigWrapperUserOperation) Validate() bool {
-	return true
+func (userOp *SecurityConfigWrapperUserOperation) Usage() api_usage.Usage {
+	return api_operation.Usage_External()
+}
+
+// Run a validation check on the Operation
+func (userOp *SecurityConfigWrapperUserOperation) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (userOp *SecurityConfigWrapperUserOperation) Properties() api_operation.Properties {
-	props := api_operation.Properties{}
+func (userOp *SecurityConfigWrapperUserOperation) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
 
-	props.Add(api_operation.Property(&api_security.SecurityUserProperty{}))
+	props.Add(api_property.Property(&api_security.SecurityUserProperty{}))
 
-	return props
+	return props.Properties()
 }
 
 // Execute the Operation
 //
 // @TODO Better error checking is needed in this exec
-func (userOp *SecurityConfigWrapperUserOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (userOp *SecurityConfigWrapperUserOperation) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
 	securityWrapper := userOp.SecurityConfigWrapper()
 
@@ -82,11 +91,11 @@ func (userOp *SecurityConfigWrapperUserOperation) Exec(props *api_operation.Prop
 
 	currentUser := securityWrapper.CurrentUser()
 	userProp.Set(currentUser)
-	result.MarkSuccess()
 
-	result.MarkFinished()
+	res.MarkSuccess()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }
 
 // ConfigWrapper based security Authorize operation
@@ -98,25 +107,30 @@ type SecurityConfigWrapperAuthorizeOperation struct {
 }
 
 // Run a validation check on the Operation
-func (authorize *SecurityConfigWrapperAuthorizeOperation) Validate() bool {
-	return true
+func (authorize *SecurityConfigWrapperAuthorizeOperation) Usage() api_usage.Usage {
+	return api_operation.Usage_Internal()
+}
+
+// Run a validation check on the Operation
+func (authorize *SecurityConfigWrapperAuthorizeOperation) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // What settings/values does the Operation provide to an implemenentor
-func (authorize *SecurityConfigWrapperAuthorizeOperation) Properties() api_operation.Properties {
-	props := api_operation.Properties{}
+func (authorize *SecurityConfigWrapperAuthorizeOperation) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
 
-	props.Add(api_operation.Property(&api_security.SecurityUserProperty{}))
-	props.Add(api_operation.Property(&api_security.SecurityAuthorizationOperationProperty{}))
-	props.Add(api_operation.Property(&api_security.SecurityAuthorizationRuleResultProperty{}))
-	props.Add(api_operation.Property(&api_security.SecurityAuthorizationSucceededProperty{}))
+	props.Add(api_property.Property(&api_security.SecurityUserProperty{}))
+	props.Add(api_property.Property(&api_security.SecurityAuthorizationOperationProperty{}))
+	props.Add(api_property.Property(&api_security.SecurityAuthorizationRuleResultProperty{}))
+	props.Add(api_property.Property(&api_security.SecurityAuthorizationSucceededProperty{}))
 
-	return props
+	return props.Properties()
 }
 
 // Execute the Operation
-func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
 	securityWrapper := authorize.SecurityConfigWrapper()
 
@@ -136,9 +150,9 @@ func (authorize *SecurityConfigWrapperAuthorizeOperation) Exec(props *api_operat
 	propRuleResult.Set(ruleResult)
 	propSuccess, _ := props.Get(api_security.SECURITY_AUTHORIZATION_SUCCEEDED_PROPERTY_KEY)
 	propSuccess.Set(ruleResult.Allow())
-	result.MarkSuccess()
 
-	result.MarkFinished()
+	res.MarkSuccess()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }

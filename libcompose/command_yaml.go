@@ -12,6 +12,10 @@ import (
 	libCompose_project_options "github.com/docker/libcompose/project/options"
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_property "github.com/wunderkraut/radi-api/property"
+	api_result "github.com/wunderkraut/radi-api/result"
+	api_usage "github.com/wunderkraut/radi-api/usage"
+
 	api_command "github.com/wunderkraut/radi-api/operation/command"
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 )
@@ -33,15 +37,26 @@ type BaseCommandConfigWrapperYmlOperation struct {
 // Load all commands from config
 func (commands *BaseCommandConfigWrapperYmlOperation) load() error {
 	commands.commands = &CommandYmlCommands{} // reset the command list
+
+	log.Info("LOADING COMMANDS FROM CONFIG")
+
 	if sources, err := commands.wrapper.Get(CONFIG_KEY_COMMAND); err == nil {
+
+		log.WithFields(log.Fields{"sources": sources}).Info("LOADING COMMANDS FROM CONFIG SOURCES RETRIEVED")
+
 		for _, scope := range sources.Order() {
+
 			scopedSource, _ := sources.Get(scope)
-			scopedCommands := CommandYmlCommands{} // temporarily hold all commands for a specific scope in this
-			if err := yaml.Unmarshal(scopedSource, &scopedCommands); err == nil {
+
+			log.WithFields(log.Fields{"scope": scope, "source": string(scopedSource)}).Info("LOADING COMMANDS FROM CONFIG EACH")
+
+			scopedConfig := CommandYmlConfig{}
+			if err := yaml.Unmarshal(scopedSource, &scopedConfig); err == nil {
+				scopedCommands := scopedConfig.CommandYmlCommands()
 				commands.commands.Merge(scopedCommands)
 				log.WithFields(log.Fields{"scope": scope, "merged": commands.commands.Order(), "new": scopedCommands.Order()}).Debug("Commands:Config->Load()")
 			} else {
-				log.WithError(err).WithFields(log.Fields{"scope": scope}).Error("Couldn't marshall yml scope")
+				log.WithError(err).WithFields(log.Fields{"scope": scope}).Error("Commands: Couldn't marshall yml scope")
 			}
 		}
 		return nil
@@ -87,6 +102,18 @@ func (commands *BaseCommandConfigWrapperYmlOperation) List(parent string) ([]str
 	return keys, nil
 }
 
+// Complete Config container for data from command config sources
+//  - Currently only holds commands
+type CommandYmlConfig struct {
+	Commands CommandYmlCommands `yaml:"Commands"`
+}
+
+// Return just the yml commands
+func (commConfig *CommandYmlConfig) CommandYmlCommands() CommandYmlCommands {
+	return commConfig.Commands
+}
+
+// YML Struct for Commands
 type CommandYmlCommands struct {
 	comms map[string]*CommandYmlCommand
 	order []string
@@ -164,13 +191,14 @@ type CommandYmlCommand struct {
 
 	label       string
 	description string
+	help        string
 
 	active     bool
 	persistant bool
 	internal   bool
 
 	project           *ComposeProject
-	projectProperties *api_operation.Properties
+	projectProperties api_property.Properties
 	serviceConfig     libCompose_config.ServiceConfig
 }
 
@@ -182,6 +210,7 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 		Id          string `yaml:"Id,omitempty"`
 		Label       string `yaml:"Label,omitempty"`
 		Description string `yaml:"Description,omitempty"`
+		Help        string `yaml:"Man,omitempty"`
 
 		Persistant bool `yaml:"Persistant,omitempty"`
 		Internal   bool `yaml:"Internal,omitempty"`
@@ -210,7 +239,7 @@ func (comm *CommandYmlCommand) UnmarshalYAML(unmarshal func(interface{}) error) 
 }
 
 // Turn this CommandYmlCommand into a command.Command
-func (ymlCommand *CommandYmlCommand) Command(projectProps *api_operation.Properties) api_command.Command {
+func (ymlCommand *CommandYmlCommand) Command(projectProps api_property.Properties) api_command.Command {
 	ymlCommand.projectProperties = projectProps
 	return api_command.Command(ymlCommand)
 }
@@ -229,12 +258,12 @@ func (ymlCommand *CommandYmlCommand) Scope() string {
  * Command interace
  */
 
-func (ymlCommand *CommandYmlCommand) Validate() bool {
-	return true
+func (ymlCommand *CommandYmlCommand) Validate() api_result.Result {
+	return api_result.New_StandardResult()
 }
 
-func (ymlCommand *CommandYmlCommand) Internal() bool {
-	return ymlCommand.internal
+func (ymlCommand *CommandYmlCommand) Usage() api_usage.Usage {
+	return api_operation.Usage_External()
 }
 
 // Return string Id
@@ -252,19 +281,24 @@ func (ymlCommand *CommandYmlCommand) Description() string {
 	return ymlCommand.description
 }
 
-// Return string Description
-func (ymlCommand *CommandYmlCommand) Properties() api_operation.Properties {
-	props := api_operation.Properties{}
-
-	// @TODO find a way to add more dynamic properties
-
-	props.Add(api_operation.Property(&api_command.CommandFlagsProperty{}))
-
-	return props
+// Return string man page
+func (ymlCommand *CommandYmlCommand) Help() string {
+	return ymlCommand.help
 }
 
-func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+// Return string Description
+func (ymlCommand *CommandYmlCommand) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
+
+	// @TODO find a way to add more dynamic properties from YAML
+
+	props.Add(api_property.Property(&api_command.CommandFlagsProperty{}))
+
+	return props.Properties()
+}
+
+func (ymlCommand *CommandYmlCommand) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
 	flags := []string{}
 	if propFlags, found := props.Get(api_command.OPERATION_PROPERTY_COMMAND_FLAGS); found {
@@ -297,8 +331,8 @@ func (ymlCommand *CommandYmlCommand) Exec(props *api_operation.Properties) api_o
 		project.Delete(runContext, deleteOptions, ymlCommand.Id())
 	}
 
-	result.MarkSuccess()
-	result.MarkFinished()
+	res.MarkSuccess()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }

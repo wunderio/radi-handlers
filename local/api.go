@@ -11,5 +11,5 @@ import (
 type LocalAPISettings struct {
 	handlers_bytesource.BytesourceFileSettings
 	Context context.Context
-	User user.User
+	User    user.User
 }

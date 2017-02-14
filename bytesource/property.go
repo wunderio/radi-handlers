@@ -2,6 +2,9 @@ package bytesource
 
 import (
 	log "github.com/Sirupsen/logrus"
+
+	api_property "github.com/wunderkraut/radi-api/property"
+	api_usage "github.com/wunderkraut/radi-api/usage"
 )
 
 const (
@@ -34,8 +37,8 @@ func (filesettings *BytesourceFilesettingsProperty) Description() string {
 }
 
 // Is the Property internal only
-func (filesettings *BytesourceFilesettingsProperty) Internal() bool {
-	return true
+func (filesettings *BytesourceFilesettingsProperty) Usage() api_usage.Usage {
+	return api_property.Usage_Internal()
 }
 
 // Give an idea of what type of value the property consumes

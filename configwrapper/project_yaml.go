@@ -15,18 +15,23 @@ import (
  * Interpreting build config as yml
  */
 
-// Constructor for ProjectComponentsConfigWrapperYaml
-func New_ProjectComponentsConfigWrapperYaml(configWrapper api_config.ConfigWrapper) api_builder.ProjectConfigWrapper {
-	return api_builder.ProjectConfigWrapper(&ProjectComponentsConfigWrapperYaml{
-		configWrapper:   configWrapper,
-		projectComponents: api_builder.ProjectComponents{},
-	})
-}
-
 // A ProjectComponentsConfigWRapper, that interprets build config as yml
 type ProjectComponentsConfigWrapperYaml struct {
-	configWrapper   api_config.ConfigWrapper
-	projectComponents api_builder.ProjectComponents
+	configWrapper api_config.ConfigWrapper
+	components    api_builder.ProjectComponents
+}
+
+// Constructor for ProjectComponentsConfigWrapperYaml
+func New_ProjectComponentsConfigWrapperYaml(configWrapper api_config.ConfigWrapper) *ProjectComponentsConfigWrapperYaml {
+	return &ProjectComponentsConfigWrapperYaml{
+		configWrapper: configWrapper,
+		components:    api_builder.ProjectComponents{},
+	}
+}
+
+// Convert this to a api_builder.ProjectConfigWrapper
+func (projectComponents *ProjectComponentsConfigWrapperYaml) ProjectConfigWrapper() api_builder.ProjectConfigWrapper {
+	return api_builder.ProjectConfigWrapper(projectComponents)
 }
 
 func (projectComponents *ProjectComponentsConfigWrapperYaml) DefaultScope() string {
@@ -38,10 +43,10 @@ func (projectComponents *ProjectComponentsConfigWrapperYaml) DefaultScope() stri
 }
 
 func (projectComponents *ProjectComponentsConfigWrapperYaml) safe() {
-	if &projectComponents.projectComponents == nil {
-		projectComponents.projectComponents = api_builder.ProjectComponents{}
+	if &projectComponents.components == nil {
+		projectComponents.components = api_builder.ProjectComponents{}
 	}
-	if projectComponents.projectComponents.Empty() {
+	if projectComponents.components.Empty() {
 		if err := projectComponents.Load(); err != nil {
 			log.WithError(err).Error("Could not load build configuration")
 		}
@@ -49,12 +54,12 @@ func (projectComponents *ProjectComponentsConfigWrapperYaml) safe() {
 }
 func (projectComponents *ProjectComponentsConfigWrapperYaml) Get(key string) (api_builder.ProjectComponent, bool) {
 	projectComponents.safe()
-	builder, found := projectComponents.projectComponents.Get(key)
+	builder, found := projectComponents.components.Get(key)
 	return builder, found == nil
 }
 func (projectComponents *ProjectComponentsConfigWrapperYaml) Set(key string, values api_builder.ProjectComponent) bool {
 	projectComponents.safe()
-	projectComponents.projectComponents.Set(key, values)
+	projectComponents.components.Set(key, values)
 	if err := projectComponents.Save(); err != nil {
 		log.WithError(err).Error("Could not save build configuration")
 		return false
@@ -63,12 +68,12 @@ func (projectComponents *ProjectComponentsConfigWrapperYaml) Set(key string, val
 }
 func (projectComponents *ProjectComponentsConfigWrapperYaml) List() []string {
 	projectComponents.safe()
-	return projectComponents.projectComponents.Order()
+	return projectComponents.components.Order()
 }
 
 // Retrieve values by parsing bytes from the wrapper
 func (projectComponents *ProjectComponentsConfigWrapperYaml) Load() error {
-	projectComponents.projectComponents = api_builder.ProjectComponents{} // reset stored settings so that we can repopulate it.
+	projectComponents.components = api_builder.ProjectComponents{} // reset stored settings so that we can repopulate it.
 
 	if sources, err := projectComponents.configWrapper.Get(CONFIG_KEY_BUILDER); err == nil {
 		for _, scope := range sources.Order() {
@@ -79,7 +84,7 @@ func (projectComponents *ProjectComponentsConfigWrapperYaml) Load() error {
 				for index, values := range scopedValues.Components {
 					key := scope + "_" + strconv.Itoa(index) // make a unqique key for this setting
 					log.WithFields(log.Fields{"ymlSettings": values, "key": key}).Debug("Each yml")
-					projectComponents.projectComponents.Set(key, *values.MakeProjectComponent())
+					projectComponents.components.Set(key, *values.MakeProjectComponent())
 				}
 				break
 			} else {
@@ -109,8 +114,8 @@ type Yml_ProjectDefintion struct {
 
 // A temporary holder of ProjectComponents, just for yml parsing (probably not needed even)
 type Yml_ProjectComponent struct {
-	Type             string                           `yaml:"Type"`
-	Implementations  []string                         `yaml:"Implementations"`
+	Type             string                             `yaml:"Type"`
+	Implementations  []string                           `yaml:"Implementations"`
 	SettingsProvider Yml_ProjectSettingSettingsProvider `yaml:"Settings"`
 }
 

@@ -48,7 +48,7 @@ type SecurityConfigWrapperAuthorizeYmlHandler struct {
 	order       []string
 }
 
-// Is this bject uninitialized
+// Is this object uninitialized
 func (handler *SecurityConfigWrapperAuthorizeYmlHandler) Empty() bool {
 	return len(handler.order) == 0
 }

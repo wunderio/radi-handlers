@@ -7,6 +7,8 @@ package null
 
 import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_result "github.com/wunderkraut/radi-api/result"
+
 	api_monitor "github.com/wunderkraut/radi-api/operation/monitor"
 )
 
@@ -25,38 +27,37 @@ func (handler *NullHandler) Id() string {
 }
 
 // [Handler.]Init tells the NullHandler to process itself. Return true as Null Handler always validates true
-func (handler *NullHandler) Init() api_operation.Result {
-	result := api_operation.New_StandardResult()
-	return api_operation.Result(result)
+func (handler *NullHandler) Init() api_result.Result {
+	return api_result.New_StandardResult().Result()
 }
 
 // [Handler.]Operations returns an Operations list of a number of different Null operations
-func (handler *NullHandler) Operations() *api_operation.Operations {
-	operations := api_operation.Operations{}
+func (handler *NullHandler) Operations() api_operation.Operations {
+	ops := api_operation.New_SimpleOperations()
 
 	// Add Null config operations
-	operations.Add(api_operation.Operation(&NullConfigReadersOperation{}))
-	operations.Add(api_operation.Operation(&NullConfigWritersOperation{}))
+	ops.Add(api_operation.Operation(&NullConfigReadersOperation{}))
+	ops.Add(api_operation.Operation(&NullConfigWritersOperation{}))
 	// Add Null setting operations
-	operations.Add(api_operation.Operation(&NullSettingGetOperation{}))
-	operations.Add(api_operation.Operation(&NullSettingSetOperation{}))
+	ops.Add(api_operation.Operation(&NullSettingGetOperation{}))
+	ops.Add(api_operation.Operation(&NullSettingSetOperation{}))
 	// Add Null command operations
-	operations.Add(api_operation.Operation(&NullCommandListOperation{}))
-	operations.Add(api_operation.Operation(&NullCommandExecOperation{}))
+	ops.Add(api_operation.Operation(&NullCommandListOperation{}))
+	ops.Add(api_operation.Operation(&NullCommandExecOperation{}))
 	// Add Null documentation operations
-	operations.Add(api_operation.Operation(&NullDocumentTopicListOperation{}))
-	operations.Add(api_operation.Operation(&NullDocumentTopicGetOperation{}))
+	ops.Add(api_operation.Operation(&NullDocumentTopicListOperation{}))
+	ops.Add(api_operation.Operation(&NullDocumentTopicGetOperation{}))
 	// Add null monitor operations
-	operations.Add(api_operation.Operation(&NullMonitorStatusOperation{}))
-	operations.Add(api_operation.Operation(&NullMonitorInfoOperation{}))
-	operations.Add(api_operation.Operation(&api_monitor.MonitorStandardLogOperation{}))
+	ops.Add(api_operation.Operation(&NullMonitorStatusOperation{}))
+	ops.Add(api_operation.Operation(&NullMonitorInfoOperation{}))
+	ops.Add(api_operation.Operation(&api_monitor.MonitorStandardLogOperation{}))
 	// Add Null orchestration operations
-	operations.Add(api_operation.Operation(&NullOrchestrateUpOperation{}))
-	operations.Add(api_operation.Operation(&NullOrchestrateDownOperation{}))
+	ops.Add(api_operation.Operation(&NullOrchestrateUpOperation{}))
+	ops.Add(api_operation.Operation(&NullOrchestrateDownOperation{}))
 	// Add Null security handlers
-	operations.Add(api_operation.Operation(&NullSecurityAuthenticateOperation{}))
-	operations.Add(api_operation.Operation(&NullSecurityAuthorizeOperation{}))
-	operations.Add(api_operation.Operation(&NullSecurityUserOperation{}))
+	ops.Add(api_operation.Operation(&NullSecurityAuthenticateOperation{}))
+	ops.Add(api_operation.Operation(&NullSecurityAuthorizeOperation{}))
+	ops.Add(api_operation.Operation(&NullSecurityUserOperation{}))
 
-	return &operations
+	return ops.Operations()
 }

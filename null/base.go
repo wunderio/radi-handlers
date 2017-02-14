@@ -2,6 +2,9 @@ package null
 
 import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_property "github.com/wunderkraut/radi-api/property"
+	api_result "github.com/wunderkraut/radi-api/result"
+	api_usage "github.com/wunderkraut/radi-api/usage"
 )
 
 /**
@@ -12,28 +15,32 @@ import (
 type NullNoPropertiesOperation struct{}
 
 // Return operation properties
-func (null *NullNoPropertiesOperation) Properties() api_operation.Properties {
-	return api_operation.Properties{}
+func (null *NullNoPropertiesOperation) Properties() api_property.Properties {
+	return api_property.New_SimplePropertiesEmpty().Properties()
+}
+
+// Null base operation which always execs TRUE
+type NullInternalUsageOperation struct{}
+
+// Validate the operation
+func (internal *NullInternalUsageOperation) Usage() api_usage.Usage {
+	return api_operation.Usage_Internal()
 }
 
 // Null base operation which always execs TRUE
 type NullAllwaysTrueOperation struct{}
 
-// Validate the operation
-func (alwaystrue *NullAllwaysTrueOperation) Validate() bool {
-	return true
+// Exec the operation
+func (alwaystrue *NullAllwaysTrueOperation) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
-// return empty Configuraitons
-// func (alwaystrue *NullAllwaysTrueOperation) Configurations() *operation.Configurations {
-// 	return &operation.Configurations{}
-// }
 // Exec the operation
-func (alwaystrue *NullAllwaysTrueOperation) Exec(props *api_operation.Properties) api_operation.Result {
-	result := api_operation.New_StandardResult()
+func (alwaystrue *NullAllwaysTrueOperation) Exec(props api_property.Properties) api_result.Result {
+	res := api_result.New_StandardResult()
 
-	result.MarkSuccess()
-	result.MarkFinished()
+	res.MarkSuccess()
+	res.MarkFinished()
 
-	return api_operation.Result(result)
+	return res.Result()
 }

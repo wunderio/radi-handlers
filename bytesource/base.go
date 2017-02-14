@@ -1,7 +1,7 @@
 package bytesource
 
 import (
-	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_property "github.com/wunderkraut/radi-api/property"
 )
 
 /**
@@ -19,12 +19,13 @@ type BaseBytesourceFilesettingsOperation struct {
 	settings BytesourceFileSettings
 }
 
-func (base *BaseBytesourceFilesettingsOperation) Properties() api_operation.Properties {
+func (base *BaseBytesourceFilesettingsOperation) Properties() api_property.Properties {
+	props := api_property.New_SimplePropertiesEmpty()
+
 	settingsProp := BytesourceFilesettingsProperty{}
 	settingsProp.Set(base.settings)
 
-	props := api_operation.Properties{}
-	props.Add(api_operation.Property(&settingsProp))
+	props.Add(api_property.Property(&settingsProp))
 
-	return props
+	return props.Properties()
 }
