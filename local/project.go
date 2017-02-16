@@ -42,10 +42,12 @@ func (handler *LocalHandler_Project) Id() string {
 func (handler *LocalHandler_Project) Operations() api_operation.Operations {
 	ops := api_operation.New_SimpleOperations()
 
+	byteSourceFileSettings := handler.LocalHandler_Base.LocalAPISettings().BytesourceFileSettings
+
 	// Now we can add project operations that use that Base class
-	ops.Add(api_operation.Operation(&LocalProjectInitOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
-	ops.Add(api_operation.Operation(&LocalProjectCreateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
-	ops.Add(api_operation.Operation(&LocalProjectGenerateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectInitOperation{fileSettings: byteSourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectCreateOperation{fileSettings: byteSourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectGenerateOperation{fileSettings: byteSourceFileSettings}))
 
 	return ops.Operations()
 }

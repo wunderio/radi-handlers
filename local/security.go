@@ -46,7 +46,7 @@ func (handler *LocalHandler_Security) Operations() api_operation.Operations {
 	base := handler_configwrapper.New_SecurityWrapperBaseOperation(securityWrapper)
 
 	// Add operations from using the base
-	ops.Add(api_operation.Operation(New_LocalCurrentUserOperation(handler.LocalHandler_Base.settings, base)))
+	ops.Add(api_operation.Operation(New_LocalCurrentUserOperation(handler.LocalHandler_Base.LocalAPISettings(), base)))
 	ops.Add(api_operation.Operation(&handler_configwrapper.SecurityConfigWrapperAuthorizeOperation{SecurityWrapperBaseOperation: *base}))
 
 	return ops.Operations()
