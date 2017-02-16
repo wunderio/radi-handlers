@@ -38,17 +38,10 @@ type BaseCommandConfigWrapperYmlOperation struct {
 func (commands *BaseCommandConfigWrapperYmlOperation) load() error {
 	commands.commands = &CommandYmlCommands{} // reset the command list
 
-	log.Info("LOADING COMMANDS FROM CONFIG")
-
 	if sources, err := commands.wrapper.Get(CONFIG_KEY_COMMAND); err == nil {
-
-		log.WithFields(log.Fields{"sources": sources}).Info("LOADING COMMANDS FROM CONFIG SOURCES RETRIEVED")
-
 		for _, scope := range sources.Order() {
 
 			scopedSource, _ := sources.Get(scope)
-
-			log.WithFields(log.Fields{"scope": scope, "source": string(scopedSource)}).Info("LOADING COMMANDS FROM CONFIG EACH")
 
 			scopedConfig := CommandYmlConfig{}
 			if err := yaml.Unmarshal(scopedSource, &scopedConfig); err == nil {
