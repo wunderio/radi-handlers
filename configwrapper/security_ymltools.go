@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_property "github.com/wunderkraut/radi-api/property"
 )
 
 // Convert Authorize string to int, invert it if asked to
@@ -27,7 +27,7 @@ func authStringToInt(authValue string, negate bool) int {
 }
 
 // Does a property match some string values
-func authMatchProperty(prop api_operation.Property, propStrings []string) bool {
+func authMatchProperty(prop api_property.Property, propStrings []string) bool {
 	switch prop.Type() {
 	case "bool":
 		if len(propStrings) == 0 {

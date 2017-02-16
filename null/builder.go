@@ -5,6 +5,7 @@ import (
 	api_builder "github.com/wunderkraut/radi-api/builder"
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_monitor "github.com/wunderkraut/radi-api/operation/monitor"
+	api_result "github.com/wunderkraut/radi-api/result"
 )
 
 /**
@@ -12,14 +13,19 @@ import (
  * groups that are activated
  */
 
+// API BUilder that provides many null operations
+type NullBuilder struct {
+	activated []string
+}
+
 // NullBuilder Constructor
 func New_NullBuilder() *NullBuilder {
 	return &NullBuilder{}
 }
 
-// API BUilder that provides many null operations
-type NullBuilder struct {
-	activated []string
+// Rturn a string identifier for the Handler (not functionally needed yet)
+func (builder *NullBuilder) Id() string {
+	return "null"
 }
 
 // Set a API for this Handler
@@ -28,7 +34,7 @@ func (builder *NullBuilder) SetAPI(parent api_api.API) {
 }
 
 // Initialize and activate the Handler
-func (builder *NullBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) error {
+func (builder *NullBuilder) Activate(implementations api_builder.Implementations, settingsProvider api_builder.SettingsProvider) api_result.Result {
 	for _, implementation := range implementations.Order() {
 		found := false
 		for _, existing := range builder.activated {
@@ -42,52 +48,52 @@ func (builder *NullBuilder) Activate(implementations api_builder.Implementations
 		}
 	}
 
-	return nil
+	return api_result.MakeSuccessfulResult()
 }
 
-// Rturn a string identifier for the Handler (not functionally needed yet)
-func (builder *NullBuilder) Id() string {
-	return "null"
+// Validate the builder after Activation is complete
+func (builder *NullBuilder) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // Return a list of Operations from the Handler
-func (builder *NullBuilder) Operations() *api_operation.Operations {
-	operations := api_operation.Operations{}
+func (builder *NullBuilder) Operations() api_operation.Operations {
+	ops := api_operation.New_SimpleOperations()
 
 	for _, activated := range builder.activated {
 		switch activated {
 		case "config":
 			// Add Null config operations
-			operations.Add(api_operation.Operation(&NullConfigReadersOperation{}))
-			operations.Add(api_operation.Operation(&NullConfigWritersOperation{}))
+			ops.Add(api_operation.Operation(&NullConfigReadersOperation{}))
+			ops.Add(api_operation.Operation(&NullConfigWritersOperation{}))
 		case "setting":
 			// Add Null setting operations
-			operations.Add(api_operation.Operation(&NullSettingGetOperation{}))
-			operations.Add(api_operation.Operation(&NullSettingSetOperation{}))
+			ops.Add(api_operation.Operation(&NullSettingGetOperation{}))
+			ops.Add(api_operation.Operation(&NullSettingSetOperation{}))
 		case "command":
 			// Add Null command operations
-			operations.Add(api_operation.Operation(&NullCommandListOperation{}))
-			operations.Add(api_operation.Operation(&NullCommandExecOperation{}))
+			ops.Add(api_operation.Operation(&NullCommandListOperation{}))
+			ops.Add(api_operation.Operation(&NullCommandExecOperation{}))
 		case "document":
 			// Add Null documentation operations
-			operations.Add(api_operation.Operation(&NullDocumentTopicListOperation{}))
-			operations.Add(api_operation.Operation(&NullDocumentTopicGetOperation{}))
+			ops.Add(api_operation.Operation(&NullDocumentTopicListOperation{}))
+			ops.Add(api_operation.Operation(&NullDocumentTopicGetOperation{}))
 		case "monitor":
 			// Add null monitor operations
-			operations.Add(api_operation.Operation(&NullMonitorStatusOperation{}))
-			operations.Add(api_operation.Operation(&NullMonitorInfoOperation{}))
-			operations.Add(api_operation.Operation(&api_monitor.MonitorStandardLogOperation{}))
+			ops.Add(api_operation.Operation(&NullMonitorStatusOperation{}))
+			ops.Add(api_operation.Operation(&NullMonitorInfoOperation{}))
+			ops.Add(api_operation.Operation(&api_monitor.MonitorStandardLogOperation{}))
 		case "orchestrate":
 			// Add Null orchestration operations
-			operations.Add(api_operation.Operation(&NullOrchestrateUpOperation{}))
-			operations.Add(api_operation.Operation(&NullOrchestrateDownOperation{}))
+			ops.Add(api_operation.Operation(&NullOrchestrateUpOperation{}))
+			ops.Add(api_operation.Operation(&NullOrchestrateDownOperation{}))
 		case "security":
 			// Add Null security handlers
-			operations.Add(api_operation.Operation(&NullSecurityAuthenticateOperation{}))
-			operations.Add(api_operation.Operation(&NullSecurityAuthorizeOperation{}))
-			operations.Add(api_operation.Operation(&NullSecurityUserOperation{}))
+			ops.Add(api_operation.Operation(&NullSecurityAuthenticateOperation{}))
+			ops.Add(api_operation.Operation(&NullSecurityAuthorizeOperation{}))
+			ops.Add(api_operation.Operation(&NullSecurityUserOperation{}))
 		}
 	}
 
-	return &operations
+	return ops.Operations()
 }

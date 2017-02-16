@@ -1,9 +1,9 @@
 package local
 
 import (
-	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 	api_setting "github.com/wunderkraut/radi-api/operation/setting"
+	api_result "github.com/wunderkraut/radi-api/result"
 )
 
 /**
@@ -15,20 +15,18 @@ import (
 // Constructor for a localHandlerBase
 func New_LocalHandler_Base(settings *LocalAPISettings) *LocalHandler_Base {
 	return &LocalHandler_Base{
-		settings:   settings,
-		operations: &api_operation.Operations{},
+		settings: settings,
 	}
 }
 
 // A handler for base local handlers
 type LocalHandler_Base struct {
-	settings   *LocalAPISettings
-	operations *api_operation.Operations
+	settings *LocalAPISettings
 }
 
-// Return the stored operatons
-func (base *LocalHandler_Base) Operations() *api_operation.Operations {
-	return base.operations
+// Validate the handler
+func (base *LocalHandler_Base) Validate() api_result.Result {
+	return api_result.MakeSuccessfulResult()
 }
 
 // A handler for base local handlers that use a config source (like a yml file)
