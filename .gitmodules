@@ -10,4 +10,3 @@
 	path = vendor/github.com/Sirupsen/logrus
 	url = https://github.com/sirupsen/logrus.git
 	branch = v0.11.0
-

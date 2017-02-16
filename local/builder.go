@@ -4,20 +4,20 @@ import (
 	"errors"
 	"os"
 	"path"
-	
+
 	log "github.com/Sirupsen/logrus"
 
 	api_api "github.com/wunderkraut/radi-api/api"
 	api_builder "github.com/wunderkraut/radi-api/builder"
 	api_handler "github.com/wunderkraut/radi-api/handler"
 	api_operation "github.com/wunderkraut/radi-api/operation"
+	api_result "github.com/wunderkraut/radi-api/result"
+	
 	api_command "github.com/wunderkraut/radi-api/operation/command"
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 	api_orchestrate "github.com/wunderkraut/radi-api/operation/orchestrate"
 	api_security "github.com/wunderkraut/radi-api/operation/security"
 	api_setting "github.com/wunderkraut/radi-api/operation/setting"
-	api_result "github.com/wunderkraut/radi-api/result"
-	handler_libcompose "github.com/wunderkraut/radi-handlers/libcompose"
 )
 
 /**
