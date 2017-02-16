@@ -47,6 +47,7 @@ type LocalBuilder struct {
 func New_LocalBuilder(settings LocalAPISettings) *LocalBuilder {
 	return &LocalBuilder{
 		settings: settings,
+		handlers: api_handler.New_SimpleHandlers().Handlers(),
 	}
 }
 

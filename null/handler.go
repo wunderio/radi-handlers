@@ -14,8 +14,7 @@ import (
 
 // NullHandler Constructor, doesn't do much preprocessing really
 func NewNullHandler() *NullHandler {
-	nullHandler := NullHandler{}
-	return &nullHandler
+	return &NullHandler{}
 }
 
 // NullHandler is a handler implementation that provides many core operations, but does very little (but is safe to use)
