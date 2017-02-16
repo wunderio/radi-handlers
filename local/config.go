@@ -2,10 +2,9 @@ package local
 
 import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
-
 	api_config "github.com/wunderkraut/radi-api/operation/config"
 
-	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
+	handler_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
 
 // A handler for local config
@@ -23,7 +22,7 @@ func (handler *LocalHandler_Config) Operations() api_operation.Operations {
 	ops := api_operation.New_SimpleOperations()
 
 	// build a ConfigConnector for use with the Config operations.
-	connector := handlers_bytesource.New_ConfigConnectYmlFiles(handler.settings.ConfigPaths)
+	connector := handler_bytesource.New_ConfigConnectYmlFiles(handler.LocalAPISettings().ConfigPaths)
 
 	// Build this base operation to be shared across all of our config operations
 	baseConnectorOperation := api_config.New_BaseConfigConnectorOperation(connector)

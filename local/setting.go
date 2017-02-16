@@ -2,9 +2,9 @@ package local
 
 import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
-
 	api_setting "github.com/wunderkraut/radi-api/operation/setting"
-	handlers_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
+
+	handler_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
 )
 
 // A handler for local settings
@@ -23,12 +23,12 @@ func (handler *LocalHandler_Setting) Operations() api_operation.Operations {
 	ops := api_operation.New_SimpleOperations()
 
 	// Make a wrapper for the Settings Config interpretation, based on itnerpreting YML settings
-	wrapper := handlers_configwrapper.SettingsConfigWrapper(handlers_configwrapper.New_BaseSettingConfigWrapperYmlOperation(handler.ConfigWrapper()))
+	wrapper := handler_configwrapper.SettingsConfigWrapper(handler_configwrapper.New_BaseSettingConfigWrapperYmlOperation(handler.ConfigWrapper()))
 
 	// Now we can add config operations that use that Base class
-	ops.Add(api_operation.Operation(&handlers_configwrapper.SettingConfigWrapperGetOperation{Wrapper: wrapper}))
-	ops.Add(api_operation.Operation(&handlers_configwrapper.SettingConfigWrapperSetOperation{Wrapper: wrapper}))
-	ops.Add(api_operation.Operation(&handlers_configwrapper.SettingConfigWrapperListOperation{Wrapper: wrapper}))
+	ops.Add(api_operation.Operation(&handler_configwrapper.SettingConfigWrapperGetOperation{Wrapper: wrapper}))
+	ops.Add(api_operation.Operation(&handler_configwrapper.SettingConfigWrapperSetOperation{Wrapper: wrapper}))
+	ops.Add(api_operation.Operation(&handler_configwrapper.SettingConfigWrapperListOperation{Wrapper: wrapper}))
 
 	return ops.Operations()
 }

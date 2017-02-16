@@ -10,11 +10,11 @@ import (
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_property "github.com/wunderkraut/radi-api/property"
+	api_result "github.com/wunderkraut/radi-api/result"
 	api_usage "github.com/wunderkraut/radi-api/usage"
 
 	api_project "github.com/wunderkraut/radi-api/operation/project"
-	api_result "github.com/wunderkraut/radi-api/result"
-	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
+	handler_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
 
 const (
@@ -42,10 +42,12 @@ func (handler *LocalHandler_Project) Id() string {
 func (handler *LocalHandler_Project) Operations() api_operation.Operations {
 	ops := api_operation.New_SimpleOperations()
 
+	byteSourceFileSettings := handler.LocalHandler_Base.LocalAPISettings().BytesourceFileSettings
+
 	// Now we can add project operations that use that Base class
-	ops.Add(api_operation.Operation(&LocalProjectInitOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
-	ops.Add(api_operation.Operation(&LocalProjectCreateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
-	ops.Add(api_operation.Operation(&LocalProjectGenerateOperation{fileSettings: handler.LocalHandler_Base.settings.BytesourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectInitOperation{fileSettings: byteSourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectCreateOperation{fileSettings: byteSourceFileSettings}))
+	ops.Add(api_operation.Operation(&LocalProjectGenerateOperation{fileSettings: byteSourceFileSettings}))
 
 	return ops.Operations()
 }
@@ -56,9 +58,9 @@ func (handler *LocalHandler_Project) Operations() api_operation.Operations {
 
 type LocalProjectInitOperation struct {
 	api_project.ProjectInitOperation
-	handlers_bytesource.BaseBytesourceFilesettingsOperation
+	handler_bytesource.BaseBytesourceFilesettingsOperation
 
-	fileSettings handlers_bytesource.BytesourceFileSettings
+	fileSettings handler_bytesource.BytesourceFileSettings
 }
 
 // Id the operation
@@ -83,7 +85,7 @@ func (init *LocalProjectInitOperation) Properties() api_property.Properties {
 	props.Add(api_property.Property(&api_project.ProjectInitDemoModeProperty{}))
 
 	bytesourceFilesettings := init.BaseBytesourceFilesettingsOperation.Properties()
-	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+	if fileSettingsProp, exists := bytesourceFilesettings.Get(handler_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
 		fileSettingsProp.Set(init.fileSettings)
 	}
 	props.Merge(bytesourceFilesettings)
@@ -96,7 +98,7 @@ func (init *LocalProjectInitOperation) Exec(props api_property.Properties) api_r
 	res := api_result.New_StandardResult()
 
 	demoModeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_INIT_DEMOMODE)
-	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	settingsProp, _ := props.Get(handler_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
 	demoMode := demoModeProp.Get().(bool)
 
@@ -105,7 +107,7 @@ func (init *LocalProjectInitOperation) Exec(props api_property.Properties) api_r
 		source = LOCAL_PROJECT_CREATE_SOURCE_DEMO
 	}
 
-	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
+	settings := settingsProp.Get().(handler_bytesource.BytesourceFileSettings)
 
 	log.WithFields(log.Fields{"source": source, "root": settings.ProjectRootPath}).Info("Running YML processer")
 
@@ -130,9 +132,9 @@ func (init *LocalProjectInitOperation) Exec(props api_property.Properties) api_r
 
 type LocalProjectCreateOperation struct {
 	api_project.ProjectCreateOperation
-	handlers_bytesource.BaseBytesourceFilesettingsOperation
+	handler_bytesource.BaseBytesourceFilesettingsOperation
 
-	fileSettings handlers_bytesource.BytesourceFileSettings
+	fileSettings handler_bytesource.BytesourceFileSettings
 }
 
 // Id the operation
@@ -158,7 +160,7 @@ func (create *LocalProjectCreateOperation) Properties() api_property.Properties 
 	props.Add(api_property.Property(&api_project.ProjectCreateSourceProperty{}))
 
 	bytesourceFilesettings := create.BaseBytesourceFilesettingsOperation.Properties()
-	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+	if fileSettingsProp, exists := bytesourceFilesettings.Get(handler_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
 		fileSettingsProp.Set(create.fileSettings)
 	}
 	props.Merge(bytesourceFilesettings)
@@ -172,10 +174,10 @@ func (create *LocalProjectCreateOperation) Exec(props api_property.Properties) a
 
 	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
 	sourceProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_SOURCE)
-	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	settingsProp, _ := props.Get(handler_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
 	source := sourceProp.Get().(string)
-	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
+	settings := settingsProp.Get().(handler_bytesource.BytesourceFileSettings)
 
 	log.WithFields(log.Fields{"source": source, "root": settings.ProjectRootPath}).Info("Running YML processer")
 
@@ -203,9 +205,9 @@ func (create *LocalProjectCreateOperation) Exec(props api_property.Properties) a
 
 type LocalProjectGenerateOperation struct {
 	api_project.ProjectGenerateOperation
-	handlers_bytesource.BaseBytesourceFilesettingsOperation
+	handler_bytesource.BaseBytesourceFilesettingsOperation
 
-	fileSettings handlers_bytesource.BytesourceFileSettings
+	fileSettings handler_bytesource.BytesourceFileSettings
 }
 
 // Id the operation
@@ -230,7 +232,7 @@ func (generate *LocalProjectGenerateOperation) Properties() api_property.Propert
 	props.Add(api_property.Property(&LocalProjectGenerateSkipProperty{}))
 
 	bytesourceFilesettings := generate.BaseBytesourceFilesettingsOperation.Properties()
-	if fileSettingsProp, exists := bytesourceFilesettings.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
+	if fileSettingsProp, exists := bytesourceFilesettings.Get(handler_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS); exists {
 		fileSettingsProp.Set(generate.fileSettings)
 	}
 	props.Merge(bytesourceFilesettings)
@@ -243,9 +245,9 @@ func (generate *LocalProjectGenerateOperation) Exec(props api_property.Propertie
 	res := api_result.New_StandardResult()
 
 	//typeProp, _ := props.Get(api_project.OPERATION_PROPERTY_PROJECT_CREATE_TYPE)
-	settingsProp, _ := props.Get(handlers_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
+	settingsProp, _ := props.Get(handler_bytesource.OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS)
 
-	settings := settingsProp.Get().(handlers_bytesource.BytesourceFileSettings)
+	settings := settingsProp.Get().(handler_bytesource.BytesourceFileSettings)
 
 	skip := []string{}
 	skipProp, _ := props.Get(LOCAL_PROJECT_GENERATE_SKIP_PROPERTY)

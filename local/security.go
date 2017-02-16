@@ -9,7 +9,8 @@ import (
 	api_property "github.com/wunderkraut/radi-api/property"
 	api_result "github.com/wunderkraut/radi-api/result"
 	api_usage "github.com/wunderkraut/radi-api/usage"
-	handlers_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
+
+	handler_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
 )
 
 /**
@@ -41,12 +42,12 @@ func (handler *LocalHandler_Security) Operations() api_operation.Operations {
 	ops := api_operation.New_SimpleOperations()
 
 	// Make a SecurityWrapper Base operation
-	securityWrapper := handlers_configwrapper.New_SecurityConfigWrapperYml(handler.ConfigWrapper()).SecurityConfigWrapper()
-	base := handlers_configwrapper.New_SecurityWrapperBaseOperation(securityWrapper)
+	securityWrapper := handler_configwrapper.New_SecurityConfigWrapperYml(handler.ConfigWrapper()).SecurityConfigWrapper()
+	base := handler_configwrapper.New_SecurityWrapperBaseOperation(securityWrapper)
 
 	// Add operations from using the base
-	ops.Add(api_operation.Operation(New_LocalCurrentUserOperation(handler.LocalHandler_Base.settings, base)))
-	ops.Add(api_operation.Operation(&handlers_configwrapper.SecurityConfigWrapperAuthorizeOperation{SecurityWrapperBaseOperation: *base}))
+	ops.Add(api_operation.Operation(New_LocalCurrentUserOperation(handler.LocalHandler_Base.LocalAPISettings(), base)))
+	ops.Add(api_operation.Operation(&handler_configwrapper.SecurityConfigWrapperAuthorizeOperation{SecurityWrapperBaseOperation: *base}))
 
 	return ops.Operations()
 }
@@ -66,13 +67,13 @@ func (handler *LocalHandler_Security) SecurityWrapper() api_security.SecurityWra
 
 // Local Current user
 type LocalCurrentUserOperation struct {
-	handlers_configwrapper.SecurityConfigWrapperUserOperation
+	handler_configwrapper.SecurityConfigWrapperUserOperation
 	settings      *LocalAPISettings
 	configWrapper api_config.ConfigWrapper
 }
 
-func New_LocalCurrentUserOperation(settings *LocalAPISettings, base *handlers_configwrapper.SecurityWrapperBaseOperation) *LocalCurrentUserOperation {
-	configWrapperUserOperation := handlers_configwrapper.SecurityConfigWrapperUserOperation{
+func New_LocalCurrentUserOperation(settings *LocalAPISettings, base *handler_configwrapper.SecurityWrapperBaseOperation) *LocalCurrentUserOperation {
+	configWrapperUserOperation := handler_configwrapper.SecurityConfigWrapperUserOperation{
 		SecurityWrapperBaseOperation: *base,
 	}
 	return &LocalCurrentUserOperation{

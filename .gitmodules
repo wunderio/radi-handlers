@@ -1,7 +1,3 @@
-[submodule "vendor/github.com/docker/libcompose"]
-	path = vendor/github.com/docker/libcompose
-	url = https://github.com/docker/libcompose.git
-	branch = v0.4.0
 [submodule "vendor/github.com/james-nesbitt/init-go"]
 	path = vendor/github.com/james-nesbitt/init-go
 	url = https://github.com/james-nesbitt/init-go.git
@@ -14,4 +10,3 @@
 	path = vendor/github.com/Sirupsen/logrus
 	url = https://github.com/sirupsen/logrus.git
 	branch = v0.11.0
-

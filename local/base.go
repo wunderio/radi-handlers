@@ -29,6 +29,11 @@ func (base *LocalHandler_Base) Validate() api_result.Result {
 	return api_result.MakeSuccessfulResult()
 }
 
+// An accessor for the local settings
+func (base *LocalHandler_Base) LocalAPISettings() *LocalAPISettings {
+	return base.settings
+}
+
 // A handler for base local handlers that use a config source (like a yml file)
 type LocalHandler_ConfigWrapperBase struct {
 	configWrapper api_config.ConfigWrapper
