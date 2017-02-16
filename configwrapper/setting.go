@@ -5,10 +5,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_property "github.com/wunderkraut/radi-api/property"
 	api_result "github.com/wunderkraut/radi-api/result"
-	api_usage "github.com/wunderkraut/radi-api/usage"
 
 	api_setting "github.com/wunderkraut/radi-api/operation/setting"
 )
@@ -186,10 +184,6 @@ func (get SettingConfigWrapperGetOperation) Validate() api_result.Result {
 	return api_result.MakeSuccessfulResult()
 }
 
-func (get SettingConfigWrapperGetOperation) Usage() api_usage.Usage {
-	return api_operation.Usage_External()
-}
-
 // Execute the operation
 // @TODO Make this non-blocking
 func (get SettingConfigWrapperGetOperation) Exec(props api_property.Properties) api_result.Result {
@@ -266,10 +260,6 @@ func (set SettingConfigWrapperSetOperation) Validate() api_result.Result {
 	return api_result.MakeSuccessfulResult()
 }
 
-func (set SettingConfigWrapperSetOperation) Usage() api_usage.Usage {
-	return api_operation.Usage_External()
-}
-
 // Execute the operation
 func (set SettingConfigWrapperSetOperation) Exec(props api_property.Properties) api_result.Result {
 	res := api_result.New_StandardResult()
@@ -318,10 +308,6 @@ type SettingConfigWrapperListOperation struct {
 // Validate the operation
 func (list SettingConfigWrapperListOperation) Validate() api_result.Result {
 	return api_result.MakeSuccessfulResult()
-}
-
-func (list SettingConfigWrapperListOperation) Usage() api_usage.Usage {
-	return api_operation.Usage_External()
 }
 
 // Execute the operation
