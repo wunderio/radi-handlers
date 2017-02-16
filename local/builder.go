@@ -2,9 +2,10 @@ package local
 
 import (
 	"errors"
-	log "github.com/Sirupsen/logrus"
 	"os"
 	"path"
+	
+	log "github.com/Sirupsen/logrus"
 
 	api_api "github.com/wunderkraut/radi-api/api"
 	api_builder "github.com/wunderkraut/radi-api/builder"
@@ -16,7 +17,7 @@ import (
 	api_security "github.com/wunderkraut/radi-api/operation/security"
 	api_setting "github.com/wunderkraut/radi-api/operation/setting"
 	api_result "github.com/wunderkraut/radi-api/result"
-	handlers_libcompose "github.com/wunderkraut/radi-handlers/libcompose"
+	handler_libcompose "github.com/wunderkraut/radi-handlers/libcompose"
 )
 
 /**
@@ -107,7 +108,7 @@ func (builder *LocalBuilder) base() *LocalHandler_Base {
 }
 
 // Build a Handler base that produces LibCompose projects
-func (builder *LocalBuilder) base_libcompose() *handlers_libcompose.BaseLibcomposeHandler {
+func (builder *LocalBuilder) base_libcompose() *handler_libcompose.BaseLibcomposeHandler {
 	if builder.common_libcompose == nil {
 
 		log.WithFields(log.Fields{"builder.Setting": builder.Setting}).Debug("Building new Base LibCompose")
@@ -136,7 +137,7 @@ func (builder *LocalBuilder) base_libcompose() *handlers_libcompose.BaseLibcompo
 		errorWriter := os.Stderr
 
 		// LibComposeHandlerBase
-		builder.common_libcompose = handlers_libcompose.New_BaseLibcomposeHandler(projectName, dockerComposeFiles, runContext, outputWriter, errorWriter, builder.settings.BytesourceFileSettings)
+		builder.common_libcompose = handler_libcompose.New_BaseLibcomposeHandler(projectName, dockerComposeFiles, runContext, outputWriter, errorWriter, builder.settings.BytesourceFileSettings)
 	}
 
 	return builder.common_libcompose
