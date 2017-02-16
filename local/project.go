@@ -10,10 +10,10 @@ import (
 
 	api_operation "github.com/wunderkraut/radi-api/operation"
 	api_property "github.com/wunderkraut/radi-api/property"
+	api_result "github.com/wunderkraut/radi-api/result"
 	api_usage "github.com/wunderkraut/radi-api/usage"
 
 	api_project "github.com/wunderkraut/radi-api/operation/project"
-	api_result "github.com/wunderkraut/radi-api/result"
 	handlers_bytesource "github.com/wunderkraut/radi-handlers/bytesource"
 )
 

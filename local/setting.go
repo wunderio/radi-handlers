@@ -2,8 +2,8 @@ package local
 
 import (
 	api_operation "github.com/wunderkraut/radi-api/operation"
-
 	api_setting "github.com/wunderkraut/radi-api/operation/setting"
+
 	handlers_configwrapper "github.com/wunderkraut/radi-handlers/configwrapper"
 )
 

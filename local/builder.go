@@ -33,14 +33,11 @@ type LocalBuilder struct {
 	parent   api_api.API
 	handlers api_handler.Handlers
 
-	common_base       *LocalHandler_Base
-	common_libcompose *handlers_libcompose.BaseLibcomposeHandler
+	common_base *LocalHandler_Base
 
-	Command     api_command.CommandWrapper
-	Config      api_config.ConfigWrapper
-	Setting     api_setting.SettingWrapper
-	Orchestrate api_orchestrate.OrchestrateWrapper
-	Security    api_security.SecurityWrapper
+	Config   api_config.ConfigWrapper
+	Setting  api_setting.SettingWrapper
+	Security api_security.SecurityWrapper
 }
 
 // Constructor for LocalBuilder
@@ -71,11 +68,6 @@ func (builder *LocalBuilder) Activate(implementations api_builder.Implementation
 			builder.build_Setting()
 		case "project":
 			builder.build_Project()
-		case "orchestrate":
-			builder.build_Orchestrate()
-			builder.build_Monitor()
-		case "command":
-			builder.build_Command()
 		case "security":
 			builder.build_Security()
 
@@ -208,73 +200,6 @@ func (builder *LocalBuilder) build_Project() api_result.Result {
 		builder.AddHandler(api_handler.Handler(&local_project))
 
 		log.Debug("localBuilder: Built Project Handler")
-	}
-
-	return res
-}
-
-// Add local Handlers for Orchestrate operations
-func (builder *LocalBuilder) build_Orchestrate() api_result.Result {
-	// Build an orchestration handler
-	local_orchestration := LocalHandler_Orchestrate{
-		LocalHandler_Base:     *builder.base(),
-		BaseLibcomposeHandler: *builder.base_libcompose(),
-	}
-	local_orchestration.SetSettingWrapper(builder.Setting)
-
-	res := local_orchestration.Validate()
-	<-res.Finished()
-
-	if res.Success() {
-		builder.AddHandler(api_handler.Handler(&local_orchestration))
-		// Get an orchestrate wrapper for other handlers
-		builder.Orchestrate = local_orchestration.OrchestrateWrapper()
-
-		log.WithFields(log.Fields{"OrchestrateWrapper": builder.Orchestrate}).Debug("localBuilder: Built Orchestrate handler")
-	}
-
-	return res
-}
-
-// Add local Handlers for Orchestrate operations
-func (builder *LocalBuilder) build_Monitor() api_result.Result {
-	// Build an orchestration handler
-	local_monitor := LocalHandler_Monitor{
-		LocalHandler_Base:     *builder.base(),
-		BaseLibcomposeHandler: *builder.base_libcompose(),
-	}
-	local_monitor.SetSettingWrapper(builder.Setting)
-
-	res := local_monitor.Validate()
-	<-res.Finished()
-
-	if res.Success() {
-		builder.AddHandler(api_handler.Handler(&local_monitor))
-
-		log.Debug("localBuilder: Built Monitor handler")
-	}
-
-	return res
-}
-
-// Add local Handlers for Command operations
-func (builder *LocalBuilder) build_Command() api_result.Result {
-	// Build a command Handler
-	local_command := LocalHandler_Command{
-		LocalHandler_Base:     *builder.base(),
-		BaseLibcomposeHandler: *builder.base_libcompose(),
-	}
-	local_command.SetConfigWrapper(builder.Config)
-
-	res := local_command.Validate()
-	<-res.Finished()
-
-	if res.Success() {
-		builder.AddHandler(api_handler.Handler(&local_command))
-		// Get an orchestrate wrapper for other handlers
-		builder.Command = local_command.CommandWrapper()
-
-		log.WithFields(log.Fields{"CommandWrapper": builder.Command}).Debug("localBuilder: Built Command Handler")
 	}
 
 	return res
