@@ -328,3 +328,10 @@ func (skip *LocalProjectGenerateSkipProperty) Description() string {
 func (skip *LocalProjectGenerateSkipProperty) Usage() api_usage.Usage {
 	return api_property.Usage_Optional()
 }
+
+// Copy the property
+func (skip *LocalProjectGenerateSkipProperty) Copy() api_property.Property {
+	prop := &LocalProjectGenerateSkipProperty{}
+	prop.Set(skip.Get())
+	return api_property.Property(prop)
+}
