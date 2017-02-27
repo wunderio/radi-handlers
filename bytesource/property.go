@@ -26,6 +26,11 @@ func (filesettings *BytesourceFilesettingsProperty) Id() string {
 	return OPERATION_PROPERTY_BYTESOURCE_FILESETTINGS
 }
 
+// Give an idea of what type of value the property consumes
+func (filesettings *BytesourceFilesettingsProperty) Type() string {
+	return "handler/bytesource.BytesourceFileSettings"
+}
+
 // Label for the Property
 func (filesettings *BytesourceFilesettingsProperty) Label() string {
 	return "Bytesource file settings"
@@ -41,11 +46,7 @@ func (filesettings *BytesourceFilesettingsProperty) Usage() api_usage.Usage {
 	return api_property.Usage_Internal()
 }
 
-// Give an idea of what type of value the property consumes
-func (filesettings *BytesourceFilesettingsProperty) Type() string {
-	return "handler/bytesource.BytesourceFileSettings"
-}
-
+// Property Accessors
 func (filesettings *BytesourceFilesettingsProperty) Get() interface{} {
 	return interface{}(filesettings.value)
 }
@@ -57,4 +58,11 @@ func (filesettings *BytesourceFilesettingsProperty) Set(value interface{}) bool 
 		log.WithFields(log.Fields{"value": value}).Error("Could not assign Property value, because the passed parameter was the wrong type. Expected bytesource.BytesourceFileSettings")
 		return false
 	}
+}
+
+// Copy the property
+func (filesettings *BytesourceFilesettingsProperty) Copy() api_property.Property {
+	prop := &BytesourceFilesettingsProperty{}
+	prop.Set(filesettings.Get())
+	return api_property.Property(prop)
 }

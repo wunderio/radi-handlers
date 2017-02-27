@@ -43,19 +43,24 @@ func New_LocalBuilder(settings LocalAPISettings) *LocalBuilder {
 	}
 }
 
+// Convert this to a builder
+func (builder *LocalBuilder) Builder() api_builder.Builder {
+	return api_builder.Builder(builder)
+}
+
 // Builder ID
 func (builder *LocalBuilder) Id() string {
 	return "local"
 }
 
-// Builder Settings
-func (builder *LocalBuilder) LocalAPISettings() LocalAPISettings {
-	return builder.settings
-}
-
 // Set the parent API, which may need to build Config and Setting Wrappers
 func (builder *LocalBuilder) SetAPI(parent api_api.API) {
 	builder.parent = parent
+}
+
+// Get the list of operations for the implementations
+func (builder *LocalBuilder) AddHandler(hand api_handler.Handler) {
+	builder.handlers.Add(hand)
 }
 
 // Initialize the handler for certain implementations
@@ -89,9 +94,9 @@ func (builder *LocalBuilder) Operations() api_operation.Operations {
 	return builder.handlers.Operations()
 }
 
-// Get the list of operations for the implementations
-func (builder *LocalBuilder) AddHandler(hand api_handler.Handler) {
-	builder.handlers.Add(hand)
+// Builder Settings
+func (builder *LocalBuilder) LocalAPISettings() LocalAPISettings {
+	return builder.settings
 }
 
 // Create a shareable common base
